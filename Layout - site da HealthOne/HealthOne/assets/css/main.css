@@ -1830,6 +1830,11 @@ section,
 --------------------------------------------------------------*/
 .starter-section {
   /* Add your styles here */
+  display: block !important;
+  visibility: visible !important;
+  padding: 60px 0;
+  background-color: #f8f9fa !important;
+  min-height: 200px;
 }
 
 /*--------------------------------------------------------------
@@ -1855,6 +1860,8 @@ section,
   border-color: #3fbbc0;
   font-weight: bold;
   font-size: 1.1rem;
+  display: inline-block !important;
+  visibility: visible !important;
 }
 
 .starter-page-btn:hover {
