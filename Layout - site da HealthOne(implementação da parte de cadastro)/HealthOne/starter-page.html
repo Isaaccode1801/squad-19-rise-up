@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Página Inicial - Modelo Medicio Bootstrap</title>
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+
+  <!-- Favoritos -->
+  <link href="assets/img/Logo do HealthOne.png" rel="icon">
+  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+
+  <!-- Fontes -->
+  <link href="https://fonts.googleapis.com" rel="preconnect">
+  <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Raleway:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+
+  <!-- Arquivos CSS do fornecedor -->
+  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+  <link href="assets/vendor/aos/aos.css" rel="stylesheet">
+  <link href="assets/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+  <link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+  <link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+
+  <!-- Arquivo CSS principal -->
+  <link href="assets/css/main.css" rel="stylesheet">
+
+  <!-- =======================================================
+  * Nome do modelo: Medicio
+  * URL do modelo: https://bootstrapmade.com/medicio-free-bootstrap-theme/
+  * Atualizado: 07 de agosto de 2024 com Bootstrap v5.3.3
+  * Autor: BootstrapMade.com
+  * Licença: https://bootstrapmade.com/license/
+  ======================================================== -->
+</head>
+
+<body class="starter-page-page">
+
+  <header id="header" class="header sticky-top">
+
+    <div class="topbar d-flex align-items-center">
+      <div class="container d-flex justify-content-center justify-content-md-between">
+        <div class="d-none d-md-flex align-items-center">
+          <i class="bi bi-clock me-1"></i> Segunda - Sábado, 8h às 22h
+        </div>
+        <div class="d-flex align-items-center">
+          <i class="bi bi-phone me-1"></i> Número da empresa
+        </div>
+      </div>
+    </div><!-- End Top Bar -->
+
+    <div class="branding d-flex align-items-center">
+
+      <div class="container position-relative d-flex align-items-center justify-content-end">
+        <a href="index.html" class="logo d-flex align-items-center me-auto">
+          <img src="assets/img/Logo do HealthOne.png" alt="">
+          <!-- Remova o comentário da linha abaixo se também desejar usar um logotipo de texto -->
+          <!-- <h1 class="sitename">Medicio</h1>  -->
+        </a>
+
+        <nav id="navmenu" class="navmenu">
+          <ul>
+            <li><a href="index.html#about">Sobre</a></li>
+            <li><a href="index.html#services">Serviços</a></li>
+            <li><a href="index.html#doctors">Médicos</a></li>
+            <li><a href="index.html#contact">Contato</a></li>
+          </ul>
+          <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+        </nav>
+
+        <a class="cta-btn" href="#" data-bs-toggle="modal" data-bs-target="#appointmentModal">Marcar Consulta</a>
+
+      </div>
+
+    </div>
+
+  </header>
+
+  <main class="main">
+
+    <!-- Page Title -->
+    <div class="page-title">
+      <div class="heading">
+        <div class="container">
+          <div class="row d-flex justify-content-center text-center">
+            <div class="col-lg-8">
+              <div class="text-center mb-4">
+                <img src="assets/img/Logo do HealthOne.png" alt="HealthOne Logo" class="starter-page-logo">
+              </div>
+              <p class="mb-0 starter-page-welcome-text">
+                Bem-vindo ao HealthOne, onde <span class="text-cuidar">CUIDAR</span> de você <span class="text-prioridade">É NOSSA PRIORIDADE!</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <nav class="breadcrumbs">
+        <div class="container">
+          <ol>
+            <li><a href="index.html">Início</a></li>
+            <li class="current">Página Inicial</li>
+          </ol>
+        </div>
+      </nav>
+    </div><!-- End Page Title -->
+
+    <!-- Starter Section Section -->
+    <section id="starter-section" class="starter-section section">
+
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-8 text-center">
+            <div class="d-flex flex-column flex-md-row gap-3 justify-content-center">
+              <a href="#" class="btn btn-primary btn-lg px-5 py-3 starter-page-btn" data-bs-toggle="modal" data-bs-target="#doctorModal">
+                <i class="bi bi-heart-pulse me-2"></i>Sou Médico
+              </a>
+              <a href="#" class="btn btn-primary btn-lg px-5 py-3 starter-page-btn" data-bs-toggle="modal" data-bs-target="#patientModal">
+                <i class="bi bi-heart me-2"></i>Sou Paciente
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section><!-- /Starter Section Section -->
+
+  </main>
+
+  <!-- Modal para Marcar Consulta -->
+  <div class="modal fade" id="appointmentModal" tabindex="-1" aria-labelledby="appointmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="appointmentModalLabel">
+            <i class="bi bi-calendar-check me-2"></i>Marcar Consulta
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+          <p class="mb-4">Você já é paciente do HealthOne?</p>
+          <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
+            <button type="button" class="btn btn-success btn-lg px-4 py-3" onclick="handlePatientChoice('existing')">
+              <i class="bi bi-check-circle me-2"></i>Sim, já sou paciente
+            </button>
+            <button type="button" class="btn btn-primary btn-lg px-4 py-3" onclick="handlePatientChoice('new')">
+              <i class="bi bi-person-plus me-2"></i>Não, sou novo paciente
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para Opções do Paciente -->
+  <div class="modal fade" id="patientModal" tabindex="-1" aria-labelledby="patientModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="patientModalLabel">
+            <i class="bi bi-heart me-2"></i>Bem-vindo ao <span style="color: #0a89e3;">Health</span><span style="color: #49c1c5;">One</span>!
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+          <div class="d-flex flex-column gap-3">
+            <button type="button" class="btn btn-primary btn-lg px-4 py-3" onclick="handlePatientOption('login')">
+              <i class="bi bi-box-arrow-in-right me-2"></i>Fazer Login
+            </button>
+            <button type="button" class="btn btn-success btn-lg px-4 py-3" onclick="handlePatientOption('cadastro')">
+              <i class="bi bi-person-plus me-2"></i>Criar Cadastro
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para Login Médico -->
+  <div class="modal fade" id="doctorModal" tabindex="-1" aria-labelledby="doctorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="doctorModalLabel">
+            <i class="bi bi-heart-pulse me-2"></i>Login Médico
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="doctorLoginForm">
+            <div class="mb-3">
+              <label for="crm" class="form-label">CRM</label>
+              <input type="text" class="form-control" id="crm" name="crm" placeholder="Digite seu CRM" required>
+            </div>
+            <div class="mb-3">
+              <label for="email" class="form-label">E-mail</label>
+              <input type="email" class="form-control" id="email" name="email" placeholder="Digite seu e-mail" required>
+            </div>
+            <div class="mb-3">
+              <label for="senha" class="form-label">Senha</label>
+              <input type="password" class="form-control" id="senha" name="senha" placeholder="Digite sua senha" required>
+            </div>
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary btn-lg">
+                <i class="bi bi-box-arrow-in-right me-2"></i>Login
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scroll Top -->
+  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Preloader -->
+  <div id="preloader"></div>
+
+  <!-- Arquivos JS do fornecedor -->
+  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/vendor/php-email-form/validate.js"></script>
+  <script src="assets/vendor/aos/aos.js"></script>
+  <script src="assets/vendor/glightbox/js/glightbox.min.js"></script>
+
+  <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
+
+  <!-- Arquivo JS principal -->
+  <script src="assets/js/main.js"></script>
+
+  <!-- Script para o modal de consulta -->
+  <script>
+    function handlePatientChoice(choice) {
+      // Fecha o modal
+      const modal = bootstrap.Modal.getInstance(document.getElementById('appointmentModal'));
+      modal.hide();
+      
+      // Aqui você pode adicionar a lógica para cada escolha
+      if (choice === 'existing') {
+        // Lógica para pacientes existentes
+        alert('Redirecionando para área do paciente...');
+        // window.location.href = 'forms/appointment.php'; // ou outra página
+      } else if (choice === 'new') {
+        // Lógica para novos pacientes
+        window.location.href = 'cadastro.html';
+      }
+    }
+
+    function handlePatientOption(option) {
+      // Fecha o modal
+      const modal = bootstrap.Modal.getInstance(document.getElementById('patientModal'));
+      modal.hide();
+      
+      // Redireciona para a página correspondente
+      if (option === 'login') {
+        window.location.href = 'login do paciente.html';
+      } else if (option === 'cadastro') {
+        window.location.href = 'cadastro.html';
+      }
+    }
+
+    // Adiciona evento para o formulário de login médico
+    document.addEventListener('DOMContentLoaded', function() {
+      const doctorLoginForm = document.getElementById('doctorLoginForm');
+      if (doctorLoginForm) {
+        doctorLoginForm.addEventListener('submit', function(event) {
+          event.preventDefault();
+          
+          // Aqui você pode adicionar validação dos dados
+          // Por enquanto, apenas redireciona para a página de laudos
+          window.location.href = 'laudos dos pacientes.html';
+        });
+      }
+    });
+  </script>
+
+</body>
+
+</html>

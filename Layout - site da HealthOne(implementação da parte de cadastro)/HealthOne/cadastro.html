@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cadastro de Paciente • HealthOne</title>
+  <!-- Se tiver um CSS externo, mantenha: -->
+  <link rel="stylesheet" href="style-cadastro.css">
+  <style>
+    /* Cores do tema HealthOne - mesmas da starter-page.html */
+    :root {
+      --accent-color: #3fbbc0;
+      --accent-hover: #65c9cd;
+      --text-cuidar: #4815ff;
+      --text-prioridade: #49c1c5;
+      --primary-color: #3fbbc0;
+      --secondary-color: #f8f9fa;
+      --border-color: #e5e7eb;
+      --text-muted: #64748b;
+      --text-error: #ef4444;
+      --text-dark: #0f172a;
+      --white: #ffffff;
+    }
+    
+    body {
+      background-color: var(--secondary-color);
+      font-family: "Roboto", system-ui, -apple-system, sans-serif;
+    }
+    
+    .muted{color: var(--text-muted)}
+    .error{color: var(--text-error); font-size:12px}
+    .hint{font-size:12px; color: var(--text-muted)}
+    
+    .toast{
+      position:fixed;right:16px;bottom:16px;
+      background:var(--white);border:1px solid var(--border-color);
+      padding:12px 14px;border-radius:10px;
+      box-shadow:0 8px 20px rgba(0,0,0,.12);
+      opacity:0;transform:translateY(10px);transition:.25s;color:var(--text-dark)
+    }
+    .toast.show{opacity:1;transform:translateY(0)}
+    
+    .avatar{
+      width:88px;height:88px;border-radius:12px;
+      border:1px dashed var(--border-color);display:grid;place-items:center;overflow:hidden
+    }
+    .avatar img{width:100%;height:100%;object-fit:cover}
+    
+    .toggle{
+      position:relative;width:50px;height:28px;
+      background:#f1f5f9;border:1px solid var(--border-color);
+      border-radius:999px;cursor:pointer
+    }
+    .toggle::after{
+      content:"";position:absolute;top:3px;left:3px;
+      width:22px;height:22px;border-radius:50%;
+      background:var(--white);transition:.2s
+    }
+    .toggle.active{background:var(--accent-color);border-color:transparent}
+    .toggle.active::after{left:25px}
+    
+    .preview{
+      background:var(--white);border:1px dashed var(--border-color);
+      border-radius:12px;padding:12px;
+      font-family:ui-monospace,monospace;font-size:12px;white-space:pre-wrap
+    }
+    
+    .btn{
+      appearance:none;border:1px solid transparent;
+      background:var(--accent-color);color:var(--white);
+      padding:10px 14px;border-radius:999px;font-weight:700;cursor:pointer;
+      transition: all 0.3s ease;
+    }
+    .btn:hover {
+      background:var(--accent-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(63, 187, 192, 0.3);
+    }
+    .btn.secondary{
+      background:var(--white);border-color:var(--border-color);color:var(--text-dark)
+    }
+    .btn.secondary:hover {
+      background:var(--secondary-color);
+      border-color:var(--accent-color);
+    }
+    
+
+    
+    .section{
+      border:1px solid var(--border-color);border-radius:12px;margin:12px 0;
+      background:var(--white);
+    }
+    .section-header{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:12px 14px;border-bottom:1px solid var(--border-color);
+      background:var(--secondary-color)
+    }
+    
+    .grid{display:grid;gap:12px}
+    .grid-cols-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+    @media (max-width:900px){.grid-cols-4{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media (max-width:640px){.grid-cols-4{grid-template-columns:1fr}}
+    
+    .field{display:flex;flex-direction:column;gap:6px}
+    .field input,.field select,.field textarea{
+      padding:10px 12px;border:1px solid var(--border-color);
+      border-radius:10px;transition: all 0.3s ease;
+    }
+    .field input:focus,.field select:focus,.field textarea:focus{
+      border-color:var(--accent-color);
+      box-shadow: 0 0 0 3px rgba(63, 187, 192, 0.1);
+      outline: none;
+    }
+    
+    .app-header {
+      background: var(--white);
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .app-brand .brand-mark {
+      background: var(--accent-color) !important;
+    }
+    
+    .brand-title {
+      color: var(--text-cuidar);
+      font-weight: 800;
+    }
+    
+    .card {
+      background: var(--white);
+      border: 1px solid var(--border-color);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .card-header {
+      background: var(--secondary-color);
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .card-title {
+      color: var(--text-dark);
+    }
+    
+    .section-title {
+      color: var(--text-cuidar);
+    }
+    
+    .field label {
+      color: var(--text-dark);
+      font-weight: 600;
+    }
+    
+    .field input::placeholder,
+    .field select::placeholder,
+    .field textarea::placeholder {
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <header class="app-header" style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border-color);background:var(--white);position:sticky;top:0;z-index:10">
+    <div class="app-brand" style="display:flex;gap:10px;align-items:center">
+      <div class="brand-mark" style="width:28px;height:28px;border-radius:50%;background:var(--accent-color)"></div>
+      <div>
+        <div class="brand-title" style="font-weight:800">HealthOne</div>
+        <div class="muted" style="font-size:12px">Cadastro de Paciente</div>
+      </div>
+    </div>
+
+  </header>
+
+  <main class="container" style="max-width:1100px;margin:20px auto;padding:0 12px">
+    <div class="card" style="background:#fff;border:1px solid #e5e7eb;border-radius:16px;overflow:hidden">
+      <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;padding:16px 18px;border-bottom:1px solid #e5e7eb;background:#fff">
+        <div class="card-title" style="font-weight:800">Dados do Paciente</div>
+        <div class="card-actions" style="display:flex;gap:10px">
+          <button id="btnCancel" type="button" class="btn secondary">Cancelar</button>
+          <button id="btnSave" type="button" class="btn">Salvar</button>
+        </div>
+      </div>
+
+      <form id="patientForm" novalidate style="padding:16px">
+        <!-- 1. DADOS PESSOAIS -->
+        <section class="section" aria-labelledby="sec-pessoais">
+          <div class="section-header">
+            <div class="section-title" id="sec-pessoais" style="font-weight:800">1. Dados pessoais</div>
+          </div>
+          <div style="padding:16px" class="grid grid-cols-4">
+
+            <div class="field" style="grid-column: span 4">
+              <label>Foto do paciente</label>
+              <div class="avatar-uploader" style="display:flex;gap:12px;align-items:center">
+                <div class="avatar" id="avatarPreview" aria-label="Foto prévia"><span class="muted">Sem foto</span></div>
+                <div class="inline" style="display:flex;gap:8px;align-items:center">
+                  <input type="file" accept="image/*" id="photo" />
+                  <button class="btn secondary" type="button" id="btnUpload">Carregar</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="field" style="grid-column: span 3">
+              <label for="nome">Nome <span class="error">*</span></label>
+              <input id="nome" name="nome" type="text" required placeholder="Nome completo" />
+              <div class="error" id="err-nome" aria-live="polite"></div>
+            </div>
+            <div class="field">
+              <label for="nomeSocial">Nome social</label>
+              <input id="nomeSocial" name="nomeSocial" type="text" placeholder="Apelido/nome social" />
+            </div>
+
+            <div class="field">
+              <label for="cpf">CPF</label>
+              <input id="cpf" name="cpf" type="text" inputmode="numeric" placeholder="000.000.000-00" maxlength="14" />
+              <div class="hint">Validação automática dos 11 dígitos</div>
+              <div class="error" id="err-cpf" aria-live="polite"></div>
+            </div>
+            <div class="field">
+              <label for="rg">RG</label>
+              <input id="rg" name="rg" type="text" placeholder="Documento de identidade" />
+            </div>
+            <div class="field">
+              <label for="docTipo">Outros documentos</label>
+              <select id="docTipo" name="docTipo">
+                <option value="">Selecione…</option>
+                <option>CNH</option>
+                <option>Passaporte</option>
+                <option>Título de eleitor</option>
+                <option>Certidão de nascimento</option>
+                <option>RNE/CRNM</option>
+                <option>Outro</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="docNumero">Número do documento</label>
+              <input id="docNumero" name="docNumero" type="text" placeholder="Preencha após selecionar o tipo" disabled />
+            </div>
+
+            <div class="field" style="grid-column: span 2">
+              <label>Sexo</label>
+              <div class="radio-group" role="radiogroup" aria-label="Sexo" style="display:flex;gap:10px;flex-wrap:wrap">
+                <label><input type="radio" name="sexo" value="Masculino"> Masculino</label>
+                <label><input type="radio" name="sexo" value="Feminino"> Feminino</label>
+                <label><input type="radio" name="sexo" value="Outro"> Outro</label>
+                <label><input type="radio" name="sexo" value="Prefiro não informar"> Prefiro não informar</label>
+              </div>
+            </div>
+            <div class="field">
+              <label for="nasc">Data de nascimento</label>
+              <input id="nasc" name="nasc" type="date" />
+            </div>
+
+            <div class="field">
+              <label for="raca">Cor/raça (IBGE)</label>
+              <select id="raca" name="raca">
+                <option value="">Selecione…</option>
+                <option>Branca</option>
+                <option>Preta</option>
+                <option>Parda</option>
+                <option>Amarela</option>
+                <option>Indígena</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="etnia">Etnia</label>
+              <input id="etnia" name="etnia" type="text" placeholder="Ex.: Pomerana, Guarani, etc." />
+            </div>
+
+            <div class="field">
+              <label for="naturalidade">Naturalidade (cidade)</label>
+              <input id="naturalidade" name="naturalidade" type="text" list="cidadesBR" placeholder="Cidade de nascimento" />
+              <datalist id="cidadesBR">
+                <option value="São Paulo (SP)"></option>
+                <option value="Rio de Janeiro (RJ)"></option>
+                <option value="Belo Horizonte (MG)"></option>
+                <option value="Salvador (BA)"></option>
+                <option value="Curitiba (PR)"></option>
+              </datalist>
+            </div>
+            <div class="field">
+              <label for="nacionalidade">Nacionalidade</label>
+              <select id="nacionalidade" name="nacionalidade">
+                <option value="">Selecione…</option>
+                <option value="Brasil">Brasil</option>
+                <option>Argentina</option>
+                <option>Portugal</option>
+                <option>Espanha</option>
+                <option>Estados Unidos</option>
+                <option>Outro</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="profissao">Profissão</label>
+              <input id="profissao" name="profissao" type="text" placeholder="Ex.: Professor(a)" />
+            </div>
+            <div class="field">
+              <label for="estadoCivil">Estado civil</label>
+              <select id="estadoCivil" name="estadoCivil">
+                <option value="">Selecione…</option>
+                <option>Solteiro(a)</option>
+                <option>Casado(a)</option>
+                <option>Divorciado(a)</option>
+                <option>Viúvo(a)</option>
+                <option>União estável</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="mae">Nome da mãe</label>
+              <input id="mae" name="mae" type="text" />
+            </div>
+            <div class="field">
+              <label for="profMae">Profissão da mãe</label>
+              <input id="profMae" name="profMae" type="text" />
+            </div>
+            <div class="field">
+              <label for="pai">Nome do pai</label>
+              <input id="pai" name="pai" type="text" />
+            </div>
+            <div class="field">
+              <label for="profPai">Profissão do pai</label>
+              <input id="profPai" name="profPai" type="text" />
+            </div>
+
+            <div class="field">
+              <label for="temResponsavel">Possui responsável?</label>
+              <select id="temResponsavel">
+                <option value="nao">Não</option>
+                <option value="sim">Sim</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="responsavel">Nome do responsável</label>
+              <input id="responsavel" name="responsavel" type="text" disabled />
+            </div>
+            <div class="field">
+              <label for="cpfResponsavel">CPF do responsável</label>
+              <input id="cpfResponsavel" name="cpfResponsavel" type="text" placeholder="000.000.000-00" maxlength="14" disabled />
+            </div>
+
+            <div class="field">
+              <label for="esposo">Nome do(a) esposo(a) (opcional)</label>
+              <input id="esposo" name="esposo" type="text" />
+            </div>
+
+            <div class="field" style="grid-column: span 2;display:flex;align-items:center;gap:10px">
+              <label>RN na guia do convênio</label>
+              <div id="rnToggle" class="toggle" role="switch" aria-checked="false" tabindex="0"></div>
+            </div>
+
+            <div class="field">
+              <label for="codigoLegado">Código legado</label>
+              <input id="codigoLegado" name="codigoLegado" type="text" placeholder="ID de outro sistema" />
+            </div>
+
+          </div>
+        </section>
+
+        <!-- 2. OBSERVAÇÕES E ANEXOS -->
+        <section class="section" aria-labelledby="sec-obs">
+          <div class="section-header">
+            <div class="section-title" id="sec-obs" style="font-weight:800">2. Observações e anexos</div>
+          </div>
+          <div style="padding:16px" class="grid" >
+            <div class="field" style="grid-column: 1 / -1">
+              <label for="obs">Observações</label>
+              <textarea id="obs" name="obs" placeholder="Alergias, restrições, medicações, observações clínicas…"></textarea>
+            </div>
+
+            <details class="section" style="grid-column: 1 / -1">
+              <summary class="section-header"><div class="section-title">Anexos do paciente</div></summary>
+              <div class="attachments" style="padding:12px 16px;border-top:1px dashed #e5e7eb">
+                <div class="inline" style="margin-bottom:10px;display:flex;gap:8px;align-items:center">
+                  <input type="file" id="anexosInput" multiple />
+                  <button class="btn secondary" type="button" id="btnAddAnexos">Adicionar</button>
+                </div>
+                <div id="anexosLista"></div>
+                <div class="hint">Os arquivos não são enviados (demo). Ficam listados localmente.</div>
+              </div>
+            </details>
+          </div>
+        </section>
+
+        <!-- 3. CONTATO -->
+        <section class="section" aria-labelledby="sec-contato">
+          <div class="section-header"><div class="section-title" id="sec-contato" style="font-weight:800">3. Contato</div></div>
+          <div style="padding:16px" class="grid" >
+            <div class="field">
+              <label for="email">E-mail</label>
+              <input id="email" name="email" type="email" placeholder="nome@exemplo.com" />
+              <div class="error" id="err-email" aria-live="polite"></div>
+            </div>
+            <div class="field">
+              <label for="celular">Celular</label>
+              <input id="celular" name="celular" type="tel" inputmode="numeric" placeholder="+55 (00) 00000-0000" maxlength="20" />
+            </div>
+            <div class="field">
+              <label for="tel1">Telefone 1</label>
+              <input id="tel1" name="tel1" type="tel" inputmode="numeric" placeholder="(00) 0000-0000" maxlength="18" />
+            </div>
+            <div class="field">
+              <label for="tel2">Telefone 2</label>
+              <input id="tel2" name="tel2" type="tel" inputmode="numeric" placeholder="(00) 0000-0000" maxlength="18" />
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. ENDEREÇO -->
+        <details class="section" open aria-labelledby="sec-endereco">
+          <summary class="section-header"><div class="section-title" id="sec-endereco" style="font-weight:800">4. Endereço</div></summary>
+          <div style="padding:16px" class="grid grid-cols-4">
+            <div class="field">
+              <label for="cep">CEP</label>
+              <input id="cep" name="cep" type="text" inputmode="numeric" placeholder="00000-000" maxlength="9" />
+              <div class="hint">Ao preencher, busca automática via API (ViaCEP)</div>
+              <div class="error" id="err-cep" aria-live="polite"></div>
+            </div>
+            <div class="field" style="grid-column: span 2">
+              <label for="logradouro">Logradouro</label>
+              <input id="logradouro" name="logradouro" type="text" />
+            </div>
+            <div class="field">
+              <label for="numero">Número</label>
+              <input id="numero" name="numero" type="text" />
+            </div>
+
+            <div class="field">
+              <label for="complemento">Complemento</label>
+              <input id="complemento" name="complemento" type="text" />
+            </div>
+            <div class="field">
+              <label for="bairro">Bairro</label>
+              <input id="bairro" name="bairro" type="text" />
+            </div>
+            <div class="field">
+              <label for="cidade">Cidade</label>
+              <input id="cidade" name="cidade" type="text" />
+            </div>
+            <div class="field">
+              <label for="uf">Estado</label>
+              <input id="uf" name="uf" type="text" maxlength="2" placeholder="UF" />
+            </div>
+
+            <div class="field" style="grid-column: span 4">
+              <label for="referencia">Referência</label>
+              <input id="referencia" name="referencia" type="text" placeholder="Pontos de referência" />
+            </div>
+          </div>
+        </details>
+
+        
+
+      </form>
+    </div>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    /* ========================= LocalStorage utils ========================= */
+    const LS_KEY_PACIENTES = 'healthone.pacientes';
+    function loadPacientes(){ try { return JSON.parse(localStorage.getItem(LS_KEY_PACIENTES) || '[]'); } catch { return []; } }
+    function savePacientes(list){ localStorage.setItem(LS_KEY_PACIENTES, JSON.stringify(list)); }
+    function nextPacienteId(list){ return list.length ? Math.max(...list.map(p=>p.id||0)) + 1 : 1; }
+
+    /* ========================= Helpers ========================= */
+    const $ = (s,p=document)=>p.querySelector(s);
+    const $$ = (s,p=document)=>[...p.querySelectorAll(s)];
+    function onlyDigits(v){ return (v||'').replace(/\D+/g,''); }
+    function maskCPF(v){ v = onlyDigits(v).slice(0,11); return v.replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2'); }
+    function maskCEP(v){ v = onlyDigits(v).slice(0,8); return v.replace(/(\d{5})(\d)/,'$1-$2'); }
+    function maskPhoneBRIntl(v){
+      v = onlyDigits(v);
+      if(!v.startsWith('55')) v = '55'+v;
+      v = v.slice(0,13);
+      const ddi=v.slice(0,2), ddd=v.slice(2,4), rest=v.slice(4);
+      if(rest.length>9) return `+${ddi} (${ddd}) ${rest.slice(0,5)}-${rest.slice(5,9)}`;
+      if(rest.length>4) return `+${ddi} (${ddd}) ${rest.slice(0,4)}-${rest.slice(4,8)}`;
+      if(ddd) return `+${ddi} (${ddd}) ${rest}`;
+      return `+${ddi}`;
+    }
+    function isValidCPF(raw){
+      const s = onlyDigits(raw);
+      if(s.length!==11) return false;
+      if(/^([0-9])\1+$/.test(s)) return false;
+      let sum=0; for(let i=0;i<9;i++) sum+=parseInt(s[i])*(10-i);
+      let d1=(sum*10)%11; if(d1===10) d1=0; if(d1!==parseInt(s[9])) return false;
+      sum=0; for(let i=0;i<10;i++) sum+=parseInt(s[i])*(11-i);
+      let d2=(sum*10)%11; if(d2===10) d2=0; if(d2!==parseInt(s[10])) return false;
+      return true;
+    }
+    function toast(msg, ok=true){
+      const t = $('#toast'); t.textContent = msg;
+      t.style.borderColor = ok? '#10b981':'#ef4444';
+      t.classList.add('show'); setTimeout(()=> t.classList.remove('show'), 2200);
+    }
+
+    /* ========================= Upload de avatar ========================= */
+    const photoInput = $('#photo');
+    const avatar = $('#avatarPreview');
+    $('#btnUpload').addEventListener('click', ()=> photoInput.click());
+    photoInput.addEventListener('change', ()=>{
+      const f = photoInput.files?.[0]; if(!f) return;
+      const reader = new FileReader();
+      reader.onload = e => { avatar.innerHTML = `<img alt="Foto do paciente" src="${e.target.result}"/>`; };
+      reader.readAsDataURL(f);
+    });
+
+    /* ========================= Interações de campos ========================= */
+    const rnToggle = $('#rnToggle');
+    rnToggle?.addEventListener('click', ()=> rnToggle.classList.toggle('active'));
+    rnToggle?.addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); rnToggle.click(); } });
+
+    const docTipo = $('#docTipo');
+    const docNumero = $('#docNumero');
+    docTipo.addEventListener('change', ()=>{
+      docNumero.disabled = !docTipo.value;
+      docNumero.placeholder = docTipo.value ? `Número do ${docTipo.value}` : 'Preencha após selecionar o tipo';
+    });
+
+    const temResp = $('#temResponsavel');
+    const respNome = $('#responsavel');
+    const respCpf = $('#cpfResponsavel');
+    temResp.addEventListener('change', ()=>{
+      const on = temResp.value==='sim';
+      respNome.disabled = respCpf.disabled = !on;
+      if(!on){ respNome.value=''; respCpf.value=''; }
+    });
+
+    // máscaras
+    const cpf = $('#cpf'); cpf.addEventListener('input', ()=> cpf.value = maskCPF(cpf.value));
+    const cpfResp = $('#cpfResponsavel'); cpfResp.addEventListener('input', ()=> cpfResp.value = maskCPF(cpfResp.value));
+    const celular = $('#celular'); const tel1=$('#tel1'); const tel2=$('#tel2');
+    ;[celular,tel1,tel2].forEach(el=> el.addEventListener('input', ()=> el.value = maskPhoneBRIntl(el.value)));
+    const cep = $('#cep'); cep.addEventListener('input', ()=> cep.value = maskCEP(cep.value));
+
+    // validações pontuais
+    const email = $('#email');
+    email.addEventListener('blur', ()=> $('#err-email').textContent = (email.value && !email.checkValidity()) ? 'Formato de e-mail inválido.' : '');
+    cpf.addEventListener('blur', ()=> $('#err-cpf').textContent = (cpf.value && !isValidCPF(cpf.value)) ? 'CPF inválido.' : '');
+
+    // ViaCEP
+    async function buscarCEP(v){
+      const s = onlyDigits(v); if(s.length!==8) return;
+      try{
+        const res = await fetch(`https://viacep.com.br/ws/${s}/json/`);
+        const data = await res.json();
+        if(data.erro){ $('#err-cep').textContent='CEP não encontrado.'; return; }
+        $('#err-cep').textContent='';
+        $('#logradouro').value = data.logradouro || '';
+        $('#bairro').value = data.bairro || '';
+        $('#cidade').value = data.localidade || '';
+        $('#uf').value = data.uf || '';
+      }catch{ $('#err-cep').textContent='Falha ao consultar CEP.'; }
+    }
+    cep.addEventListener('blur', ()=> buscarCEP(cep.value));
+
+    /* ========================= Coletar dados / validar ========================= */
+    const form = $('#patientForm');
+    function getFormData(){
+      return {
+        foto: photoInput.files?.[0]?.name || null,
+        nome: $('#nome').value.trim(),
+        nomeSocial: $('#nomeSocial').value.trim(),
+        cpf: $('#cpf').value.trim(),
+        rg: $('#rg').value.trim(),
+        doc:{ tipo: $('#docTipo').value, numero: $('#docNumero').value.trim() },
+        sexo: (form.querySelector('input[name="sexo"]:checked')||{}).value || '',
+        nasc: $('#nasc').value,
+        raca: $('#raca').value,
+        etnia: $('#etnia').value.trim(),
+        naturalidade: $('#naturalidade').value.trim(),
+        nacionalidade: $('#nacionalidade').value,
+        profissao: $('#profissao').value.trim(),
+        estadoCivil: $('#estadoCivil').value,
+        filiacao:{ mae: $('#mae').value.trim(), profMae: $('#profMae').value.trim(), pai: $('#pai').value.trim(), profPai: $('#profPai').value.trim() },
+        responsavel:{ ativo: $('#temResponsavel').value==='sim', nome: $('#responsavel').value.trim(), cpf: $('#cpfResponsavel').value.trim() },
+        esposo: $('#esposo').value.trim(),
+        rnGuia: rnToggle?.classList.contains('active') || false,
+        codigoLegado: $('#codigoLegado').value.trim(),
+        obs: $('#obs').value.trim(),
+        contato:{ email: $('#email').value.trim(), celular: $('#celular').value.trim(), tel1: $('#tel1').value.trim(), tel2: $('#tel2').value.trim() },
+        endereco:{ cep: $('#cep').value.trim(), logradouro: $('#logradouro').value.trim(), numero: $('#numero').value.trim(), complemento: $('#complemento').value.trim(), bairro: $('#bairro').value.trim(), cidade: $('#cidade').value.trim(), uf: $('#uf').value.trim(), referencia: $('#referencia').value.trim() }
+      };
+    }
+    function validateBeforeSave(data){
+      let ok=true;
+      if(!data.nome){ $('#err-nome').textContent='Informe o nome.'; ok=false; } else { $('#err-nome').textContent=''; }
+      if(data.cpf && !isValidCPF(data.cpf)){ $('#err-cpf').textContent='CPF inválido.'; ok=false; } else { $('#err-cpf').textContent=''; }
+      if(data.contato.email && !email.checkValidity()){ $('#err-email').textContent='Formato de e-mail inválido.'; ok=false; } else { $('#err-email').textContent=''; }
+      if(data.responsavel.ativo){
+        if(!data.responsavel.nome){ ok=false; toast('Informe o nome do responsável.', false); }
+        if(data.responsavel.cpf && !isValidCPF(data.responsavel.cpf)){ ok=false; toast('CPF do responsável inválido.', false); }
+      }
+      return ok;
+    }
+    function renderPreview(obj){
+      const el = document.querySelector('#jsonPreview');
+      if (!el) return; // se não existir, não faz nada
+      el.textContent = JSON.stringify(obj, null, 2);
+    }
+
+    /* ========================= EDICIÇÃO via ?id= ========================= */
+    let editingId = null;
+    (function hydrateIfEditing(){
+      const params = new URLSearchParams(location.search);
+      const id = +params.get('id');
+      if(!id) return;
+      const lista = loadPacientes();
+      const p = lista.find(x => x.id===id);
+      if(!p) return;
+      editingId = id;
+
+      // Preenche campos
+      $('#nome').value = p.nome||'';
+      $('#nomeSocial').value = p.nomeSocial||'';
+      $('#cpf').value = p.cpf||'';
+      $('#rg').value = p.rg||'';
+      $('#docTipo').value = p.doc?.tipo||'';
+      $('#docNumero').value = p.doc?.numero||''; $('#docNumero').disabled = !p.doc?.tipo;
+      if(p.sexo){ const el = document.querySelector(`input[name="sexo"][value="${p.sexo}"]`); el && (el.checked=true); }
+      $('#nasc').value = p.nasc||'';
+      $('#raca').value = p.raca||'';
+      $('#etnia').value = p.etnia||'';
+      $('#naturalidade').value = p.naturalidade||'';
+      $('#nacionalidade').value = p.nacionalidade||'';
+      $('#profissao').value = p.profissao||'';
+      $('#estadoCivil').value = p.estadoCivil||'';
+      $('#mae').value = p.filiacao?.mae||'';
+      $('#profMae').value = p.filiacao?.profMae||'';
+      $('#pai').value = p.filiacao?.pai||'';
+      $('#profPai').value = p.filiacao?.profPai||'';
+      $('#temResponsavel').value = p.responsavel?.ativo ? 'sim' : 'nao';
+      const on = p.responsavel?.ativo; $('#responsavel').disabled = $('#cpfResponsavel').disabled = !on;
+      $('#responsavel').value = p.responsavel?.nome||'';
+      $('#cpfResponsavel').value = p.responsavel?.cpf||'';
+      if(p.rnGuia) $('#rnToggle')?.classList.add('active');
+      $('#codigoLegado').value = p.codigoLegado||'';
+      $('#obs').value = p.obs||'';
+      $('#email').value = p.contato?.email||'';
+      $('#celular').value = p.contato?.celular||'';
+      $('#tel1').value = p.contato?.tel1||'';
+      $('#tel2').value = p.contato?.tel2||'';
+      $('#cep').value = p.endereco?.cep||'';
+      $('#logradouro').value = p.endereco?.logradouro||'';
+      $('#numero').value = p.endereco?.numero||'';
+      $('#complemento').value = p.endereco?.complemento||'';
+      $('#bairro').value = p.endereco?.bairro||'';
+      $('#cidade').value = p.endereco?.cidade||'';
+      $('#uf').value = p.endereco?.uf||'';
+      $('#referencia').value = p.endereco?.referencia||'';
+      renderPreview(p);
+    })();
+
+    /* ========================= Ações ========================= */
+    $('#btnSave').addEventListener('click', ()=>{
+      const paciente = getFormData();
+      if(!validateBeforeSave(paciente)) return;
+
+      const lista = loadPacientes();
+      if(editingId){
+        // update
+        paciente.id = editingId;
+        const original = lista.find(x=>x.id===editingId);
+        paciente.createdAt = original?.createdAt || new Date().toISOString();
+        const nova = lista.map(x=> x.id===editingId ? paciente : x);
+        savePacientes(nova);
+        toast('Paciente atualizado!', true);
+      } else {
+        // create
+        paciente.id = nextPacienteId(lista);
+        paciente.createdAt = new Date().toISOString();
+        lista.push(paciente);
+        savePacientes(lista);
+        toast('Paciente salvo!', true);
+      }
+
+      renderPreview(paciente);
+      setTimeout(()=> location.href = 'crud-pacientes.html', 500);
+    });
+
+    $('#btnCancel').addEventListener('click', ()=>{
+      if(confirm('Cancelar e voltar à lista?')){
+        form.reset(); avatar.innerHTML = '<span class="muted">Sem foto</span>'; renderPreview({});
+        location.href = 'crud-pacientes.html';
+      }
+    });
+
+
+
+    // Anexos (lista local)
+    const anexosLista = $('#anexosLista');
+    const anexosInput = $('#anexosInput');
+    $('#btnAddAnexos').addEventListener('click', ()=> anexosInput.click());
+    anexosInput.addEventListener('change', ()=>{
+      [...anexosInput.files].forEach(f=> addAnexo(f));
+      anexosInput.value='';
+    });
+    function addAnexo(file){
+      const row = document.createElement('div');
+      row.style.cssText='display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px dashed #eef2f7';
+      const left = document.createElement('div');
+      left.innerHTML = `<strong>${file.name}</strong><div class="muted" style="font-size:12px">${new Date().toLocaleString()}</div>`;
+      const right = document.createElement('div');
+      const btn = document.createElement('button');
+      btn.className='btn secondary'; btn.type='button'; btn.textContent='Excluir';
+      btn.addEventListener('click', ()=> row.remove());
+      right.appendChild(btn);
+      row.append(left, right);
+      anexosLista.appendChild(row);
+    }
+  </script>
+</body>
+</html>
