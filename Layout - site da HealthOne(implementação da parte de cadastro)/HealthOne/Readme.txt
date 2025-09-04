@@ -1,6 +1,1 @@
-Thanks for downloading this template!
-
-Template Name: Medicio
-Template URL: https://bootstrapmade.com/medicio-free-bootstrap-theme/
-Author: BootstrapMade.com
-License: https://bootstrapmade.com/license/
+Nessa arquivo foi adicionado a parte de cadastro do paciente no site, mas não tem nada ficando salvo ainda. Preciso da parte de lista de pacientes e laudo médico para criar uma parte para salvar essas alterações.
