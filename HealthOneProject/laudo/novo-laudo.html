@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Novo Laudo</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f7f9fb;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+
+    h1 {
+      color: #000000;
+      margin-bottom: 20px;
+    }
+
+    .editor-toolbar {
+      margin-bottom: 10px;
+    }
+
+    .editor-toolbar button {
+      background: #00bcd4;
+      border: none;
+      padding: 8px;
+      margin-right: 5px;
+      color: white;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+
+    #laudo-conteudo {
+      width: 100%;
+      height: 250px;
+      border: 1px solid #ccc;
+      padding: 10px;
+      background: white;
+      overflow-y: auto;
+    }
+
+    .opcoes {
+      margin-top: 20px;
+    }
+
+    .opcoes input,
+    .opcoes select,
+    .opcoes button {
+      padding: 8px;
+      margin-right: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    .btn-salvar {
+      background: #4caf50;
+      color: white;
+    }
+
+    .btn-cancelar {
+      background: #f44336;
+      color: white;
+    }
+
+    .preview {
+      border: 1px dashed #999;
+      padding: 10px;
+      margin-top: 20px;
+      background: #fff;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Novo Laudo</h1>
+
+  <!-- Barra de Formatação -->
+  <div class="editor-toolbar">
+    <button onclick="execCmd('bold')"><i class="fa fa-bold"></i></button>
+    <button onclick="execCmd('italic')"><i class="fa fa-italic"></i></button>
+    <button onclick="execCmd('insertUnorderedList')"><i class="fa fa-list-ul"></i></button>
+    <button onclick="execCmd('justifyLeft')"><i class="fa fa-align-left"></i></button>
+    <button onclick="execCmd('justifyCenter')"><i class="fa fa-align-center"></i></button>
+    <button onclick="execCmd('justifyRight')"><i class="fa fa-align-right"></i></button>
+    <button onclick="insertCampo('[[NOME]]')">Nome</button>
+    <button onclick="insertCampo('[[IDADE]]')">Idade</button>
+    <button onclick="insertCampo('[[CID]]')">CID</button>
+  </div>
+
+  <!-- Editor -->
+  <div id="laudo-conteudo" contenteditable="true"></div>
+
+  <!-- Opções do Laudo -->
+  <div class="opcoes">
+    <label>Paciente: <input type="text" id="paciente" placeholder="Nome do paciente"></label>
+    <label>Solicitante: <input type="text" id="solicitante" placeholder="Médico solicitante"></label>
+    <label>Exame:
+      <select id="exame">
+   <optgroup label="Sangue">
+    <option>Hemograma completo</option>
+    <option>Glicemia de jejum</option>
+    <option>Colesterol e triglicerídeos</option>
+    <option>Ureia e creatinina</option>
+    <option>TGO/AST</option>
+    <option>TGP/ALT</option>
+    <option>TSH</option>
+    <option>T4 livre</option>
+    <option>Dosagem hormonal</option>
+  </optgroup>
+  <optgroup label="Urina">
+    <option>Exame de urina tipo 1</option>
+    <option>Urocultura</option>
+    <option>Exame de urina de 24 horas</option>
+  </optgroup>
+  <optgroup label="Outros">
+    <option>Ácido úrico</option>
+    <option>VDRL</option>
+    <option>HIV</option>
+    <option>Hepatites</option>
+    <option>Sífilis</option>
+  </optgroup>
+  <optgroup label="Testes rápidos">
+    <option>HIV (rápido)</option>
+    <option>Sífilis (rápido)</option>
+    <option>Hepatite B (rápido)</option>
+    <option>Hepatite C (rápido)</option>
+  </optgroup>
+  <optgroup label="Imagem">
+    <option>Radiografia</option>
+    <option>Mamografia</option>
+    <option>Ultrassonografia</option>
+    <option>Tomografia Computadorizada</option>
+    <option>Ressonância Magnética</option>
+    <option>Endoscopia</option>
+    <option>Videolaringoscopia</option>
+  </optgroup>
+  <optgroup label="Cardiológicos">
+    <option>Eletrocardiograma</option>
+    <option>Ecocardiograma</option>
+    <option>Teste ergométrico</option>
+  </optgroup>
+  <optgroup label="Alta complexidade">
+    <option>Estudos genéticos e cariótipos</option>
+    <option>Avaliação clínica para transplantes</option>
+    <option>Pré-natal de alto risco</option>
+  </optgroup>
+</select>
+>
+    </label>
+    <label>Prazo:
+      <input type="date" id="prazo">
+    </label>
+    <label>Assinatura digital: <input type="checkbox" id="assinatura"></label>
+    <label>Esconder data/assinatura: <input type="checkbox" id="ocultarAssinatura"></label><br />
+
+    <button class="btn-salvar" onclick="salvarLaudo()">Salvar</button>
+    <button class="btn-cancelar" onclick="window.location.href='index.html'">Cancelar</button>
+    <button onclick="mostrarPreview()">Pré-visualizar</button>
+  </div>
+
+  <!-- Preview -->
+  <div class="preview hidden" id="preview"></div>
+
+  <script>
+    function execCmd(command) {
+      document.execCommand(command, false, null);
+    }
+
+    function insertCampo(texto) {
+      const selection = window.getSelection();
+      if (!selection.rangeCount) return;
+
+      const range = selection.getRangeAt(0);
+      range.deleteContents();
+      range.insertNode(document.createTextNode(texto));
+    }
+
+    function salvarLaudo() {
+      const conteudo = document.getElementById("laudo-conteudo").innerHTML;
+      const paciente = document.getElementById("paciente").value;
+      const solicitante = document.getElementById("solicitante").value;
+      const exame = document.getElementById("exame").value;
+      const prazo = document.getElementById("prazo").value;
+
+      if (!paciente || !solicitante || !prazo) {
+        alert("Preencha paciente, solicitante e prazo!");
+        return;
+      }
+
+      const laudos = JSON.parse(localStorage.getItem("laudos")) || [];
+      const novoLaudo = {
+        id: Date.now().toString(),
+        pedido: "PED" + Math.floor(Math.random() * 10000),
+        data: new Date().toISOString().split("T")[0],
+        prazo,
+        paciente,
+        solicitante,
+        exame,
+        status: "Dentro do prazo",
+        conteudo,
+        assinatura: document.getElementById("assinatura").checked
+      };
+
+      laudos.push(novoLaudo);
+      localStorage.setItem("laudos", JSON.stringify(laudos));
+      alert("Laudo salvo com sucesso!");
+      window.location.href = "laudo.html";
+    }
+
+    function mostrarPreview() {
+      const preview = document.getElementById("preview");
+      preview.innerHTML = document.getElementById("laudo-conteudo").innerHTML;
+
+      const ocultar = document.getElementById("ocultarAssinatura").checked;
+      preview.innerHTML += ocultar ? "" : "<p><strong>Dr. Fulano</strong> - CRM 0000</p>";
+
+      preview.classList.remove("hidden");
+    }
+  </script>
+</body>
+</html>
