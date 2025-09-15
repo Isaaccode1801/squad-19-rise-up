@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HealthOne — Dashboard do Paciente</title>
+<style>
+  /* ====== TOKENS ====== */
+  :root{
+    --brand:#1db7ae; --brand-600:#12968f; --brand-100:#e7f7f6;
+    --ink:#24323f; --muted:#6b7a88; --line:#e6eaef;
+    --bg:#ffffff; --app:#f4f7fb; --radius:18px;
+    --shadow:0 12px 28px rgba(18,150,143,.12);
+    --soft:0 6px 18px rgba(36,50,63,.08);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--app);color:var(--ink);
+       font:14px/1.45 "Inter",system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+
+  /* ====== TOP NAV ====== */
+  .topnav{
+    position:sticky; top:0; z-index:10; background:var(--bg);
+    border-bottom:1px solid var(--line); padding:12px 24px;
+    display:flex; align-items:center; gap:22px;
+  }
+  .logo{display:flex; align-items:center; gap:10px; margin-right:8px}
+  .logo-badge{width:36px;height:36px;border-radius:12px;
+    background:linear-gradient(135deg,var(--brand),#64e4dc);
+    display:grid;place-items:center;color:#fff;font-weight:800;box-shadow:var(--soft)}
+  .logo span{font-weight:800;color:var(--brand-600);letter-spacing:.3px}
+
+  .tabs{display:flex; gap:16px; align-items:center; margin-left:auto}
+  .tabs a{color:var(--muted); text-decoration:none; font-weight:600}
+  .tabs a:hover{color:var(--brand-600)}
+  .tabs .active{background:var(--brand); color:#fff; padding:8px 18px;
+    border-radius:999px; box-shadow:0 4px 10px rgba(18,150,143,.25)}
+
+  /* ====== LAYOUT ====== */
+  .wrap{padding:24px; max-width:1300px; margin:0 auto}
+  .grid{display:grid; grid-template-columns: 1fr 320px; gap:24px}
+  .stack{display:grid; gap:18px; grid-template-columns:1fr 1fr}
+  .card{background:var(--bg);border:1px solid var(--line);border-radius:var(--radius);
+        box-shadow:var(--soft); padding:16px}
+  .title{margin:0 0 10px 0; font-weight:800}
+
+  /* Perfil */
+  .profile{display:grid; grid-template-columns:64px 1fr; gap:14px; align-items:center}
+  .avatar{width:64px;height:64px;border-radius:16px;background:#dbe7f1;
+          display:grid;place-items:center;font-weight:800;color:#466;box-shadow:var(--soft)}
+  .kv{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:12px}
+  .kv div{display:flex;justify-content:space-between;background:#fafcff;border:1px solid var(--line);
+          border-radius:10px;padding:8px 10px}
+
+  /* Anéis */
+  .circles{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+  .ring{display:grid;place-items:center;gap:8px}
+  .meter{width:120px;height:120px;border-radius:50%;
+    background:radial-gradient(closest-side,var(--bg) 60%,transparent 61% 100%),
+              conic-gradient(#ff5c89 var(--p,75%),#ffe3ec 0);
+    box-shadow:var(--soft)}
+  .ring.blue .meter{
+    background:radial-gradient(closest-side,var(--bg) 60%,transparent 61% 100%),
+              conic-gradient(#2f68ff var(--p,83%),#dfe7ff 0)}
+  .ring b{font-size:18px} .ring span{color:var(--muted);font-size:12px}
+
+  /* Atividade (barras) */
+  .bars{height:140px;display:flex;align-items:flex-end;gap:12px;padding:6px 8px}
+  .bar{flex:1;border-radius:10px;background:linear-gradient(180deg,#ff9fb9,#ffd6e3);box-shadow:var(--soft)}
+  .badge{background:var(--brand-100);color:var(--brand-600);padding:4px 8px;border-radius:999px;font-size:12px;font-weight:700}
+
+  /* Linha (SVG) */
+  .line-wrap{height:220px}
+  .line-svg{width:100%;height:160px;display:block}
+  .axis{stroke:#cfd7e3;stroke-width:1}
+  .stroke-brand{fill:none;stroke:#4b82ff;stroke-width:3;stroke-linecap:round}
+
+  /* Aside: calendário + consultas */
+  .calendar .grid{margin-top:10px;display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+  .cell{aspect-ratio:1/1;display:grid;place-items:center;background:#fff;border:1px solid var(--line);border-radius:10px}
+  .cell.h{background:transparent;border:0;color:var(--muted);font-weight:700}
+  .cell.m{background:var(--brand-100);border-color:transparent;color:var(--brand-600);font-weight:700}
+  .appt-list{display:flex;flex-direction:column;gap:10px}
+  .appt{display:flex;align-items:center;gap:10px;padding:10px;border-radius:12px;background:#fff;border:1px solid var(--line);box-shadow:var(--soft)}
+  .appt .ic{width:32px;height:32px;border-radius:10px;display:grid;place-items:center;color:#fff;font-size:16px}
+  .appt .time{margin-left:auto;font-weight:800;color:var(--muted)}
+.brand{
+    display:flex; align-items:center; gap:12px;
+    }
+        .logo{
+      width:36px; height:36px; border-radius:10px;
+      background: linear-gradient(135deg, var(--brand-primary), var(--brand-accent));
+      box-shadow: 0 8px 20px rgba(37,99,235,.45), inset 0 0 10px rgba(255,255,255,.15);
+    }
+        .logo{
+            margin-left: 150px;
+    width:90px;
+    height:auto;
+  }
+.ola{
+    margin-left: 130px;
+    grid-column: 1 / -1;
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:4px;
+  }
+ .ola .greet{font-size:24px; font-weight:700;}
+
+  .marca { display: flex; align-items: center; gap: .6rem; font-weight: 800; letter-spacing: .4px; }
+  .marca .M { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--brand), #4dd7cf); display: grid; place-items: center; color: #fff; font-weight: 700; box-shadow: 0 6px 14px rgba(29,183,174,.35); }
+  /* Responsivo */
+  @media (max-width:1100px){ .grid{grid-template-columns:1fr} }
+  @media (max-width:880px){ .stack{grid-template-columns:1fr} .tabs{gap:10px} }
+</style>
+</head>
+<body>
+
+<!-- ===== NAV SUPERIOR ===== -->
+<header class="topnav">
+
+      <div class="brand">
+        <img src="logo_HealthOne.jpeg" alt="HealthOne" class="logo">
+           
+      <div class="marca">
+        <div class="M">IK</div>
+        <span>Isaac Kauã</span>
+      </div>
+      </div>
+
+  <!-- você pode colocar um campo de busca aqui se quiser -->
+  <nav class="tabs">
+    <a href="#" class="active">Início</a>
+    <a href="agendamento.html" >Marcar Consulta</a>
+  </nav>
+</header>
+<div class="ola">
+  <div class="greet">Olá, <span style="color:var(--brand-600)">Isaac Kauã</span> 👋</div>
+</div>
+<!-- ===== CONTEÚDO ===== -->
+<div class="wrap">
+  <div class="grid">
+    
+    <!-- coluna principal -->
+    <section class="stack">
+      <article class="card">
+        <h3 class="title">Perfil do Paciente</h3>
+        <div class="profile">
+          <div class="avatar">IK</div>
+          <div>
+            <strong>Isaac Kauã</strong>
+            <div style="color:var(--muted)">862.346.645-47</div>
+          </div>
+        </div>
+        <div class="kv">
+          <div><span>Idade</span><b>18 anos</b></div>
+          <div><span>Tipo Sanguíneo</span><b>O+</b></div>
+          <div><span>Altura</span><b>1,90 m</b></div>
+          <div><span>Peso</span><b>100 kg</b></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h3 class="title">Indicadores</h3>
+        <div class="circles">
+          <div class="ring" style="--p:75%">
+            <div class="meter" aria-label="Saúde Geral 75%"></div>
+            <b>75%</b><span>Saúde Geral</span>
+          </div>
+          <div class="ring blue" style="--p:83%">
+            <div class="meter" aria-label="Hidratação 83%"></div>
+            <b>83%</b><span>Frequencia de Presença</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h3 class="title">Taxa de Melhora</h3>
+        <div class="bars">
+          <div class="bar" style="height:40%"></div>
+          <div class="bar" style="height:65%"></div>
+          <div class="bar" style="height:55%"></div>
+          <div class="bar" style="height:80%"></div>
+          <div class="bar" style="height:50%"></div>
+          <div class="bar" style="height:35%"></div>
+          <div class="bar" style="height:60%"></div>
+        </div>
+        <div class="badge">Durante Tratamento</div>
+      </article>
+
+      <article class="card line-wrap">
+        <h3 class="title">Condições de Saúde</h3>
+        <svg class="line-svg" viewBox="0 0 600 180" aria-label="Linha de tendência">
+          <line x1="30" y1="150" x2="580" y2="150" class="axis"/>
+          <line x1="30" y1="30"  x2="30"  y2="150" class="axis"/>
+          <polyline class="stroke-brand"
+            points="30,120 90,140 150,95 210,110 270,70 330,95 390,80 450,120 510,60 570,130"/>
+        </svg>
+        <small style="color:var(--muted)">Jan → Dez</small>
+      </article>
+    </section>
+
+    <!-- aside direito -->
+    <aside>
+      <div class="card calendar">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <h3 class="title" style="margin:0">Consultas</h3>
+          <span class="badge">Set 2025</span>
+        </div>
+        <div class="grid" id="cal"></div>
+      </div>
+
+      <div class="card">
+        <h3 class="title">Próximas Consultas</h3>
+        <div class="appt-list" id="appts">
+          <div class="appt">
+            <div class="ic" style="background:#2ec5ff">🦷</div>
+            <div><b>Dentista</b><div style="color:var(--muted)"> Quarta - Dra. Gorex Mathew</div></div>
+            <div class="time">09:00</div>
+          </div>
+          <div class="appt">
+            <div class="ic" style="background:#a55cff">❤️</div>
+            <div><b>Cardiologia</b><div style="color:var(--muted)">Quarta - Dr. Craig Gemx</div></div>
+            <div class="time">12:00</div>
+          </div>
+          <div class="appt">
+            <div class="ic" style="background:#ff7a59">🦴</div>
+            <div><b>Ortopedia</b><div style="color:var(--muted)">Quinta - Dr. Bruce Williams</div></div>
+            <div class="time">15:00</div>
+          </div>
+          <div class="appt">
+            <div class="ic" style="background:#22c55e">🩺</div>
+            <div><b>Clínico</b><div style="color:var(--muted)">Quinta - Dra. Kiera Knight</div></div>
+            <div class="time">16:00</div>
+          </div>
+          <div class="appt">
+            <div class="ic" style="background:#ffb020">🧪</div>
+            <div><b>Endocrino</b><div style="color:var(--muted)">Quinta - Dra. Anni Roy</div></div>
+            <div class="time">18:00</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+</div>
+
+<script>
+  // mini calendário (exemplo: março com marcações)
+  (function(){
+    const el = document.getElementById('cal');
+    const heads = ['S','T','Q','Q','S','S','D'];
+    heads.forEach(h=>{
+      const c=document.createElement('div'); c.textContent=h; c.className='cell h'; el.appendChild(c);
+    });
+    const offset = 0; // domingo
+    const blanks = (7 + offset) % 7;
+    for(let i=0;i<blanks;i++){ const b=document.createElement('div'); b.className='cell'; b.style.visibility='hidden'; el.appendChild(b); }
+    for(let d=1; d<=31; d++){
+      const c=document.createElement('div'); c.className='cell'; c.textContent=d;
+      if([3,10,17,24].includes(d)) c.classList.add('m');
+      el.appendChild(c);
+    }
+  })();
+</script>
+</body>
+</html>

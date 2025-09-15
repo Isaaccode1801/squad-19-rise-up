@@ -1,0 +1,81 @@
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f7f9fb;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    .dados-paciente {
+      background: #fff;
+      padding: 12px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+
+    .dados-paciente p {
+      margin: 4px 0;
+    }
+
+    .laudo-box {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+
+    .laudo-box h2 {
+      margin-top: 0;
+      text-align: center;
+    }
+
+    .acoes {
+      margin-top: 20px;
+    }
+
+    .acoes button {
+      padding: 10px 15px;
+      margin-right: 10px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .btn-voltar {
+      background: #607d8b;
+      color: white;
+    }
+
+    .btn-imprimir {
+      background: #00bcd4;
+      color: white;
+    }
+
+    .btn-liberar {
+      background: #4caf50;
+      color: white;
+    }
+
+    .btn-excluir {
+      background: #f44336;
+      color: white;
+    }
+
+    /* Cores do status */
+    .status-verde {
+      color: green;
+      font-weight: bold;
+    }
+
+    .status-vermelho {
+      color: red;
+      font-weight: bold;
+    }

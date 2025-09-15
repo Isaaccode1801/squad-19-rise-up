@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Gestão de Laudos</title>
+  <link rel="stylesheet" href="../../assets/css/laudo.css" />
+
+</head>
+<body>
+
+  <div class="top-bar">
+    Segunda a Sábado, 8h às 22h
+    <span class="phone"><i class="fa fa-phone"></i> (55) 11 5589-5544</span>
+  </div>
+
+  <div class="header">
+      <div class="brand">
+        <div class="logo">M</div>
+        <span class="user">Dr(a). Camilla Millene</span>
+      </div>
+    <div class="nav-links">
+      <a href="../tabela-pacientes/dashboard.html">Início</a>
+      <a href="#" class="active">Laudo</a>
+    </div>
+    <button class="btn-header" onclick="window.location.href='../tabela-pacientes/crud-pacientes.html'">Gerenciamento de Paciente</button>
+  </div>
+
+  <div class="novo-laudo">
+    <button onclick="window.location.href='novo-laudo.html'">
+      <i class="fa fa-plus"></i> Novo Laudo
+    </button>
+  </div>
+  
+  <div style="width:95%; margin: 20px auto;">
+      <input type="text" id="pesquisa" placeholder="Pesquisar por paciente ou exame..." 
+         style="width:100%; padding:10px; border-radius:6px; border:1px solid #ccc;">
+  </div>
+  
+  <table>
+    <thead>
+      <tr>
+        <th>Paciente</th>
+        <th>Exame</th>
+        <th>Prazo</th>
+        <th>Status</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody id="lista-laudos"></tbody>
+  </table>
+
+  <script>
+  function avaliarStatus(prazo) {
+    if (!prazo) return "Rascunho";
+
+    const hoje = new Date();
+    const dataPrazo = new Date(prazo + "T23:59:59");
+
+    if (dataPrazo >= hoje) {
+      return '<span class="status-verde">Dentro do prazo</span>';
+    } else {
+      return '<span class="status-vermelho">Vencido</span>';
+    }
+  }
+
+  function formatarData(dataStr) {
+    if (!dataStr) return "-";
+    const data = new Date(dataStr);
+    const dia = String(data.getDate() + 1).padStart(2, '0');
+    const mes = String(data.getMonth() + 1).padStart(2, '0');
+    const ano = data.getFullYear();
+    return `${dia}/${mes}/${ano}`;
+  }
+
+  function carregarLaudos() {
+    const laudos = JSON.parse(localStorage.getItem("laudos")) || [];
+    const tbody = document.getElementById("lista-laudos");
+    tbody.innerHTML = "";
+
+    laudos.forEach((laudo) => {
+      const statusCalculado = avaliarStatus(laudo.prazo);
+      const prazoFormatado = formatarData(laudo.prazo);
+
+      const tr = document.createElement("tr");
+
+      tr.innerHTML = `
+        <td>${laudo.paciente || "-"}</td>
+        <td>${laudo.exame || "-"}</td>
+        <td>${prazoFormatado}</td>
+        <td>${statusCalculado}</td>
+        <td class="acoes">
+          <button class="btn-revisar" onclick="window.location.href='revisar-laudo.html?id=${laudo.id}'">
+            <i class="fa fa-eye"></i> Revisar
+          </button>
+          <button class="btn-editar" onclick="window.location.href='editar-laudo.html?id=${laudo.id}'">
+            <i class="fa fa-edit"></i> Editar
+          </button>
+          <button class="btn-excluir" onclick="excluirLaudo('${laudo.id}')">
+            <i class="fa fa-trash"></i> Excluir
+          </button>
+        </td>
+      `;
+
+      tbody.appendChild(tr);
+    });
+  }
+
+  function excluirLaudo(id) {
+    if (!confirm("Tem certeza que deseja excluir este laudo?")) return;
+
+    let laudos = JSON.parse(localStorage.getItem("laudos")) || [];
+    laudos = laudos.filter((l) => l.id !== id);
+
+    localStorage.setItem("laudos", JSON.stringify(laudos));
+    carregarLaudos();
+  }
+
+  // 🔹 Função de pesquisa corrigida
+  function filtrarLaudos() {
+    const filtro = document.getElementById("pesquisa").value.toLowerCase();
+    const linhas = document.querySelectorAll("#lista-laudos tr");
+
+    linhas.forEach(linha => {
+      const texto = linha.innerText.toLowerCase();
+      linha.style.display = texto.includes(filtro) ? "" : "none";
+    });
+  }
+
+  // Atualização periódica do status a cada minuto
+  setInterval(carregarLaudos, 60000);
+
+  window.onload = () => {
+    carregarLaudos();
+    document.getElementById("pesquisa").addEventListener("keyup", filtrarLaudos);
+  };
+</script>
+
+</body>
+</html>
+

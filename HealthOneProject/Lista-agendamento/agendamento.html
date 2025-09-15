@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HealthOne • Médicos (CRUD)</title>
+  <style>
+    :root{
+      /* Paleta HealthOne (ajuste se quiser) */
+      --brand-primary:#2563eb;
+      --brand-primary-600:#1d4ed8;
+      --brand-accent:#22c55e;
+      --brand-surface:#0b1220;
+      --text:#e5e7eb;
+      --muted:#94a3b8;
+      --danger:#ef4444;
+      --warning:#f59e0b;
+      --bg:#0f172a;
+      --card:#111827;
+      --card-2:#0f172a;
+      --border:#1f2937;
+      --ring:#3b82f6;
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 16px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background: radial-gradient(1200px 600px at 20% -10%, rgba(59,130,246,.15), transparent 60%),
+                  radial-gradient(1200px 700px at 120% 20%, rgba(34,197,94,.10), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      line-height:1.35;
+    }
+
+    /* Header */
+    .appbar{
+      position:sticky; top:0; z-index:10;
+      backdrop-filter: saturate(120%) blur(8px);
+      background: rgba(15,23,42,.6);
+      border-bottom: 1px solid var(--border);
+    }
+    .appbar-inner{
+      max-width:1200px; margin:0 auto; padding:14px 20px;
+      display:flex; align-items:center; gap:16px; justify-content:space-between;
+    }
+    .brand{
+      display:flex; align-items:center; gap:12px;
+    }
+    .logo{
+      width:36px; height:36px; border-radius:10px;
+      background: linear-gradient(135deg, var(--brand-primary), var(--brand-accent));
+      box-shadow: 0 8px 20px rgba(37,99,235,.45), inset 0 0 10px rgba(255,255,255,.15);
+    }
+    .brand h1{
+      font-size:18px; margin:0; letter-spacing:.4px; font-weight:700;
+    }
+    .brand small{color:var(--muted); display:block; margin-top:2px; font-weight:500}
+
+    .wrap{
+      max-width:1200px; margin:24px auto; padding:0 20px 80px;
+    }
+
+    /* Top actions / filtros */
+    .toolbar{
+      display:grid; grid-template-columns: 1fr 220px 180px 160px auto;
+      gap:12px; margin:16px 0 12px;
+    }
+    @media (max-width: 980px){
+      .toolbar{ grid-template-columns: 1fr 1fr; }
+    }
+    .field{
+      display:flex; align-items:center; gap:10px; background: var(--card); border:1px solid var(--border);
+      padding:10px 12px; border-radius: 12px;
+    }
+    .field input,.field select{
+      width:100%; background:transparent; border:0; color:var(--text); outline:none; font-size:14px;
+    }
+    .btn{
+      appearance:none; border:1px solid var(--brand-primary);
+      background: linear-gradient(180deg, var(--brand-primary), var(--brand-primary-600));
+      color:white; padding:10px 14px; border-radius:12px; font-weight:600; cursor:pointer;
+      box-shadow: 0 8px 20px rgba(37,99,235,.35);
+      transition: transform .04s ease, filter .2s ease;
+      white-space:nowrap;
+    }
+
+    .btn.secondary{
+      background: transparent; border-color:var(--border); color:var(--text);
+      box-shadow:none;
+    }
+    .switch{
+      display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:12px;
+      border:1px solid var(--border); background:var(--card);
+    }
+    .switch input{ accent-color: var(--brand-primary); width:18px; height:18px; }
+
+    /* Card */
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.02), transparent 18%) , var(--card-2);
+      border:1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow);
+    }
+    .card-header{
+      display:flex; align-items:center; justify-content:space-between; padding:16px 16px 8px 16px;
+      border-bottom:1px solid var(--border);
+    }
+    .card-header h2{margin:0; font-size:18px}
+    .card-content{ padding: 8px 16px 16px 16px; }
+
+    /* Tabela */
+    .table{
+      width:100%; border-collapse:separate; border-spacing:0 8px;
+    }
+    .thead{ color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.6px; }
+    .thead th{ text-align:left; padding:0 12px 8px; }
+    .row{
+      background: var(--card); border:1px solid var(--border);
+      border-radius:12px; overflow:hidden;
+    }
+    .row td{
+      padding:12px; border-bottom:1px solid rgba(255,255,255,.04);
+    }
+    .row td:last-child{ border-bottom:0; }
+    .badge{
+  font-size:12px; padding:4px 8px; border-radius:999px; border:1px solid var(--border);
+  background: rgba(59,130,246,.12);
+  white-space: nowrap; /* Isso impede a quebra de linha dentro do badge */
+    }
+    .convenios {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    }
+    .badge.ok{ background: rgba(34,197,94,.12); border-color: rgba(34,197,94,.4); color:#bbf7d0; }
+    .badge.warn{ background: rgba(245,158,11,.12); border-color: rgba(245,158,11,.4); color:#fde68a; }
+
+    .actions{
+      display:flex; gap:8px; flex-wrap:wrap;
+    }
+    .btn.icon{
+      padding:8px 10px; font-size:13px; border-radius:10px;
+    }
+    .btn.danger{
+      background: linear-gradient(180deg, #ef4444, #b91c1c);
+      border-color:#b91c1c; box-shadow: 0 8px 20px rgba(239,68,68,.25);
+    }
+    .btn.outline{
+      background: transparent; color: var(--text);
+      border-color: var(--border); box-shadow:none;
+    }
+
+    /* Paginação */
+    .pagination{
+      display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:16px;
+    }
+    .pagination .pages{
+      display:flex; gap:8px; align-items:center; flex-wrap:wrap;
+    }
+    .page{
+      border:1px solid var(--border); background:var(--card); color:var(--text);
+      padding:8px 10px; border-radius:10px; cursor:pointer;
+    }
+    .page.active{ border-color: var(--brand-primary); outline:2px solid rgba(37,99,235,.35); }
+
+    /* Modal (mantive CSS, mas o HTML foi removido) */
+    .modal-backdrop{ display:none; }
+
+    .empty{
+      text-align:center; color:var(--muted); padding:28px 12px;
+    }
+
+    /* Click sortable */
+    th.sortable{ cursor:pointer; user-select:none; }
+    th.sortable::after{
+      content:'↕'; margin-left:6px; opacity:.4; font-size:11px;
+    }
+
+    /* ===========================
+       THEME: Medicio-like
+       =========================== */
+    :root{
+      --medicio-teal: #3fbbc0;
+      --medicio-teal-600: #34a3a8;
+      --medicio-teal-100: #e5f7f8;
+      --medicio-dark: #2a2d34;
+      --medicio-muted: #6b7280;
+      --medicio-border: #e5e7eb;
+      --medicio-white: #ffffff;
+    }
+    :root{
+      --brand-primary: var(--medicio-teal);
+      --brand-primary-600: var(--medicio-teal-600);
+      --brand-accent: var(--medicio-teal);
+      --bg: var(--medicio-white);
+      --card: #ffffff;
+      --card-2: #ffffff;
+      --text: var(--medicio-dark);
+      --muted: var(--medicio-muted);
+      --border: var(--medicio-border);
+      --ring: var(--medicio-teal);
+      --shadow: 0 8px 24px rgba(0,0,0,.06);
+      --radius: 12px;
+    }
+    body{
+      background: var(--medicio-white) !important;
+      color: var(--medicio-dark) !important;
+    }
+    .topstrip-medicio{
+      background: var(--medicio-teal);
+      color: #eaffff;
+      font: 500 13px/1.2 Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      padding: 8px 20px;
+      display:flex; align-items:center; gap:10px;
+    }
+    .topstrip-medicio .ico{ opacity:.9 }
+    .appbar{
+      background: #ffffff !important;
+      backdrop-filter: none !important;
+      border-bottom: 1px solid var(--medicio-border) !important;
+    }
+    .appbar-inner{
+      padding: 18px 20px !important;
+    }
+    .brand h1{
+      color: var(--medicio-dark) !important;
+      letter-spacing:.2px;
+    }
+    .brand small{
+      color: var(--medicio-muted) !important;
+    }
+    .logo{
+    width:90px;
+    height:auto;
+  }
+    .toolbar{
+      gap: 14px !important;
+      margin: 24px 0 12px !important;
+    }
+    .field,
+    .switch{
+      background: #ffffff !important;
+      border: 1px solid var(--medicio-border) !important;
+      padding: 12px 14px !important;
+      border-radius: 10px !important;
+    }
+    .field input, .field select{
+      color: var(--medicio-dark) !important;
+    }
+    .btn{
+      background: var(--medicio-teal) !important;
+      border-color: var(--medicio-teal) !important;
+      box-shadow: 0 6px 16px rgba(63,187,192,.25) !important;
+    }
+    .btn:hover{ filter: brightness(.98); }
+    .btn:active{ transform: translateY(1px); }
+    .btn.secondary{
+      background: #ffffff !important;
+      color: var(--medicio-dark) !important;
+      border-color: var(--medicio-border) !important;
+      box-shadow: none !important;
+    }
+    .btn.outline{
+      background: #ffffff !important;
+      border-color: var(--medicio-border) !important;
+    }
+    .btn.danger{
+      background: linear-gradient(180deg, #ef4444, #d01e1e) !important;
+      border-color:#d01e1e !important;
+      box-shadow: 0 6px 16px rgba(239,68,68,.18) !important;
+    }
+    .card{
+      background: #ffffff !important;
+      border: 1px solid var(--medicio-border) !important;
+      border-radius: 12px !important;
+      box-shadow: var(--shadow) !important;
+    }
+    .card-header{
+      padding: 16px 18px 10px 18px !important;
+    }
+    .card-content{ padding: 8px 18px 18px 18px !important; }
+    .table{ border-spacing: 0 10px !important; }
+    .row{
+      background:#ffffff !important;
+      border:1px solid var(--medicio-border) !important;
+      border-radius:10px !important;
+    }
+    .row td{ border-bottom: 0 !important; }
+    .thead{ color: var(--medicio-muted) !important; }
+    .badge{
+      background: var(--medicio-teal-100) !important;
+      color: #20767a !important;
+      border: 1px solid #c8eef0 !important;
+    }
+    .badge.ok{
+      background: #e7f7ea !important;
+      color: #217a31 !important;
+      border-color:#cfeedd !important;
+    }
+    .badge.warn{
+      background: #fff6e6 !important;
+      color: #8a5b07 !important;
+      border-color: #fde8c3 !important;
+    }
+    .page{
+      background:#ffffff !important;
+      color: var(--medicio-dark) !important;
+      border:1px solid var(--medicio-border) !important;
+      border-radius: 999px !important;
+      padding: 8px 12px !important;
+    }
+    .page.active{
+      border-color: var(--medicio-teal) !important;
+      outline: 2px solid rgba(63,187,192,.18) !important;
+    }
+    .modal{ background:#ffffff !important; border:1px solid var(--medicio-border) !important; }
+    .modal header, .modal footer{ border-color: var(--medicio-border) !important; }
+    .input{
+      background:#ffffff !important; border:1px solid var(--medicio-border) !important;
+      border-radius:10px !important; padding: 12px 14px !important;
+    }
+    .input label{ color: var(--medicio-muted) !important; }
+    .input input, .input select, .input textarea{ color: var(--medicio-dark) !important; }
+    th.sortable::after{ opacity:.35 !important; }
+    .topnav{
+    position:sticky; top:0; z-index:10; background:var(--bg);
+    border-bottom:1px solid var(--line); padding:12px 24px;
+    display:flex; align-items:center; gap:22px;
+  }
+  .logo{display:flex; align-items:center; gap:10px; margin-right:8px}
+  .logo-badge{width:36px;height:36px;border-radius:12px;
+    background:linear-gradient(135deg,var(--brand),#64e4dc);
+    display:grid;place-items:center;color:#fff;font-weight:800;box-shadow:var(--soft)}
+  .logo span{font-weight:800;color:var(--brand-600);letter-spacing:.3px}
+
+  .tabs{display:flex; gap:16px; align-items:center; margin-left:600px}
+  .tabs a{color:var(--muted); text-decoration:none; font-weight:600}
+  .tabs a:hover{color:var(--brand-600, )}
+  .tabs .ativo{background:var(--bran, #64e4dc); color:#f8f8f8; padding:8px 18px;
+    border-radius:999px; box-shadow:0 4px 10px rgba(0, 211, 248, 0.25)}
+  </style>
+</head>
+<body>
+  <!-- Topbar -->
+
+  <div class="appbar">
+    <div class="appbar-inner">
+      <div class="brand">
+        <img src="logo_HealthOne.jpeg" alt="HealthOne" class="logo">
+      </div>
+      <div>
+        <small>Diretório de Médicos • CRUD</small>
+        </div>
+           <!-- ===== NAV SUPERIOR ===== -->
+  <!-- você pode colocar um campo de busca aqui se quiser -->
+  <nav class="tabs">
+    <a href="dash-pacientes.html" >Início</a>
+    <a href="agendamento.html" class="ativo">Marcar Consulta</a>
+  </nav>
+      </div>
+      <!-- Botão de novo médico removido -->
+    </div>
+  </div>
+
+  <main class="wrap">
+    <!-- Filtros -->
+    <div class="toolbar">
+      <div class="field" title="Pesquise por nome, CRM, cidade, especialidade">
+        <span>🔎</span>
+        <input id="searchInput" type="search" placeholder="Pesquisar (ex.: Neurologista, Ginecologista, Dr. Ana, CRM...)" />
+      </div>
+      <div class="field">
+        <select id="especialidadeFilter">
+          <option value="">Todas as especialidades</option>
+          <option>Cardiologista</option>
+          <option>Clínico Geral</option>
+          <option>Dermatologista</option>
+          <option>Endocrinologista</option>
+          <option>Ginecologista</option>
+          <option>Neurologista</option>
+          <option>Oftalmologista</option>
+          <option>Ortopedista</option>
+          <option>Pediatra</option>
+          <option>Psiquiatra</option>
+          <option>Urologista</option>
+        </select>
+      </div>
+      <div class="switch">
+        <input id="disponiveisToggle" type="checkbox" />
+        <label for="disponiveisToggle">Somente disponíveis</label>
+      </div>
+      <button id="limparFiltros" class="btn secondary">Limpar filtros</button>
+    </div>
+
+    <!-- Tabela -->
+    <section class="card" aria-label="Lista de médicos">
+      <div class="card-header">
+        <h2>Médicos</h2>
+        <div class="muted" style="color:var(--muted); font-size:13px">Clique no título das colunas para ordenar</div>
+      </div>
+      <div class="card-content">
+        <table class="table" aria-describedby="Lista de médicos">
+          <thead class="thead">
+            <tr>
+              <th class="sortable" data-sort="nome">Médico</th>
+              <th class="sortable" data-sort="especialidade">Especialidade</th>
+              <th class="sortable" data-sort="cidade">Cidade</th>
+              <th>Contato</th>
+              <th>Atende por</th>
+              <th class="sortable" data-sort="preco">Consulta</th>
+              <th class="sortable" data-sort="proxDisponivel">Próxima janela</th>
+              <th class="sortable" data-sort="disponivel">Status</th>
+              <th style="text-align:right">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+
+        <div id="emptyState" class="empty" hidden>
+          Nenhum médico encontrado. Ajuste os filtros ou cadastre um novo.
+        </div>
+
+        <div class="pagination">
+          <div class="pages" id="pages"></div>
+          <div style="display:flex; align-items:center; gap:8px">
+            <button id="prevPage" class="page">◀</button>
+            <button id="nextPage" class="page">▶</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Modal Add/Edit REMOVIDO -->
+
+  <script>
+    // ---------- Util ----------
+    const $ = (sel, root = document) => root.querySelector(sel);
+    const $$ = (sel, root = document) => Array.from(root.querySelectorAll(sel));
+    const fmtMoney = v => (v == null || v === '') ? '-' : `R$ ${Number(v).toFixed(2).replace('.',',')}`;
+    const fmtDateTime = iso => {
+      if(!iso) return '-';
+      try{
+        const d = new Date(iso);
+        if(isNaN(d)) return '-';
+        return d.toLocaleString('pt-BR', { dateStyle:'short', timeStyle:'short' });
+      }catch{return '-'}
+    };
+    const debounce = (fn, ms=250)=>{ let t; return (...a)=>{ clearTimeout(t); t=setTimeout(()=>fn(...a), ms); }};
+
+    // ---------- Estado ----------
+    const STORAGE_KEY = 'healthone_medicos';
+    let medicos = [];
+    let page = 1;
+    const PAGE_SIZE = 10;
+    let sortBy = 'nome';
+    let sortDir = 'asc';
+
+    function loadSeedIfEmpty(){
+      const seed = [
+        {id:crypto.randomUUID(), nome:'Dra. Ana Clara Silva', especialidade:'Ginecologista', crm:'CRM 12345-AL', telefone:'(82) 98888-1111', email:'ana.silva@healthone.com', cidade:'Maceió/AL', preco:250, proxDisponivel: future(1), disponivel:true, atendePor:'Convênio X, Convênio Y'},
+        {id:crypto.randomUUID(), nome:'Dr. Bruno Mendes', especialidade:'Neurologista', crm:'CRM 98765-AL', telefone:'(82) 97777-2222', email:'bruno.mendes@healthone.com', cidade:'Maceió/AL', preco:300, proxDisponivel: future(2), disponivel:true, atendePor:'Particular, Convênio Z'},
+        {id:crypto.randomUUID(), nome:'Dra. Camila Rocha', especialidade:'Dermatologista', crm:'CRM 11223-AL', telefone:'(82) 96666-3333', email:'camila.rocha@healthone.com', cidade:'Rio Largo/AL', preco:220, proxDisponivel: future(5), disponivel:false, atendePor:'Somente particular'},
+        {id:crypto.randomUUID(), nome:'Dr. Daniel Souza', especialidade:'Cardiologista', crm:'CRM 33445-AL', telefone:'(82) 95555-4444', email:'daniel.souza@healthone.com', cidade:'Marechal/AL', preco:280, proxDisponivel: future(3), disponivel:true, atendePor:'Convênio W, Particular'},
+        {id:crypto.randomUUID(), nome:'Dra. Elisa Nunes', especialidade:'Clínico Geral', crm:'CRM 55667-AL', telefone:'(82) 94444-5555', email:'elisa.nunes@healthone.com', cidade:'Maceió/AL', preco:180, proxDisponivel: future(1), disponivel:true, atendePor:'SUS, Convênio X, Convênio Z'},
+        {id:crypto.randomUUID(), nome:'Dr. Felipe Barros', especialidade:'Ortopedista', crm:'CRM 77889-AL', telefone:'(82) 93333-6666', email:'felipe.barros@healthone.com', cidade:'Maceió/AL', preco:260, proxDisponivel: future(7), disponivel:false, atendePor:'Particular, Convênio W'},
+        {id:crypto.randomUUID(), nome:'Dra. Gabriela Lima', especialidade:'Pediatra', crm:'CRM 99887-AL', telefone:'(82) 92222-7777', email:'gabriela.lima@healthone.com', cidade:'Maceió/AL', preco:200, proxDisponivel: future(4), disponivel:true, atendePor:'Convênio X, Particular'},
+        {id:crypto.randomUUID(), nome:'Dr. Henrique Castro', especialidade:'Psiquiatra', crm:'CRM 66554-AL', telefone:'(82) 91111-8888', email:'henrique.castro@healthone.com', cidade:'Maceió/AL', preco:320, proxDisponivel: future(6), disponivel:true, atendePor:'Convênio X, Convênio Y'}
+      ];
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(seed));
+      return seed;
+    }
+    function future(days){
+      const d = new Date(); d.setDate(d.getDate()+days); d.setHours(9,0,0,0);
+      const iso = new Date(d.getTime() - d.getTimezoneOffset()*60000).toISOString().slice(0,16);
+      return iso;
+    }
+
+    function load(){
+  const raw = localStorage.getItem(STORAGE_KEY);
+  medicos = raw ? JSON.parse(raw) : loadSeedIfEmpty();
+
+  // 🔹 Garante que todos os médicos tenham "atendePor" sem sobrescrever os existentes
+  medicos = medicos.map(m => {
+    if(!('atendePor' in m) || !m.atendePor) {
+      return { ...m, atendePor: 'Particular' };
+    }
+    return m;
+  });
+
+  // salva de volta atualizado
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(medicos));
+}
+
+
+
+    // ---------- Filtros ----------
+    const searchInput = $('#searchInput');
+    const especialidadeFilter = $('#especialidadeFilter');
+    const disponiveisToggle = $('#disponiveisToggle');
+
+    function getFilters(){
+      return {
+        q: (searchInput.value || '').trim().toLowerCase(),
+        esp: especialidadeFilter.value,
+        onlyAvail: disponiveisToggle.checked
+      };
+    }
+
+    function applyFilters(list){
+      const {q, esp, onlyAvail} = getFilters();
+      return list.filter(m=>{
+        if(esp && m.especialidade !== esp) return false;
+        if(onlyAvail && !m.disponivel) return false;
+        if(!q) return true;
+        const hay = `${m.nome} ${m.especialidade} ${m.cidade} ${m.crm}`.toLowerCase();
+        return hay.includes(q);
+      });
+    }
+
+    // ---------- Ordenação ----------
+    function sortList(list){
+      const dir = sortDir === 'asc' ? 1 : -1;
+      return [...list].sort((a,b)=>{
+        let va = a[sortBy], vb = b[sortBy];
+        if(sortBy === 'preco'){ va = Number(va||0); vb = Number(vb||0); }
+        if(sortBy === 'proxDisponivel'){
+          va = va ? new Date(va).getTime() : 0;
+          vb = vb ? new Date(vb).getTime() : 0;
+        }
+        if(typeof va === 'string') va = va.toLowerCase();
+        if(typeof vb === 'string') vb = vb.toLowerCase();
+        if(va < vb) return -1*dir;
+        if(va > vb) return 1*dir;
+        return 0;
+      });
+    }
+
+    // ---------- Paginação ----------
+    function paginate(list){
+      const total = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
+      if(page > total) page = total;
+      const start = (page-1)*PAGE_SIZE;
+      const end = start + PAGE_SIZE;
+      return { totalPages: total, items: list.slice(start, end) };
+    }
+    function renderPages(total){
+      const pages = $('#pages'); pages.innerHTML = '';
+      for(let i=1;i<=total;i++){
+        const b = document.createElement('button');
+        b.className = 'page' + (i===page ? ' active':'');
+        b.textContent = i;
+        b.addEventListener('click', ()=>{ page=i; render(); });
+        pages.appendChild(b);
+      }
+      $('#prevPage').onclick = ()=>{ if(page>1){ page--; render(); } };
+      $('#nextPage').onclick = ()=>{ if(page<total){ page++; render(); } };
+    }
+
+    // ---------- Render ----------
+    function render(){
+      const tbody = $('#tbody');
+      const empty = $('#emptyState');
+      let data = applyFilters(medicos);
+      data = sortList(data);
+      const { totalPages, items } = paginate(data);
+
+      tbody.innerHTML = '';
+      if(items.length === 0){
+        empty.hidden = false;
+      }else{
+        empty.hidden = true;
+        for(const m of items){
+          const tr = document.createElement('tr'); tr.className='row';
+          tr.innerHTML = `
+            <td>
+              <div style="display:flex; align-items:center; gap:10px;">
+                <div style="width:36px; height:36px; border-radius:10px; background:linear-gradient(135deg, var(--brand-primary), var(--brand-accent));"></div>
+                <div>
+                  <div style="font-weight:600">${escapeHTML(m.nome)}</div>
+                  <div style="color:var(--muted); font-size:12px">${escapeHTML(m.crm||'-')}</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="badge">${escapeHTML(m.especialidade)}</span></td>
+            <td>${escapeHTML(m.cidade||'-')}</td>
+            <td>
+              <div style="font-size:13px; color:var(--muted)">
+                ${escapeHTML(m.telefone||'-')} • ${escapeHTML(m.email||'-')}
+              </div>
+            </td>
+            <td>
+               <div class="convenios">
+                 ${(m.atendePor || '-').split(',').map(c => `<span class="badge">${escapeHTML(c.trim())}</span>`).join('')}
+            </div>
+              </td>
+
+            <td>${fmtMoney(m.preco)}</td>
+            <td>${fmtDateTime(m.proxDisponivel)}</td>
+            <td>
+              ${m.disponivel ? '<span class="badge ok">Disponível</span>' : '<span class="badge warn">Indisponível</span>'}
+            </td>
+            <td style="text-align:right">
+              <div class="actions">
+                <button class="btn icon outline" title="Escolher / Marcar" data-act="marcar" data-id="${m.id}">Marcar</button>
+              </div>
+            </td>
+          `;
+          tbody.appendChild(tr);
+        }
+      }
+      renderPages(totalPages);
+
+      // Actions
+      $$('#tbody [data-act]').forEach(btn=>{
+        const id = btn.getAttribute('data-id');
+        const act = btn.getAttribute('data-act');
+        btn.onclick = ()=> onAction(act, id);
+      });
+    }
+
+    function escapeHTML(s){
+      if(s==null) return '';
+      return String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;', "'":'&#39;'}[m]));
+    }
+
+    function onAction(act, id){
+  const idx = medicos.findIndex(m=>m.id===id);
+  if(idx===-1) return;
+  const m = medicos[idx];
+  if(act==='marcar'){
+    localStorage.setItem('healthone_medico_escolhido', JSON.stringify(m));
+    window.location.href = 'agenda-consulta.html'; // redireciona para agenda
+  }
+}
+
+
+    // ---------- Ordenação por cabeçalho ----------
+    $$('.thead th.sortable').forEach(th=>{
+      th.addEventListener('click', ()=>{
+        const key = th.getAttribute('data-sort');
+        if(sortBy === key){ sortDir = (sortDir === 'asc' ? 'desc' : 'asc'); }
+        else{ sortBy = key; sortDir = 'asc'; }
+        render();
+      });
+    });
+
+    // ---------- Filtros listeners ----------
+    searchInput.addEventListener('input', debounce(()=>{
+      page=1; render();
+    }, 250));
+    especialidadeFilter.addEventListener('change', ()=>{ page=1; render(); });
+    disponiveisToggle.addEventListener('change', ()=>{ page=1; render(); });
+    $('#limparFiltros').onclick = ()=>{
+      searchInput.value = '';
+      especialidadeFilter.value = '';
+      disponiveisToggle.checked = false;
+      page = 1; render();
+    };
+
+    // ---------- Init ----------
+    load();
+    render();
+  </script>
+</body>
+</html>
