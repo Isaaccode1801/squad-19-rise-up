@@ -1,1 +1,3 @@
-body { outline: 6px solid red !important; }
+/* teste bruto */
+* { outline: 6px solid red !important; }
+html, body { background: yellow !important; }
