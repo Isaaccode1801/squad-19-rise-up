@@ -3,8 +3,212 @@
 <head>
   <meta charset="UTF-8" />
   <title>Gestão de Laudos</title>
-  <link rel="stylesheet" href="../../assets/css/laudo.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f7f9fb;
+      margin: 0;
+      padding: 0;
+      color: #333;
+    }
 
+    .top-bar {
+      background-color: #26bdbd;
+      color: white;
+      text-align: right;
+      padding: 5px 20px;
+      font-size: 13px;
+      border-top-left-radius: 6px;
+      border-top-right-radius: 6px;
+    }
+
+    .phone {
+      color: #ff0080;
+      font-size: 14px;
+      margin-left: 10px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      background-color: white;
+      padding: 15px 20px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      gap: 20px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: #555;
+      font-weight: 500;
+      padding: 10px 18px;
+      border-radius: 20px;
+      transition: background 0.3s ease;
+    }
+
+    .nav-links a.active {
+      background: #26bdbd;
+      color: white;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      font-weight: bold;
+    }
+
+    .btn-header {
+      background: none;
+      color: #555;
+      border: none;
+      padding: 10px 18px;
+      border-radius: 20px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .btn-header:hover {
+      background: #f0f0f0;
+    }
+
+    .search-sort {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      max-width: 95%;
+      margin: 20px auto;
+      gap: 10px;
+    }
+
+    .search-sort input {
+      padding: 8px;
+      width: 60%;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
+    .search-sort button {
+      padding: 8px 12px;
+      margin-left: 10px;
+      border: none;
+      border-radius: 6px;
+      background: #26bdbd;
+      color: white;
+      cursor: pointer;
+    }
+
+    table {
+      width: 95%;
+      margin: 30px auto;
+      border-collapse: collapse;
+      background: white;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 12px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+
+    th {
+      background: #00bcd4;
+      color: white;
+      cursor: pointer;
+    }
+
+    tr:hover {
+      background: #f1f1f1;
+    }
+
+    .status-verde {
+      color: green;
+      font-weight: bold;
+    }
+
+    .status-vermelho {
+      color: red;
+      font-weight: bold;
+    }
+
+    .status-rascunho {
+      color: #777;
+      font-style: italic;
+    }
+
+    .acoes button {
+      border: none;
+      padding: 6px 10px;
+      border-radius: 6px;
+      margin-right: 5px;
+      cursor: pointer;
+      color: white;
+    }
+
+    .btn-editar {
+      background: #2196f3;
+    }
+
+    .btn-revisar {
+      background: #607d8b;
+    }
+
+    .btn-excluir {
+      background: #f44336;
+    }
+
+    .novo-laudo {
+      margin: 20px;
+    }
+
+    .novo-laudo button {
+      background: #4caf50;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .paginacao {
+      text-align: center;
+      margin: 20px 0;
+      display: none; /* inicialmente escondida */
+    }
+
+    .paginacao button {
+      margin: 0 5px;
+      padding: 6px 12px;
+      border: none;
+      border-radius: 6px;
+      background: #26bdbd;
+      color: white;
+      cursor: pointer;
+    }
+
+    .mensagem-nenhum {
+      text-align: center;
+      padding: 20px;
+      color: #666;
+      font-style: italic;
+    }
+
+    @media (max-width: 768px) {
+      .search-sort input { width: 100%; }
+      .search-sort { flex-direction: column; align-items: stretch; }
+      table, thead, tbody, th, td, tr { display: block; }
+      th { display: none; }
+      tr { margin-bottom: 15px; border: 1px solid #ddd; border-radius: 6px; padding: 10px; }
+      td { display: flex; justify-content: space-between; padding: 8px; }
+    }
+  </style>
 </head>
 <body>
 
@@ -14,15 +218,11 @@
   </div>
 
   <div class="header">
-      <div class="brand">
-        <div class="logo">M</div>
-        <span class="user">Dr(a). Camilla Millene</span>
-      </div>
     <div class="nav-links">
-      <a href="../tabela-pacientes/dashboard.html">Início</a>
+      <a href="#">Início</a>
       <a href="#" class="active">Laudo</a>
     </div>
-    <button class="btn-header" onclick="window.location.href='../tabela-pacientes/crud-pacientes.html'">Gerenciamento de Paciente</button>
+    <button class="btn-header" onclick="window.location.href='gerenciamento.html'">Gerenciamento de Paciente</button>
   </div>
 
   <div class="novo-laudo">
@@ -30,12 +230,16 @@
       <i class="fa fa-plus"></i> Novo Laudo
     </button>
   </div>
-  
-  <div style="width:95%; margin: 20px auto;">
-      <input type="text" id="pesquisa" placeholder="Pesquisar por paciente ou exame..." 
-         style="width:100%; padding:10px; border-radius:6px; border:1px solid #ccc;">
+
+  <!-- 🔍 Campo de busca e botões de ordenação -->
+  <div class="search-sort">
+    <input type="text" id="search" placeholder="Buscar paciente ou exame...">
+    <div>
+      <button onclick="ordenarPorNome()">Ordenar por Nome</button>
+      <button onclick="ordenarPorData()">Ordenar por Data</button>
+    </div>
   </div>
-  
+
   <table>
     <thead>
       <tr>
@@ -49,92 +253,164 @@
     <tbody id="lista-laudos"></tbody>
   </table>
 
+  <!-- 📄 Paginação -->
+  <div class="paginacao" id="paginacao"></div>
+
   <script>
-  function avaliarStatus(prazo) {
-    if (!prazo) return "Rascunho";
+    const itensPorPagina = 5;
+    let paginaAtual = 1;
+    let laudosFiltrados = [];
 
-    const hoje = new Date();
-    const dataPrazo = new Date(prazo + "T23:59:59");
+    function avaliarStatus(prazo) {
+      if (!prazo) return '<span class="status-rascunho">Rascunho</span>';
 
-    if (dataPrazo >= hoje) {
-      return '<span class="status-verde">Dentro do prazo</span>';
-    } else {
-      return '<span class="status-vermelho">Vencido</span>';
+      const hoje = new Date();
+      const dataPrazo = new Date(prazo + "T23:59:59");
+
+      if (dataPrazo >= hoje) {
+        return '<span class="status-verde">Dentro do prazo</span>';
+      } else {
+        return '<span class="status-vermelho">Vencido</span>';
+      }
     }
-  }
 
-  function formatarData(dataStr) {
-    if (!dataStr) return "-";
-    const data = new Date(dataStr);
-    const dia = String(data.getDate() + 1).padStart(2, '0');
-    const mes = String(data.getMonth() + 1).padStart(2, '0');
-    const ano = data.getFullYear();
-    return `${dia}/${mes}/${ano}`;
-  }
+    function formatarData(dataStr) {
+      if (!dataStr) return "-";
+      const data = new Date(dataStr);
+      const dia = String(data.getDate()).padStart(2, '0');
+      const mes = String(data.getMonth() + 1).padStart(2, '0');
+      const ano = data.getFullYear();
+      return `${dia}/${mes}/${ano}`;
+    }
 
-  function carregarLaudos() {
-    const laudos = JSON.parse(localStorage.getItem("laudos")) || [];
-    const tbody = document.getElementById("lista-laudos");
-    tbody.innerHTML = "";
+    function carregarLaudos() {
+      const laudos = JSON.parse(localStorage.getItem("laudos")) || [];
+      laudosFiltrados = [...laudos];
+      paginaAtual = 1; // resetar para a primeira página ao carregar
+      exibirLaudos();
+    }
 
-    laudos.forEach((laudo) => {
-      const statusCalculado = avaliarStatus(laudo.prazo);
-      const prazoFormatado = formatarData(laudo.prazo);
+    function exibirLaudos() {
+      const tbody = document.getElementById("lista-laudos");
+      tbody.innerHTML = "";
 
-      const tr = document.createElement("tr");
+      const inicio = (paginaAtual - 1) * itensPorPagina;
+      const fim = inicio + itensPorPagina;
+      const laudosPagina = laudosFiltrados.slice(inicio, fim);
 
-      tr.innerHTML = `
-        <td>${laudo.paciente || "-"}</td>
-        <td>${laudo.exame || "-"}</td>
-        <td>${prazoFormatado}</td>
-        <td>${statusCalculado}</td>
-        <td class="acoes">
-          <button class="btn-revisar" onclick="window.location.href='revisar-laudo.html?id=${laudo.id}'">
-            <i class="fa fa-eye"></i> Revisar
-          </button>
-          <button class="btn-editar" onclick="window.location.href='editar-laudo.html?id=${laudo.id}'">
-            <i class="fa fa-edit"></i> Editar
-          </button>
-          <button class="btn-excluir" onclick="excluirLaudo('${laudo.id}')">
-            <i class="fa fa-trash"></i> Excluir
-          </button>
-        </td>
-      `;
+      if (laudosPagina.length === 0) {
+        // Mostrar mensagem amigável quando não há laudos na página atual
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td colspan="5"><div class="mensagem-nenhum">Nenhum laudo encontrado.</div></td>`;
+        tbody.appendChild(tr);
+      } else {
+        laudosPagina.forEach((laudo) => {
+          const statusCalculado = avaliarStatus(laudo.prazo);
+          const prazoFormatado = formatarData(laudo.prazo);
 
-      tbody.appendChild(tr);
+          const tr = document.createElement("tr");
+
+          tr.innerHTML = `
+            <td>${laudo.paciente || "-"}</td>
+            <td>${laudo.exame || "-"}</td>
+            <td>${prazoFormatado}</td>
+            <td>${statusCalculado}</td>
+            <td class="acoes">
+              <button class="btn-revisar" onclick="window.location.href='revisar-laudo.html?id=${laudo.id}'">
+                <i class="fa fa-eye"></i> Revisar
+              </button>
+              <button class="btn-editar" onclick="window.location.href='editar-laudo.html?id=${laudo.id}'">
+                <i class="fa fa-edit"></i> Editar
+              </button>
+              <button class="btn-excluir" onclick="excluirLaudo('${laudo.id}')">
+                <i class="fa fa-trash"></i> Excluir
+              </button>
+            </td>
+          `;
+
+          tbody.appendChild(tr);
+        });
+      }
+
+      atualizarPaginacao();
+    }
+
+    function atualizarPaginacao() {
+      const totalPaginas = Math.ceil(laudosFiltrados.length / itensPorPagina);
+      const paginacaoDiv = document.getElementById("paginacao");
+      paginacaoDiv.innerHTML = "";
+
+      if (totalPaginas <= 1) {
+        // Se tiver 0 ou 1 página, esconder o componente de paginação
+        paginacaoDiv.style.display = 'none';
+        return;
+      }
+
+      paginacaoDiv.style.display = 'block';
+
+      for (let i = 1; i <= totalPaginas; i++) {
+        const btn = document.createElement("button");
+        btn.innerText = i;
+        if (i === paginaAtual) {
+          btn.style.background = "#00796b";
+        }
+        btn.onclick = () => {
+          paginaAtual = i;
+          exibirLaudos();
+          // rolar para o topo da tabela quando trocar de página (melhora UX)
+          const topTabela = document.querySelector('table').offsetTop - 20;
+          window.scrollTo({ top: topTabela, behavior: 'smooth' });
+        };
+        paginacaoDiv.appendChild(btn);
+      }
+    }
+
+    function excluirLaudo(id) {
+      if (!confirm("Tem certeza que deseja excluir este laudo?")) return;
+
+      let laudos = JSON.parse(localStorage.getItem("laudos")) || [];
+      laudos = laudos.filter((l) => l.id !== id);
+
+      localStorage.setItem("laudos", JSON.stringify(laudos));
+      carregarLaudos();
+    }
+
+    // 🔍 Filtro de busca
+    document.getElementById("search").addEventListener("input", function () {
+      const filtro = this.value.toLowerCase();
+      const laudos = JSON.parse(localStorage.getItem("laudos")) || [];
+      laudosFiltrados = laudos.filter(
+        (l) =>
+          (l.paciente && l.paciente.toLowerCase().includes(filtro)) ||
+          (l.exame && l.exame.toLowerCase().includes(filtro))
+      );
+      paginaAtual = 1;
+      exibirLaudos();
     });
-  }
 
-  function excluirLaudo(id) {
-    if (!confirm("Tem certeza que deseja excluir este laudo?")) return;
+    // 🔽 Ordenação
+    function ordenarPorNome() {
+      laudosFiltrados.sort((a, b) =>
+        (a.paciente || "").localeCompare(b.paciente || "")
+      );
+      paginaAtual = 1;
+      exibirLaudos();
+    }
 
-    let laudos = JSON.parse(localStorage.getItem("laudos")) || [];
-    laudos = laudos.filter((l) => l.id !== id);
+    function ordenarPorData() {
+      laudosFiltrados.sort((a, b) => {
+        const da = a.prazo ? new Date(a.prazo) : new Date(0);
+        const db = b.prazo ? new Date(b.prazo) : new Date(0);
+        return da - db;
+      });
+      paginaAtual = 1;
+      exibirLaudos();
+    }
 
-    localStorage.setItem("laudos", JSON.stringify(laudos));
-    carregarLaudos();
-  }
+    // Atualização periódica do status a cada minuto
+    setInterval(carregarLaudos, 60000);
 
-  // 🔹 Função de pesquisa corrigida
-  function filtrarLaudos() {
-    const filtro = document.getElementById("pesquisa").value.toLowerCase();
-    const linhas = document.querySelectorAll("#lista-laudos tr");
-
-    linhas.forEach(linha => {
-      const texto = linha.innerText.toLowerCase();
-      linha.style.display = texto.includes(filtro) ? "" : "none";
-    });
-  }
-
-  // Atualização periódica do status a cada minuto
-  setInterval(carregarLaudos, 60000);
-
-  window.onload = () => {
-    carregarLaudos();
-    document.getElementById("pesquisa").addEventListener("keyup", filtrarLaudos);
-  };
-</script>
-
+    window.onload = carregarLaudos;
+  </script>
 </body>
 </html>
-
