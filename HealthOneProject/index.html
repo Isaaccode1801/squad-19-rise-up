@@ -34,7 +34,7 @@
           <i class="bi bi-clock me-1"></i> Segunda - Sábado, 8h às 22h
         </div>
         <div class="d-flex align-items-center">
-          <i class="bi bi-phone me-1"></i> Ligue agora +1 5589 55488 55
+          <i class="bi bi-phone me-1"></i> Número da empresa
         </div>
       </div>
     </div><!-- End Top Bar -->
@@ -57,11 +57,10 @@
                 <li><a href="#">Menu 1</a></li>
                 <li class="dropdown"><a href="#"><span>Submenu</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
                   <ul>
-                    <li><a href="#">Submenu 1</a></li>
-                    <li><a href="#">Submenu 2</a></li>
-                    <li><a href="#">Submenu 3</a></li>
-                    <li><a href="#">Submenu 4</a></li>
-                    <li><a href="#">Submenu 5</a></li>
+            <li><a href="index.html#about">Sobre</a></li>
+            <li><a href="index.html#services">Serviços</a></li>
+            <li><a href="index.html#doctors">Médicos</a></li>
+            <li><a href="index.html#contact">Contato</a></li>
                   </ul>
                 </li>
                 <li><a href="#">Menu 2</a></li>
@@ -74,7 +73,7 @@
           <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
         </nav>
 
-        <a class="cta-btn" href="index.html#appointment">Marcar Consulta</a>
+        <a class="cta-btn" href="#" data-bs-toggle="modal" data-bs-target="#appointmentModal">Marcar Consulta</a>
 
       </div>
 
@@ -87,10 +86,10 @@
       <div class="row justify-content-center">
         <div class="col-lg-8 text-center">
           <div class="d-flex flex-column flex-md-row gap-3 justify-content-center">
-            <a href="medico/tabela-pacientes/dashboard.html" class="btn btn-primary btn-lg px-5 py-3 starter-page-btn">
+            <a href="#" class="btn btn-primary btn-lg px-5 py-3 starter-page-btn" data-bs-toggle="modal" data-bs-target="#doctorModal">
               <i class="bi bi-heart-pulse me-2"></i>Sou Médico
             </a>
-            <a href="Lista-agendamento/dash-pacientes.html" class="btn btn-primary btn-lg px-5 py-3 starter-page-btn">
+            <a href="#" class="btn btn-primary btn-lg px-5 py-3 starter-page-btn" data-bs-toggle="modal" data-bs-target="#patientModal">
               <i class="bi bi-heart me-2"></i>Sou Paciente
             </a>
             <a href="Secretaria/dash-secretaria.html" class="btn btn-primary btn-lg px-5 py-3 starter-page-btn">
@@ -134,88 +133,92 @@
 
 
   </main>
-
-  <footer id="footer" class="footer light-background">
-
-    <div class="container footer-top">
-      <div class="row gy-4">
-        <div class="col-lg-4 col-md-6 footer-about">
-          <a href="index.html" class="logo d-flex align-items-center">
-            <span class="sitename">Medicio</span>
-          </a>
-          <div class="footer-contact pt-3">
-            <p>A108 Adam Street</p>
-            <p>New York, NY 535022</p>
-            <p class="mt-3"><strong>Telefone:</strong> <span>+1 5589 55488 55</span></p>
-            <p><strong>Email:</strong> <span>info@example.com</span></p>
+    <!-- Modal para Marcar Consulta -->
+  <div class="modal fade" id="appointmentModal" tabindex="-1" aria-labelledby="appointmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="appointmentModalLabel">
+            <i class="bi bi-calendar-check me-2"></i>Marcar Consulta
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+          <p class="mb-4">Você já é paciente do HealthOne?</p>
+          <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
+            <button type="button" class="btn btn-success btn-lg px-4 py-3" onclick="handlePatientChoice('existing')">
+              <i class="bi bi-check-circle me-2"></i>Sim, já sou paciente
+            </button>
+            <button type="button" class="btn btn-primary btn-lg px-4 py-3" onclick="handlePatientChoice('new')">
+              <i class="bi bi-person-plus me-2"></i>Não, sou novo paciente
+            </button>
           </div>
-          <div class="social-links d-flex mt-4">
-            <a href=""><i class="bi bi-twitter-x"></i></a>
-            <a href=""><i class="bi bi-facebook"></i></a>
-            <a href=""><i class="bi bi-instagram"></i></a>
-            <a href=""><i class="bi bi-linkedin"></i></a>
-          </div>
         </div>
-
-        <div class="col-lg-2 col-md-3 footer-links">
-          <h4>Links Úteis</h4>
-          <ul>
-            <li><a href="index.html">Início</a></li>
-            <li><a href="#">Sobre nós</a></li>
-            <li><a href="#">Serviços</a></li>
-            <li><a href="#">Termos de serviço</a></li>
-            <li><a href="#">Política de privacidade</a></li>
-          </ul>
-        </div>
-
-        <div class="col-lg-2 col-md-3 footer-links">
-          <h4>Nossos Serviços</h4>
-          <ul>
-            <li><a href="#">Design Web</a></li>
-            <li><a href="#">Desenvolvimento Web</a></li>
-            <li><a href="#">Gestão de Produto</a></li>
-            <li><a href="#">Marketing</a></li>
-            <li><a href="#">Design Gráfico</a></li>
-          </ul>
-        </div>
-
-        <div class="col-lg-2 col-md-3 footer-links">
-          <h4>Hic solutasetp</h4>
-          <ul>
-            <li><a href="#">Molestiae accusamus iure</a></li>
-            <li><a href="#">Excepturi dignissimos</a></li>
-            <li><a href="#">Suscipit distinctio</a></li>
-            <li><a href="#">Dilecta</a></li>
-            <li><a href="#">Sit quas consectetur</a></li>
-          </ul>
-        </div>
-
-        <div class="col-lg-2 col-md-3 footer-links">
-          <h4>Nobis illum</h4>
-          <ul>
-            <li><a href="#">Ipsam</a></li>
-            <li><a href="#">Laudantium dolorum</a></li>
-            <li><a href="#">Dinera</a></li>
-            <li><a href="#">Trodelas</a></li>
-            <li><a href="#">Flexo</a></li>
-          </ul>
-        </div>
-
       </div>
     </div>
+  </div>
 
-    <div class="container copyright text-center mt-4">
-      <p>© <span>Copyright</span> <strong class="px-1 sitename">Medicio</strong> <span>Todos os Direitos Reservados</span></p>
-      <div class="credits">
-        <!-- All the links in the footer should remain intact. -->
-        <!-- You can delete the links only if you've purchased the pro version. -->
-        <!-- Licensing information: https://bootstrapmade.com/license/ -->
-        <!-- Purchase the pro version with working PHP/AJAX contact form: [buy-url] -->
-        Desenvolvido por <a href="https://bootstrapmade.com/">BootstrapMade</a>
+  <!-- Modal para Opções do Paciente -->
+  <div class="modal fade" id="patientModal" tabindex="-1" aria-labelledby="patientModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="patientModalLabel">
+            <i class="bi bi-heart me-2"></i>Bem-vindo ao <span style="color: #0a89e3;">Health</span><span style="color: #49c1c5;">One</span>!
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+          <div class="d-flex flex-column gap-3">
+            <button type="button" class="btn btn-primary btn-lg px-4 py-3" onclick="handlePatientOption('login')">
+              <i class="bi bi-box-arrow-in-right me-2"></i>Fazer Login
+            </button>
+            <button type="button" class="btn btn-success btn-lg px-4 py-3" onclick="handlePatientOption('cadastro')">
+              <i class="bi bi-person-plus me-2"></i>Criar Cadastro
+            </button>
+          </div>
+        </div>
       </div>
     </div>
+  </div>
 
-  </footer>
+  <!-- Modal para Login Médico -->
+  <div class="modal fade" id="doctorModal" tabindex="-1" aria-labelledby="doctorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="doctorModalLabel">
+            <i class="bi bi-heart-pulse me-2"></i>Login Médico
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <form id="doctorLoginForm">
+            <div class="mb-3">
+              <label for="crm" class="form-label">CRM</label>
+              <input type="text" class="form-control" id="crm" name="crm" placeholder="Digite seu CRM" required>
+            </div>
+            <div class="mb-3">
+              <label for="email" class="form-label">E-mail</label>
+              <input type="email" class="form-control" id="email" name="email" placeholder="Digite seu e-mail" required>
+            </div>
+            <div class="mb-3">
+              <label for="senha" class="form-label">Senha</label>
+              <input type="password" class="form-control" id="senha" name="senha" placeholder="Digite sua senha" required>
+            </div>
+            <div class="d-grid">
+              <button type="submit" class="btn btn-primary btn-lg">
+                <i class="bi bi-box-arrow-in-right me-2"></i>Login
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+ 
 
   <!-- Scroll Top -->
   <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
@@ -229,6 +232,52 @@
 <script src="assets/vendor/glightbox/js/glightbox.min.js"></script>
 <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
 <script src="assets/js/main.js"></script>
+
+<!-- Script para o modal de consulta -->
+  <script>
+    function handlePatientChoice(choice) {
+      // Fecha o modal
+      const modal = bootstrap.Modal.getInstance(document.getElementById('appointmentModal'));
+      modal.hide();
+      
+      // Aqui você pode adicionar a lógica para cada escolha
+      if (choice === 'existing') {
+        // Lógica para pacientes existentes
+        alert('Redirecionando para área do paciente...');
+        // window.location.href = 'forms/appointment.php'; // ou outra página
+      } else if (choice === 'new') {
+        // Lógica para novos pacientes
+        window.location.href = 'cadastro.html';
+      }
+    }
+
+    function handlePatientOption(option) {
+      // Fecha o modal
+      const modal = bootstrap.Modal.getInstance(document.getElementById('patientModal'));
+      modal.hide();
+      
+      // Redireciona para a página correspondente
+      if (option === 'login') {
+        window.location.href = 'lista-agendamento/dash-pacientes.html';
+      } else if (option === 'cadastro') {
+        window.location.href = 'cadastro.html';
+      }
+    }
+
+    // Adiciona evento para o formulário de login médico
+    document.addEventListener('DOMContentLoaded', function() {
+      const doctorLoginForm = document.getElementById('doctorLoginForm');
+      if (doctorLoginForm) {
+        doctorLoginForm.addEventListener('submit', function(event) {
+          event.preventDefault();
+          
+          // Aqui você pode adicionar validação dos dados
+          // Por enquanto, apenas redireciona para a página de laudos
+          window.location.href = 'medico/tabela-pacientes/dashboard.html';
+        });
+      }
+    });
+  </script>
 
 </body>
 
