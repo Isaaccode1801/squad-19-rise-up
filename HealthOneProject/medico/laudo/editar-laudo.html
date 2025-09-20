@@ -42,8 +42,8 @@
   </label>
   <label>Assinatura digital: <input type="checkbox" id="assinatura"></label><br>
 
-  <button class="btn-salvar" onclick="salvarEdicao()">Salvar Alterações</button>
-  <button class="btn-cancelar" onclick="window.location.href='laudo.html'">Cancelar</button>
+  <button class="btn-salvar" onclick="salvarEdicao() , window.location.href='Laudo.html'">Salvar Alterações</button>
+  <button class="btn-cancelar" onclick="window.location.href='Laudo.html'">Cancelar</button>
 </div>
 
 <script>
@@ -52,7 +52,7 @@ const laudoId = params.get("id");
 let laudos = JSON.parse(localStorage.getItem("laudos")) || [];
 let laudo = laudos.find(l => l.id === laudoId);
 
-if(!laudo) { alert("Laudo não encontrado!"); window.location.href = "laudo.html"; }
+if(!laudo) { alert("Laudo não encontrado!"); window.location.href = "Laudo.html"; }
 
 document.getElementById("laudo-conteudo").innerHTML = laudo.conteudo;
 document.getElementById("paciente").value = laudo.paciente;
