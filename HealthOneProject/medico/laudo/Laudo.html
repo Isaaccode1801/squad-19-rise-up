@@ -94,7 +94,7 @@
       <td>${laudo.hora || "-"}</td> <!-- 🔹 Mostra hora salva -->
       <td>${statusCalculado}</td>
       <td class="acoes">
-        <button class="btn-revisar" onclick="window.location.href='revisar-laudo.html?id=${laudo.id}'">
+        <button class="btn-revisar" onclick="'window.location.href='revisar-laudo.html'" ?id=${laudo.id}'">
           <i class="fa fa-eye"></i> Revisar
         </button>
         <button class="btn-editar" onclick="window.location.href='editar-laudo.html?id=${laudo.id}'">
