@@ -14,7 +14,7 @@
     <p><strong>Paciente:</strong> <span id="paciente"></span></p>
     <p><strong>Solicitante:</strong> <span id="solicitante"></span></p>
     <p><strong>Exame:</strong> <span id="exame"></span></p>
-    <p><strong>Prazo:</strong> <span id="prazo"></span> - <span id="statusPrazo"></span></p>
+    <p><strong>Data e Hora do Exame:</strong> <span id="prazo"></span> <span id="hora"></span> - <span id="statusPrazo"></span></p>
   </div>
 
   <!-- Conteúdo do laudo -->
@@ -26,14 +26,16 @@
 
   <!-- Ações -->
   <div class="acoes">
-    <button class="btn-voltar" onclick="window.location.href='Laudo.html'">Voltar</button>
+    <button class="btn-voltar" onclick="window.location.href='laudo.html'">
+      <i class="fa fa-arrow-left"></i> Voltar
+    </button>
     <button class="btn-imprimir" onclick="window.print()">
       <i class="fa fa-print"></i> Imprimir
     </button>
-    <button class="btn-liberar" onclick="liberarLaudo(), window.location.href='Laudo.html'">
+    <button class="btn-liberar" onclick="liberarLaudo()">
       <i class="fa fa-check"></i> Liberar
     </button>
-    <button class="btn-excluir" onclick="excluirLaudo(), window.location.href='Laudo.html'">
+    <button class="btn-excluir" onclick="excluirLaudo()">
       <i class="fa fa-trash"></i> Excluir
     </button>
   </div>
@@ -83,12 +85,11 @@
       const status = avaliarStatusPrazo(laudo.prazo);
 
       document.getElementById("prazo").innerText = dataFormatada;
+      document.getElementById("hora").innerText = laudo.hora || "";
       document.getElementById("statusPrazo").innerHTML = status;
 
       document.getElementById("conteudo").innerHTML = laudo.conteudo || "";
-      document.getElementById("assinatura").innerHTML = laudo.assinatura
-        ? ""
-        : "";
+      document.getElementById("assinatura").innerHTML = laudo.assinatura ? "Assinado digitalmente" : "";
     };
 
     function liberarLaudo() {

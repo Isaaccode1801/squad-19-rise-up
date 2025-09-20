@@ -9,146 +9,104 @@
 </head>
 <body>
 
-  <h1>Editar Laudo</h1>
+<h1>Editar Laudo</h1>
 
-  <!-- Barra de Formatação -->
-  <div class="editor-toolbar">
-    <button onclick="execCmd('bold')"><i class="fa fa-bold"></i></button>
-    <button onclick="execCmd('italic')"><i class="fa fa-italic"></i></button>
-    <button onclick="execCmd('insertUnorderedList')"><i class="fa fa-list-ul"></i></button>
-    <button onclick="execCmd('justifyLeft')"><i class="fa fa-align-left"></i></button>
-    <button onclick="execCmd('justifyCenter')"><i class="fa fa-align-center"></i></button>
-    <button onclick="execCmd('justifyRight')"><i class="fa fa-align-right"></i></button>
-  </div>
+<div class="editor-toolbar">
+  <button onclick="execCmd('bold')"><i class="fa fa-bold"></i></button>
+  <button onclick="execCmd('italic')"><i class="fa fa-italic"></i></button>
+  <button onclick="execCmd('insertUnorderedList')"><i class="fa fa-list-ul"></i></button>
+  <button onclick="execCmd('justifyLeft')"><i class="fa fa-align-left"></i></button>
+  <button onclick="execCmd('justifyCenter')"><i class="fa fa-align-center"></i></button>
+  <button onclick="execCmd('justifyRight')"><i class="fa fa-align-right"></i></button>
+</div>
 
-  <!-- Editor -->
-  <div id="laudo-conteudo" contenteditable="true"></div>
+<div id="laudo-conteudo" contenteditable="true"></div>
 
-  <!-- Opções -->
-  <div class="opcoes">
-    <label>Paciente: <input type="text" id="paciente"></label>
-    <label>Solicitante: <input type="text" id="solicitante"></label>
-    <label>Exame:
-      <select id="exame">
-  <optgroup label="Sangue">
-    <option>Hemograma completo</option>
-    <option>Glicemia de jejum</option>
-    <option>Colesterol e triglicerídeos</option>
-    <option>Ureia e creatinina</option>
-    <option>TGO/AST</option>
-    <option>TGP/ALT</option>
-    <option>TSH</option>
-    <option>T4 livre</option>
-    <option>Dosagem hormonal</option>
-  </optgroup>
-  <optgroup label="Urina">
-    <option>Exame de urina tipo 1</option>
-    <option>Urocultura</option>
-    <option>Exame de urina de 24 horas</option>
-  </optgroup>
-  <optgroup label="Outros">
-    <option>Ácido úrico</option>
-    <option>VDRL</option>
-    <option>HIV</option>
-    <option>Hepatites</option>
-    <option>Sífilis</option>
-  </optgroup>
-  <optgroup label="Testes rápidos">
-    <option>HIV (rápido)</option>
-    <option>Sífilis (rápido)</option>
-    <option>Hepatite B (rápido)</option>
-    <option>Hepatite C (rápido)</option>
-  </optgroup>
-  <optgroup label="Imagem">
-    <option>Radiografia</option>
-    <option>Mamografia</option>
-    <option>Ultrassonografia</option>
-    <option>Tomografia Computadorizada</option>
-    <option>Ressonância Magnética</option>
-    <option>Endoscopia</option>
-    <option>Videolaringoscopia</option>
-  </optgroup>
-  <optgroup label="Cardiológicos">
-    <option>Eletrocardiograma</option>
-    <option>Ecocardiograma</option>
-    <option>Teste ergométrico</option>
-  </optgroup>
-  <optgroup label="Alta complexidade">
-    <option>Estudos genéticos e cariótipos</option>
-    <option>Avaliação clínica para transplantes</option>
-    <option>Pré-natal de alto risco</option>
-  </optgroup>
-</select>
-    </label>
-    <label>Prazo:
-      <input type="date" id="prazo" onchange="atualizarStatusPrazo()">
-      <span id="statusPrazo" class="status"></span>
-    </label>
-    <label>Assinatura digital: <input type="checkbox" id="assinatura"></label><br />
+<div class="opcoes">
+  <label>Paciente: <input type="text" id="paciente"></label>
+  <label>Solicitante: <input type="text" id="solicitante"></label>
+  <label>Exame:
+    <select id="exame">
+      <option>Hemograma completo</option>
+      <option>Glicemia de jejum</option>
+      <option>Colesterol e triglicerídeos</option>
+      <option>Ureia e creatinina</option>
+    </select>
+  </label>
+  <label>Data do exame:
+    <input type="date" id="prazo" onchange="atualizarStatusPrazo()">
+    <span id="statusPrazo" class="status"></span>
+  </label>
+  <label>Hora:
+    <select id="hora"></select>
+  </label>
+  <label>Assinatura digital: <input type="checkbox" id="assinatura"></label><br>
 
-    <button class="btn-salvar" onclick="salvarEdicao(), window.location.href='Laudo.html'">Salvar Alterações</button>
-    <button class="btn-cancelar" onclick="window.location.href='Laudo.html'">Cancelar</button>
-  </div>
+  <button class="btn-salvar" onclick="salvarEdicao()">Salvar Alterações</button>
+  <button class="btn-cancelar" onclick="window.location.href='laudo.html'">Cancelar</button>
+</div>
 
-  <script>
-    const params = new URLSearchParams(window.location.search);
-    const laudoId = params.get("id");
-    let laudos = JSON.parse(localStorage.getItem("laudos")) || [];
-    let laudo = laudos.find(l => l.id === laudoId);
+<script>
+const params = new URLSearchParams(window.location.search);
+const laudoId = params.get("id");
+let laudos = JSON.parse(localStorage.getItem("laudos")) || [];
+let laudo = laudos.find(l => l.id === laudoId);
 
-    if (!laudo) {
-      alert("Laudo não encontrado!");
-      window.location.href = "laudo.html";
-    }
+if(!laudo) { alert("Laudo não encontrado!"); window.location.href = "laudo.html"; }
 
-    // Carregar dados no formulário
-    document.getElementById("laudo-conteudo").innerHTML = laudo.conteudo;
-    document.getElementById("paciente").value = laudo.paciente;
-    document.getElementById("solicitante").value = laudo.solicitante;
-    document.getElementById("exame").value = laudo.exame;
-    document.getElementById("prazo").value = laudo.prazo;
-    document.getElementById("assinatura").checked = laudo.assinatura;
+document.getElementById("laudo-conteudo").innerHTML = laudo.conteudo;
+document.getElementById("paciente").value = laudo.paciente;
+document.getElementById("solicitante").value = laudo.solicitante;
+document.getElementById("exame").value = laudo.exame;
+document.getElementById("prazo").value = laudo.prazo;
+document.getElementById("assinatura").checked = laudo.assinatura;
 
-    atualizarStatusPrazo();
+function execCmd(command){ document.execCommand(command, false, null); }
 
-    function execCmd(command) {
-      document.execCommand(command, false, null);
-    }
+function preencherHoras() {
+  const selectHora = document.getElementById("hora");
+  selectHora.innerHTML = "";
+  for (let h=8; h<=22; h++){
+    ["00","30"].forEach(min=>{
+      if(h===22 && min==="30") return;
+      const o = document.createElement("option");
+      o.value = `${String(h).padStart(2,"0")}:${min}`;
+      o.textContent = `${String(h).padStart(2,"0")}:${min}`;
+      selectHora.appendChild(o);
+    });
+  }
+}
 
-    function atualizarStatusPrazo() {
-      const prazo = document.getElementById("prazo").value;
-      const statusEl = document.getElementById("statusPrazo");
+function atualizarStatusPrazo() {
+  const prazo = document.getElementById("prazo").value;
+  const statusEl = document.getElementById("statusPrazo");
+  if(!prazo){ statusEl.textContent="Sem prazo"; statusEl.className="status"; return; }
+  const hoje = new Date();
+  const dataPrazo = new Date(prazo+"T23:59:59");
+  if(dataPrazo>=hoje){ statusEl.textContent="Dentro do prazo"; statusEl.className="status ok"; }
+  else { statusEl.textContent="Vencido"; statusEl.className="status vencido"; }
+}
 
-      if (!prazo) {
-        statusEl.textContent = "Sem prazo";
-        statusEl.className = "status";
-        return;
-      }
+function salvarEdicao(){
+  laudo.conteudo = document.getElementById("laudo-conteudo").innerHTML;
+  laudo.paciente = document.getElementById("paciente").value;
+  laudo.solicitante = document.getElementById("solicitante").value;
+  laudo.exame = document.getElementById("exame").value;
+  laudo.prazo = document.getElementById("prazo").value;
+  laudo.hora = document.getElementById("hora").value;
+  laudo.assinatura = document.getElementById("assinatura").checked;
 
-      const hoje = new Date();
-      const dataPrazo = new Date(prazo + "T23:59:59");
+  localStorage.setItem("laudos", JSON.stringify(laudos));
+  alert("Laudo atualizado com sucesso!");
+  window.location.href="laudo.html";
+}
 
-      if (dataPrazo >= hoje) {
-        statusEl.textContent = "Dentro do prazo";
-        statusEl.className = "status ok";
-      } else {
-        statusEl.textContent = "Vencido";
-        statusEl.className = "status vencido";
-      }
-    }
+window.onload = () => {
+  preencherHoras();
+  document.getElementById("hora").value = laudo.hora || "08:00";
+  atualizarStatusPrazo();
+};
+</script>
 
-    function salvarEdicao() {
-      laudo.conteudo = document.getElementById("laudo-conteudo").innerHTML;
-      laudo.paciente = document.getElementById("paciente").value;
-      laudo.solicitante = document.getElementById("solicitante").value;
-      laudo.exame = document.getElementById("exame").value;
-      laudo.prazo = document.getElementById("prazo").value;
-      laudo.assinatura = document.getElementById("assinatura").checked;
-
-      localStorage.setItem("laudos", JSON.stringify(laudos));
-      alert("Laudo atualizado com sucesso!");
-      window.location.href = "laudo.html";
-    }
-  </script>
 </body>
 </html>

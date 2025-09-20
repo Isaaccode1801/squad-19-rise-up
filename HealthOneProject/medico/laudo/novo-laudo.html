@@ -4,382 +4,120 @@
   <meta charset="UTF-8" />
   <title>Novo Laudo</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f7f9fb;
-      margin: 0;
-      padding: 20px;
-      color: #333;
-      transition: background 0.3s, color 0.3s;
-    }
+  <link rel="stylesheet" href="../../assets/css/novo-laudo.css">
 
-    body.dark {
-      background-color: #2c2c2c;
-      color: #f1f1f1;
-    }
-
-    h1 {
-      color: #000000;
-      margin-bottom: 20px;
-    }
-
-    body.dark h1 {
-      color: #ffffff;
-    }
-
-    .editor-toolbar {
-      margin-bottom: 10px;
-    }
-
-    .editor-toolbar button {
-      background: #00bcd4;
-      border: none;
-      padding: 8px;
-      margin-right: 5px;
-      color: white;
-      cursor: pointer;
-      border-radius: 6px;
-    }
-
-    #laudo-conteudo {
-      width: 100%;
-      height: 250px;
-      border: 1px solid #ccc;
-      padding: 10px;
-      background: white;
-      overflow-y: auto;
-      transition: background 0.3s, color 0.3s;
-    }
-
-    body.dark #laudo-conteudo {
-      background: #3a3a3a;
-      color: #f1f1f1;
-    }
-
-    .opcoes {
-      margin-top: 20px;
-    }
-
-    .opcoes input,
-    .opcoes select,
-    .opcoes button {
-      padding: 8px;
-      margin-right: 10px;
-      margin-bottom: 10px;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      transition: border 0.3s, background 0.3s, color 0.3s;
-    }
-
-    body.dark .opcoes input,
-    body.dark .opcoes select {
-      background: #3a3a3a;
-      color: #f1f1f1;
-      border-color: #666;
-    }
-
-    .btn-salvar {
-      background: #4caf50;
-      color: white;
-    }
-
-    .btn-cancelar {
-      background: #f44336;
-      color: white;
-    }
-
-    .btn-limpar {
-      background: #ff9800;
-      color: white;
-    }
-
-    .btn-toggle-theme {
-      background: #607d8b;
-      color: white;
-    }
-
-    .preview {
-      border: 1px dashed #999;
-      padding: 10px;
-      margin-top: 20px;
-      background: #fff;
-      transition: background 0.3s, color 0.3s;
-    }
-
-    body.dark .preview {
-      background: #3a3a3a;
-      color: #f1f1f1;
-      border-color: #666;
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    label {
-      font-weight: bold;
-      display: block;
-      margin-top: 10px;
-    }
-
-    .campo-obrigatorio {
-      border-color: red !important;
-    }
-
-    /* Toast */
-    .toast {
-      visibility: hidden;
-      min-width: 250px;
-      margin-left: -125px;
-      background-color: #333;
-      color: #fff;
-      text-align: center;
-      border-radius: 5px;
-      padding: 12px;
-      position: fixed;
-      z-index: 1000;
-      left: 50%;
-      bottom: 30px;
-      font-size: 16px;
-      opacity: 0;
-      transition: opacity 0.5s, visibility 0.5s;
-    }
-
-    .toast.show {
-      visibility: visible;
-      opacity: 1;
-    }
-
-    body.dark .toast {
-      background-color: #555;
-    }
-  </style>
 </head>
 <body>
 
-  <h1>Novo Laudo</h1>
+ <h1>Novo Laudo</h1>
 
-  <button class="btn-toggle-theme" onclick="toggleTheme()">Alternar Tema</button>
+<div class="editor-toolbar">
+  <button onclick="execCmd('bold')"><i class="fa fa-bold"></i></button>
+  <button onclick="execCmd('italic')"><i class="fa fa-italic"></i></button>
+  <button onclick="execCmd('insertUnorderedList')"><i class="fa fa-list-ul"></i></button>
+  <button onclick="execCmd('justifyLeft')"><i class="fa fa-align-left"></i></button>
+  <button onclick="execCmd('justifyCenter')"><i class="fa fa-align-center"></i></button>
+  <button onclick="execCmd('justifyRight')"><i class="fa fa-align-right"></i></button>
+  <button onclick="insertCampo('[[NOME]]')">Nome</button>
+  <button onclick="insertCampo('[[IDADE]]')">Idade</button>
+  <button onclick="insertCampo('[[CID]]')">CID</button>
+</div>
 
-  <!-- Barra de Formatação -->
-  <div class="editor-toolbar">
-    <button onclick="execCmd('bold')"><i class="fa fa-bold"></i></button>
-    <button onclick="execCmd('italic')"><i class="fa fa-italic"></i></button>
-    <button onclick="execCmd('insertUnorderedList')"><i class="fa fa-list-ul"></i></button>
-    <button onclick="execCmd('justifyLeft')"><i class="fa fa-align-left"></i></button>
-    <button onclick="execCmd('justifyCenter')"><i class="fa fa-align-center"></i></button>
-    <button onclick="execCmd('justifyRight')"><i class="fa fa-align-right"></i></button>
-    <button onclick="insertCampo('[[NOME]]')">Nome</button>
-    <button onclick="insertCampo('[[IDADE]]')">Idade</button>
-    <button onclick="insertCampo('[[CID]]')">CID</button>
-  </div>
+<div id="laudo-conteudo" contenteditable="true"></div>
 
-  <!-- Editor -->
-  <div id="laudo-conteudo" contenteditable="true"></div>
+<div class="opcoes">
+  <label>Paciente: <input type="text" id="paciente" placeholder="Nome do paciente"></label>
+  <label>Solicitante: <input type="text" id="solicitante" placeholder="Médico solicitante"></label>
+  <label>Exame:
+    <select id="exame">
+      <optgroup label="Sangue">
+        <option>Hemograma completo</option>
+        <option>Glicemia de jejum</option>
+        <option>Colesterol e triglicerídeos</option>
+        <option>Ureia e creatinina</option>
+        <option>TGO/AST</option>
+        <option>TGP/ALT</option>
+        <option>TSH</option>
+        <option>T4 livre</option>
+        <option>Dosagem hormonal</option>
+      </optgroup>
+      <optgroup label="Urina">
+        <option>Exame de urina tipo 1</option>
+        <option>Urocultura</option>
+        <option>Exame de urina de 24 horas</option>
+      </optgroup>
+    </select>
+  </label>
+  <label>Data do exame:
+    <input type="date" id="prazo">
+  </label>
+  <label>Hora:
+    <select id="hora"></select>
+  </label>
+  <label>Assinatura digital: <input type="checkbox" id="assinatura"></label><br>
 
-  <!-- Opções do Laudo -->
-  <div class="opcoes">
-    <label>Paciente: <input type="text" id="paciente" placeholder="Nome do paciente"></label>
-    <label>Solicitante: <input type="text" id="solicitante" placeholder="Médico solicitante"></label>
-    <label>Exame:
-      <select id="exame">
-        <option value="Ultrassom">Ultrassom</option>
-        <option value="Ecocardiograma">Ecocardiograma</option>
-        <option value="Raio-X">Raio-X</option>
-      </select>
-    </label>
-    <label>Prazo:
-      <input type="date" id="prazo">
-      <select id="hora" aria-label="Escolha a hora (10 em 10 minutos)"></select>
-    </label>
-    <label>Assinatura digital: <input type="checkbox" id="assinatura"></label>
-    <label>Esconder data/assinatura: <input type="checkbox" id="ocultarAssinatura"></label><br />
+  <button class="btn-salvar" onclick="salvarLaudo()">Salvar</button>
+  <button class="btn-cancelar" onclick="window.location.href='laudo.html'">Cancelar</button>
+</div>
 
-    <button class="btn-salvar" onclick="salvarLaudo(), window.location.href='Laudo.html'">Salvar</button>
-    <button class="btn-limpar" onclick="limparFormulario()">Limpar</button>
-    <button class="btn-cancelar" onclick="window.location.href='Laudo.html'">Cancelar</button>
-    <button onclick="mostrarPreview()">Pré-visualizar</button>
-  </div>
+<script>
+function execCmd(command) { document.execCommand(command, false, null); }
+function insertCampo(texto) {
+  const selection = window.getSelection();
+  if (!selection.rangeCount) return;
+  const range = selection.getRangeAt(0);
+  range.deleteContents();
+  range.insertNode(document.createTextNode(texto));
+}
 
-  <!-- Preview -->
-  <div class="preview hidden" id="preview"></div>
-
-  <!-- Toast -->
-  <div id="toast" class="toast"></div>
-
-  <script>
-    // Tema claro/escuro
-    function toggleTheme() {
-      document.body.classList.toggle('dark');
-    }
-
-    // Popula horários de 07:00 até 18:00 em intervalos de 10 min
-    function populateHora() {
-      const select = document.getElementById('hora');
-      select.innerHTML = '';
-      for (let h = 7; h <= 18; h++) {
-        for (let m = 0; m < 60; m += 10) {
-          if (h === 18 && m > 0) break;
-          const hh = String(h).padStart(2, '0');
-          const mm = String(m).padStart(2, '0');
-          const val = `${hh}:${mm}`;
-          const opt = document.createElement('option');
-          opt.value = val;
-          opt.textContent = val;
-          select.appendChild(opt);
-        }
-      }
-    }
-
-    function formatDateToDDMMYYYY(dateStr) {
-      if (!dateStr) return '';
-      const parts = dateStr.split('-');
-      if (parts.length !== 3) return dateStr;
-      return `${parts[2]}/${parts[1]}/${parts[0]}`;
-    }
-
-    // Seleciona horário padrão = próximo válido (10 em 10 minutos)
-    function setDefaultHora() {
-      const select = document.getElementById('hora');
-      const now = new Date();
-      let h = now.getHours();
-      let m = now.getMinutes();
-
-      if (m % 10 !== 0) {
-        m = m + (10 - (m % 10)); // arredonda pra cima
-        if (m === 60) { m = 0; h++; }
-      }
-      if (h < 7) h = 7, m = 0;
-      if (h > 18) h = 18, m = 0;
-
-      const hh = String(h).padStart(2, '0');
-      const mm = String(m).padStart(2, '0');
-      const target = `${hh}:${mm}`;
-
-      const option = [...select.options].find(opt => opt.value === target);
-      if (option) option.selected = true;
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      populateHora();
-      setDefaultHora();
-
-      // Bloquear datas passadas
-      const hoje = new Date().toISOString().split('T')[0];
-      document.getElementById('prazo').setAttribute('min', hoje);
+// Preencher horas 08:00 a 22:00
+function preencherHoras() {
+  const selectHora = document.getElementById("hora");
+  selectHora.innerHTML = "";
+  for (let h = 8; h <= 22; h++) {
+    ["00","30"].forEach(min => {
+      if(h === 22 && min === "30") return;
+      const o = document.createElement("option");
+      o.value = `${String(h).padStart(2,"0")}:${min}`;
+      o.textContent = `${String(h).padStart(2,"0")}:${min}`;
+      selectHora.appendChild(o);
     });
+  }
+}
 
-    function execCmd(command) {
-      document.execCommand(command, false, null);
-    }
+function salvarLaudo() {
+  const conteudo = document.getElementById("laudo-conteudo").innerHTML;
+  const paciente = document.getElementById("paciente").value;
+  const solicitante = document.getElementById("solicitante").value;
+  const exame = document.getElementById("exame").value;
+  const prazo = document.getElementById("prazo").value;
+  const hora = document.getElementById("hora").value;
 
-    function insertCampo(texto) {
-      const selection = window.getSelection();
-      if (!selection.rangeCount) return;
+  if (!paciente || !solicitante || !prazo) { alert("Preencha paciente, solicitante e prazo!"); return; }
 
-      const range = selection.getRangeAt(0);
-      range.deleteContents();
-      range.insertNode(document.createTextNode(texto));
-    }
+  const laudos = JSON.parse(localStorage.getItem("laudos")) || [];
+  const novoLaudo = {
+    id: Date.now().toString(),
+    pedido: "PED" + Math.floor(Math.random()*10000),
+    data: new Date().toISOString().split("T")[0],
+    prazo,
+    hora,
+    paciente,
+    solicitante,
+    exame,
+    status: "Dentro do prazo",
+    conteudo,
+    assinatura: document.getElementById("assinatura").checked
+  };
 
-    function showToast(msg) {
-      const toast = document.getElementById('toast');
-      toast.textContent = msg;
-      toast.className = 'toast show';
-      setTimeout(() => { toast.className = 'toast'; }, 3000);
-    }
+  laudos.push(novoLaudo);
+  localStorage.setItem("laudos", JSON.stringify(laudos));
+  alert("Laudo salvo com sucesso!");
+  window.location.href = "laudo.html";
+}
 
-    function salvarLaudo() {
-      const conteudo = document.getElementById("laudo-conteudo").innerHTML.trim();
-      const paciente = document.getElementById("paciente").value.trim();
-      const solicitante = document.getElementById("solicitante").value.trim();
-      const exame = document.getElementById("exame").value;
-      const prazo = document.getElementById("prazo").value;
-      const hora = document.getElementById("hora").value;
+window.onload = () => { preencherHoras(); };
+</script>
 
-      // reset campos
-      document.getElementById("paciente").classList.remove('campo-obrigatorio');
-      document.getElementById("solicitante").classList.remove('campo-obrigatorio');
-      document.getElementById("prazo").classList.remove('campo-obrigatorio');
-      document.getElementById("laudo-conteudo").classList.remove('campo-obrigatorio');
-
-      let erro = false;
-
-      if (!paciente) { document.getElementById("paciente").classList.add('campo-obrigatorio'); erro = true; }
-      if (!solicitante) { document.getElementById("solicitante").classList.add('campo-obrigatorio'); erro = true; }
-      if (!prazo) { document.getElementById("prazo").classList.add('campo-obrigatorio'); erro = true; }
-      if (!conteudo) { document.getElementById("laudo-conteudo").classList.add('campo-obrigatorio'); erro = true; }
-
-      if (erro) { showToast('Preencha todos os campos obrigatórios!'); return; }
-
-      // validação contra passado
-      const prazoDate = new Date(`${prazo}T${hora}:00`);
-      const agora = new Date();
-      if (prazoDate < agora) { showToast('O prazo não pode ser no passado!'); return; }
-
-      const prazoCompleto = formatDateToDDMMYYYY(prazo) + " " + hora;
-
-      const laudos = JSON.parse(localStorage.getItem("laudos")) || [];
-      const novoLaudo = {
-        id: Date.now().toString(),
-        pedido: "PED" + Math.floor(Math.random() * 10000),
-        data: new Date().toISOString().split("T")[0],
-        prazo: prazoCompleto,
-        paciente,
-        solicitante,
-        exame,
-        status: "Dentro do prazo",
-        conteudo,
-        assinatura: document.getElementById("assinatura").checked
-      };
-
-      laudos.push(novoLaudo);
-      localStorage.setItem("laudos", JSON.stringify(laudos));
-
-      showToast("Laudo salvo com sucesso!");
-      setTimeout(() => window.location.href = "laudo.html", 1200);
-    }
-
-    function mostrarPreview() {
-      const preview = document.getElementById("preview");
-      const conteudo = document.getElementById("laudo-conteudo").innerHTML;
-      const prazo = document.getElementById("prazo").value;
-      const hora = document.getElementById("hora").value;
-      const paciente = document.getElementById("paciente").value.trim();
-      const solicitante = document.getElementById("solicitante").value.trim();
-      const exame = document.getElementById("exame").value;
-
-      let headerHtml = '';
-      if (paciente) headerHtml += `<p><strong>Paciente:</strong> ${paciente}</p>`;
-      if (solicitante) headerHtml += `<p><strong>Solicitante:</strong> ${solicitante}</p>`;
-      if (exame) headerHtml += `<p><strong>Exame:</strong> ${exame}</p>`;
-      if (prazo && hora) headerHtml += `<p><strong>Prazo:</strong> ${formatDateToDDMMYYYY(prazo)} ${hora}</p>`;
-
-      preview.innerHTML = headerHtml + conteudo;
-
-      const ocultar = document.getElementById("ocultarAssinatura").checked;
-      preview.innerHTML += ocultar ? "" : "<p><strong>Dr. Fulano</strong> - CRM 0000</p>";
-
-      preview.classList.remove("hidden");
-    }
-
-    function limparFormulario() {
-      document.getElementById("paciente").value = "";
-      document.getElementById("solicitante").value = "";
-      document.getElementById("exame").selectedIndex = 0;
-      document.getElementById("prazo").value = "";
-      document.getElementById("hora").selectedIndex = 0;
-      document.getElementById("assinatura").checked = false;
-      document.getElementById("ocultarAssinatura").checked = false;
-      document.getElementById("laudo-conteudo").innerHTML = "";
-      document.getElementById("preview").classList.add("hidden");
-      document.getElementById("paciente").classList.remove('campo-obrigatorio');
-      document.getElementById("solicitante").classList.remove('campo-obrigatorio');
-      document.getElementById("prazo").classList.remove('campo-obrigatorio');
-      document.getElementById("laudo-conteudo").classList.remove('campo-obrigatorio');
-      showToast("Formulário limpo!");
-    }
-  </script>
 </body>
 </html>
