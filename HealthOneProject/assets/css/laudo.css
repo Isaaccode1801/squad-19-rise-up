@@ -8,7 +8,11 @@
     }
     .brand { display: flex; align-items: center; gap: .6rem; font-weight: 800; letter-spacing: .4px; }
     .brand .logo { width: 36px; height: 36px; border-radius: 50%;  background: #4dd7cf; display: grid; place-items: center; color: #fff; font-weight: 700; box-shadow: 0 6px 14px rgba(29,183,174,.35); }
-
+    .logo-link img {
+    height: 100px; /* Defina a altura da sua logo aqui */
+    width: auto; /* Mantém a proporção da imagem */
+    display: block; /* Remove espaços extras abaixo da imagem */
+  }
     .top-bar {
       background-color: #26bdbd;
       color: white;

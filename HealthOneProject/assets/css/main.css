@@ -1859,3 +1859,107 @@ section,
   background-color: color-mix(in srgb, #3fbbc0, transparent 20%);
   border-color: color-mix(in srgb, #3fbbc0, transparent 20%);
 }
+.btn-paciente {
+  display: inline-block;
+  padding: 15px 30px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  background: linear-gradient(45deg, #007BFF, #0056b3);
+  border: none;
+  border-radius: 8px;
+  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+  outline: none;
+}
+.btn-paciente:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
+}
+.btn-paciente:active {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+}
+.btn-paciente:focus {
+  outline: 2px solid #0056b3;
+  outline-offset: 2px;
+}
+.btn-med {
+    display: inline-block;
+  padding: 15px 30px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  background: linear-gradient(45deg, #28a745, #218838);
+  border: none;
+  border-radius: 8px;
+  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+  outline: none;
+}
+.btn-med:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+}
+.btn-med:active {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(40, 167, 69, 0.3);
+}
+.btn-med:focus {
+  outline: 2px solid #1e7e34;
+  outline-offset: 2px;
+}
+/* Estilo Base para o Botão da Secretaria */
+/* Estilo Base para o Botão da Secretaria */
+/* Estilo Base para o Botão da Secretaria */
+.btn-secretaria {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px; /* Adiciona um espaço entre os ícones e o texto */
+  padding: 15px 25px; /* Ajuste o padding se necessário */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: #ffffff;
+  background: linear-gradient(45deg, #6f42c1, #5a349b);
+  border: none;
+  border-radius: 12px; /* Aumentei um pouco para combinar com o print */
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 0 4px 15px rgba(111, 66, 193, 0.3);
+  outline: none;
+}
+
+/* Estilo para os ícones dentro do botão */
+.btn-secretaria i {
+  font-size: 18px; /* Tamanho dos ícones */
+}
+
+
+/* Efeito de Hover (passar o mouse por cima) */
+.btn-secretaria:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 20px rgba(111, 66, 193, 0.4);
+}
+
+/* Efeito de Ativo (ao clicar) */
+.btn-secretaria:active {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 10px rgba(111, 66, 193, 0.3);
+}
+
+/* Estilo de Foco para Acessibilidade (navegação por teclado) */
+.btn-secretaria:focus-visible {
+  outline: 2px solid #5a349b;
+  outline-offset: 2px;
+}

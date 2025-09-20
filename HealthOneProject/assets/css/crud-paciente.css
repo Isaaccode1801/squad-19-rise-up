@@ -22,6 +22,11 @@
     .topbar small { opacity: .95; }
 
     header {  box-shadow: var(--shadow); position: sticky; top: 0; z-index: 30; width: 100%; background: #fff; box-shadow: var(--shadow); position: sticky; top: 0; z-index: 30; display: flex; align-items: center;justify-content: space-between; }
+      .logo-link img {
+  height: 100px; /* Defina a altura da sua logo aqui */
+  width: auto; /* Mantém a proporção da imagem */
+  display: block; /* Remove espaços extras abaixo da imagem */
+}
     .wrap { max-width: 1200px; margin: 0 auto; padding: .9rem 1rem; display: flex; align-items: center; justify-content: space-between; }
     .brand {display: flex; margin-left: 200px; align-items: center; gap: .6rem; font-weight: 800; letter-spacing: .4px; }
     .logo { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--brand), #4dd7cf); display: grid; place-items: center; color: #fff; font-weight: 700; box-shadow: 0 6px 14px rgba(29,183,174,.35); }

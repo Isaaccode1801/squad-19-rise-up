@@ -109,6 +109,11 @@
   /* Responsivo */
   @media (max-width:1100px){ .grid{grid-template-columns:1fr} }
   @media (max-width:880px){ .stack{grid-template-columns:1fr} .tabs{gap:10px} }
+          .logo-link img {
+    height: 100px; /* Defina a altura da sua logo aqui */
+    width: auto; /* Mantém a proporção da imagem */
+    display: block; /* Remove espaços extras abaixo da imagem */
+  }
 </style>
 </head>
 <body>
@@ -117,7 +122,9 @@
 <header class="topnav">
 
       <div class="brand">
-        <img src="logo_HealthOne.jpeg" alt="HealthOne" class="logo">
+        <a href="../../index.html" class="logo-link">
+          <img src="../../assets/img/Logo do HealthOne.png" alt="Logo HealthOne - Página Principal">
+        </a>
            
       <div class="marca">
         <div class="M">IK</div>

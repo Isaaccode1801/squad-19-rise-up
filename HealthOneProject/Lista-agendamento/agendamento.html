@@ -340,6 +340,11 @@
   .tabs a:hover{color:var(--brand-600, )}
   .tabs .ativo{background:var(--bran, #64e4dc); color:#f8f8f8; padding:8px 18px;
     border-radius:999px; box-shadow:0 4px 10px rgba(0, 211, 248, 0.25)}
+  .logo-link img {
+    height: 100px; /* Defina a altura da sua logo aqui */
+    width: auto; /* Mantém a proporção da imagem */
+    display: block; /* Remove espaços extras abaixo da imagem */
+  }
   </style>
 </head>
 <body>
@@ -348,7 +353,9 @@
   <div class="appbar">
     <div class="appbar-inner">
       <div class="brand">
-        <img src="logo_HealthOne.jpeg" alt="HealthOne" class="logo">
+        <a href="../../index.html" class="logo-link">
+          <img src="../../assets/img/Logo do HealthOne.png" alt="Logo HealthOne - Página Principal">
+        </a>
       </div>
       <div>
         <small>Diretório de Médicos • CRUD</small>
