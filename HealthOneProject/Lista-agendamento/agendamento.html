@@ -354,7 +354,7 @@
     <div class="appbar-inner">
       <div class="brand">
         <a href="../../index.html" class="logo-link">
-          <img src="../../assets/img/Logo do HealthOne.png" alt="Logo HealthOne - Página Principal">
+          <img src="../assets/img/Logo do HealthOne.png" alt="Logo HealthOne - Página Principal">
         </a>
       </div>
       <div>
@@ -485,9 +485,35 @@
       return iso;
     }
 
-    function load(){
-  const raw = localStorage.getItem(STORAGE_KEY);
-  medicos = raw ? JSON.parse(raw) : loadSeedIfEmpty();
+    async function load() {
+  try {
+    // URL provisória da API de pacientes
+    const res = await fetch('https://mock.apidog.com/m1/1053378-0-default/pacientes');
+    
+    if (!res.ok) {
+        throw new Error(`Erro na API: ${res.status}`);
+    }
+
+    // Acessa o objeto de resposta da API
+    const apiResponse = await res.json();
+
+    // 👉 Converte o array de pacientes, que está dentro de `apiResponse.data`,
+    //    para o formato de `medicos` que sua página espera
+    medicos = (apiResponse.data || []).map(p => ({
+      id: p.id,
+      nome: p.nome,
+      crm: p.cpf || '-',
+      especialidade: p.email || '-',
+      cidade: p.telefone || '-',
+      // Você pode adicionar mais campos se precisar, como status, etc.
+      disponivel: p.status === 'ativo' // ou outro campo que defina o status
+    }));
+
+  } catch (e) {
+    console.error("Erro ao carregar pacientes:", e);
+    medicos = [];
+    alert("Não foi possível carregar os dados. Verifique a conexão com a API.");
+  }
 
   // 🔹 Garante que todos os médicos tenham "atendePor" sem sobrescrever os existentes
   medicos = medicos.map(m => {
@@ -668,8 +694,15 @@
     };
 
     // ---------- Init ----------
-    load();
-    render();
+   async function init() {
+  // Chamada para carregar os dados da API
+  await load();
+  // Chamada para renderizar a página com os dados carregados
+  render();
+}
+
+// Inicia o processo quando o DOM estiver pronto
+document.addEventListener('DOMContentLoaded', init);
   </script>
 </body>
 </html>
