@@ -224,3 +224,32 @@
     font-weight:600;
     box-shadow:0 3px 8px rgba(18,150,143,.25);
   }
+/* ======================== AJUSTES CABEÇALHO MOBILE ======================== */
+/* Adicione este código ao final do seu CSS */
+
+@media (max-width: 760px) {
+  .header {
+    flex-wrap: wrap; /* Permite que os itens quebrem para a próxima linha */
+    gap: 16px;       /* Adiciona um espaço vertical entre as linhas */
+  }
+
+  .header .greet {
+    flex-grow: 1; /* Faz a saudação "Olá, Dr(a)..." ocupar o espaço restante na primeira linha */
+    font-size: 18px; /* Opcional: diminui um pouco a fonte */
+  }
+  
+  .header .search,
+  .header .navbar {
+    width: 100%; /* Faz a barra de busca e a navegação ocuparem a largura total */
+    order: 3;    /* Garante que eles fiquem por último */
+  }
+
+  .header .search input {
+    width: 100%; /* Faz o campo de busca preencher o espaço do container .search */
+  }
+
+  .header .navbar {
+    justify-content: center; /* Centraliza os links de navegação */
+    order: 4; /* Coloca a navegação depois da busca */
+  }
+}
