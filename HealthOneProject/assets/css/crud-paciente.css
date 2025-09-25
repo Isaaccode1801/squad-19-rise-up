@@ -21,14 +21,32 @@
     .topbar .wrap { max-width: 1200px; margin: 0 auto; padding: .5rem 1rem; display: flex; gap: 1rem; align-items: center; justify-content: space-between; }
     .topbar small { opacity: .95; }
 
-    header {  box-shadow: var(--shadow); position: sticky; top: 0; z-index: 30; width: 100%; background: #fff; box-shadow: var(--shadow); position: sticky; top: 0; z-index: 30; display: flex; align-items: center;justify-content: space-between; }
-      .logo-link img {
-  height: 100px; /* Defina a altura da sua logo aqui */
-  width: auto; /* Mantém a proporção da imagem */
-  display: block; /* Remove espaços extras abaixo da imagem */
+  header {
+  background: #fff;
+  box-shadow: var(--shadow);
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* ✅ Garante espaço entre brand e navbar */
+  padding: 0 2rem; /* ✅ Adiciona espaçamento nas laterais */
+}
+
+.logo-link img {
+  height: 100px;
+  width: auto;
+  display: block;
 }
     .wrap { max-width: 1200px; margin: 0 auto; padding: .9rem 1rem; display: flex; align-items: center; justify-content: space-between; }
-    .brand {display: flex; margin-left: 200px; align-items: center; gap: .6rem; font-weight: 800; letter-spacing: .4px; }
+  .brand {
+  display: flex;
+  align-items: center;
+  gap: .6rem;
+  font-weight: 800;
+  letter-spacing: .4px;
+  margin-right: auto; /* ✅ A técnica para empurrar a navbar para a direita */
+}
     .logo { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--brand), #4dd7cf); display: grid; place-items: center; color: #fff; font-weight: 700; box-shadow: 0 6px 14px rgba(29,183,174,.35); }
     nav { display: flex; gap: 1.2rem; color: var(--muted); font-weight: 600; }
     .cta { background: var(--brand); color: #fff; padding: .6rem 1rem; border-radius: 999px; box-shadow: 0 10px 18px rgba(29,183,174,.25); transition: .2s ease; }
@@ -213,38 +231,33 @@ button.ghost:hover{ border-color: var(--brand-600); color: var(--brand-600); }
 @media (max-width: 440px){
   .grid{ grid-template-columns: 1fr; }
 }
-    .navbar {
-      gap: 10px;
-     
-    border-bottom:1px solid #e6eaef;
-    padding:12px 24px;
-    display:flex;
-    align-items:center;
-    gap:24px;
-    font-size:15px;
-    }
-      .navbar a{
-    color:var(--muted);
-    text-decoration:none;
-    font-weight:500;
-  }
-    .navbar a:hover{
-    color:var(--brand-600);
-  }
-    .navbar .active{
-    background:var(--brand);
-    color:#fff;
-    padding:8px 18px;
-    border-radius:999px;
-    font-weight:600;
-    box-shadow:0 3px 8px rgba(18,150,143,.25);
-  }
-    .nav-links {
-      display: flex;
-      gap: 20px;
-      align-items: center;
-    }
-
+.navbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem; /* Espaço entre os grupos de links */
+}
+.navbar a {
+  color: var(--muted);
+  text-decoration: none;
+  font-weight: 600;
+  padding: 8px 18px;
+  border-radius: 999px;
+  transition: .2s ease;
+  white-space: nowrap; /* Impede que o texto quebre linha */
+}
+.navbar a:hover {
+  color: var(--brand-600);
+}
+.navbar a.active {
+  background: var(--brand);
+  color: #fff;
+  box-shadow: 0 3px 8px rgba(18,150,143,.25);
+}
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: .5rem; /* Espaço entre 'Início' e 'Laudo' */
+}
     .nav-links a {
       text-decoration: none;
       color: #555;
@@ -276,24 +289,36 @@ button.ghost:hover{ border-color: var(--brand-600); color: var(--brand-600); }
       background: #f0f0f0;
     }
 
+/* ======================== RESPONSIVIDADE DO CABEÇALHO (CELULAR) ======================== */
+/* ADICIONE ESTE BLOCO NO FINAL DO SEU ARQUIVO CSS */
+
 @media (max-width: 760px) {
-  .header {
-    flex-direction: column; /* Empilha os itens verticalmente */
-    align-items: flex-start; /* Alinha todos à esquerda */
-    gap: 15px; /* Adiciona um espaço entre os itens empilhados */
+  header {
+    flex-direction: column;   /* Empilha brand e navbar */
+    align-items: flex-start; /* Alinha tudo à esquerda */
+    gap: 1rem;
+    padding: 1rem;
   }
 
-  .nav-links, .btn-header {
-    width: 100%; /* Faz os links e o botão ocuparem a largura total */
+  .brand {
+    margin-right: 0; /* Reseta a margem automática no celular */
+  }
+
+  .navbar {
+    flex-direction: column; /* Empilha os links */
+    align-items: stretch;   /* Faz os links ocuparem toda a largura */
+    width: 100%;
+    gap: .5rem;
   }
 
   .nav-links {
-    flex-direction: column; /* Empilha os links de navegação */
-    align-items: stretch; /* Estica os links para preencher o espaço */
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    gap: .5rem;
   }
 
-  .nav-links a, .btn-header {
-    text-align: center; /* Centraliza o texto dentro dos botões */
-    box-sizing: border-box;
+  .navbar a {
+    text-align: center; /* Centraliza o texto dos links */
   }
 }
