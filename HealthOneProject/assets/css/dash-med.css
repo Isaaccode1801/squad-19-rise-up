@@ -61,19 +61,21 @@
 
   /* ===== Header ===== */
   .header{
-    grid-column: 1 / -1;
-    display:flex; align-items:center; justify-content:space-between;
-    margin-bottom:4px;
-    display: flex;
+  display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 20px; /* Adiciona um espaço entre os elementos */
+  gap: 20px;
   width: 100%;
+
+  /* ✅ ADICIONE padding para alinhar com o conteúdo e um fundo */
+  padding: 12px 24px;
+  background: var(--bg-app); /* Opcional: para manter o mesmo fundo */
   }
   .logo-link img {
   height: 100px; /* Defina a altura da sua logo aqui */
   width: auto; /* Mantém a proporção da imagem */
   display: block; /* Remove espaços extras abaixo da imagem */
+  
 }
   .header .greet{font-size:24px; font-weight:700;}
   .search{
