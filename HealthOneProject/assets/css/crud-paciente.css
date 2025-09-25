@@ -275,3 +275,25 @@ button.ghost:hover{ border-color: var(--brand-600); color: var(--brand-600); }
     .btn-navbar:hover {
       background: #f0f0f0;
     }
+
+@media (max-width: 760px) {
+  .header {
+    flex-direction: column; /* Empilha os itens verticalmente */
+    align-items: flex-start; /* Alinha todos à esquerda */
+    gap: 15px; /* Adiciona um espaço entre os itens empilhados */
+  }
+
+  .nav-links, .btn-header {
+    width: 100%; /* Faz os links e o botão ocuparem a largura total */
+  }
+
+  .nav-links {
+    flex-direction: column; /* Empilha os links de navegação */
+    align-items: stretch; /* Estica os links para preencher o espaço */
+  }
+
+  .nav-links a, .btn-header {
+    text-align: center; /* Centraliza o texto dentro dos botões */
+    box-sizing: border-box;
+  }
+}
