@@ -6,7 +6,7 @@
       padding: 0;
       color: #333;
     }
-    .brand { display: flex; align-items: center; gap: 1rem; font-weight: 800; letter-spacing: .4px; }
+    .brand { display: flex; align-items: center; gap: 1rem; font-weight: 800; letter-spacing: .4px;  margin-right: auto;}
     .brand .logo { width: 36px; height: 36px; border-radius: 50%;  background: #4dd7cf; display: grid; place-items: center; color: #fff; font-weight: 700; box-shadow: 0 6px 14px rgba(29,183,174,.35); }
     .logo-link img {
     height: 100px; /* Defina a altura da sua logo aqui */
@@ -30,50 +30,51 @@
       margin-left: 10px;
     }
 
-    /* Mude esta regra */
-    .header {
-      display: flex;
-      justify-content: space-between; /* ANTES: flex-end */
-      align-items: center;
-      background-color: white;
-      padding: 10px 20px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      gap: 20px;
-    }
-    
 
-    .nav-links {
-      display: flex;
-      gap: 20px;
-      align-items: center;
-    }
+.header {
+  display: flex;
+  flex-direction: row; /* Garante a direção horizontal */
+  justify-content: space-between; /* <<< A CHAVE: alinha a logo na esquerda e a nav na direita */
+  align-items: center; /* Alinha verticalmente no centro */
+  background-color: white;
+  padding: 10px 20px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  gap: 20px;
+}
 
-    .nav-links a {
-      text-decoration: none;
-      color: #555;
-      font-weight: 500;
-      padding: 10px 18px;
-      border-radius: 20px;
-      transition: background 0.3s ease;
-    }
+.nav-links {
+  display: flex;
+  flex-direction: row; /* Links lado a lado */
+  gap: 20px;
+  align-items: center;
+}
 
-    .nav-links a.active {
-      background: #26bdbd;
-      color: white;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      font-weight: bold;
-    }
+.nav-links a {
+  text-decoration: none;
+  color: #555;
+  font-weight: 500;
+  padding: 10px 18px;
+  border-radius: 20px;
+  transition: background 0.3s ease;
+}
 
-    .btn-header {
-      background: none;
-      color: #555;
-      border: none;
-      padding: 10px 18px;
-      border-radius: 20px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: background 0.3s ease;
-    }
+.nav-links a.active {
+  background: #26bdbd;
+  color: white;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  font-weight: bold;
+}
+
+.btn-header {
+  background: none;
+  color: #555;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 20px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
 
     .btn-header:hover {
       background: #f0f0f0;
@@ -147,4 +148,39 @@
       border-radius: 6px;
       cursor: pointer;
     }
+    /* Adicione estas regras para a tabela rolável */
+.table-container {
+  overflow-x: auto; /* A MÁGICA ACONTECE AQUI! */
+  width: 95%;
+  margin: 30px auto;
+}
+
+table {
+  width: 100%; /* Faz a tabela ocupar todo o espaço do container */
+  white-space: nowrap; /* Impede que o texto nas células quebre linha */
+  margin: 0; /* Remove a margem da tabela, já que o container tem */
+}
+    /* ======================== AJUSTES MOBILE PARA LAUDO ======================== */
+
+@media (max-width: 760px) {
+  .header {
+    flex-direction: column; /* Empilha os itens verticalmente */
+    align-items: flex-start; /* Alinha todos à esquerda */
+    gap: 15px; /* Adiciona um espaço entre os itens empilhados */
+  }
+
+  .nav-links, .btn-header {
+    width: 100%; /* Faz os links e o botão ocuparem a largura total */
+  }
+
+  .nav-links {
+    flex-direction: column; /* Empilha os links de navegação */
+    align-items: stretch; /* Estica os links para preencher o espaço */
+  }
+
+  .nav-links a, .btn-header {
+    text-align: center; /* Centraliza o texto dentro dos botões */
+    box-sizing: border-box;
+  }
+}
 

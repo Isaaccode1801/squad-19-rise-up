@@ -39,21 +39,21 @@
       <input type="text" id="pesquisa" placeholder="Pesquisar por paciente ou exame..." 
          style="width:100%; padding:10px; border-radius:6px; border:1px solid #ccc;">
   </div>
-  
-  <table>
-    <thead>
-      <tr>
-        <th>Paciente</th>
-        <th>Exame</th>
-        <th>Prazo</th>
-        <th>Hora</th>
-        <th>Status</th>
-        <th>Ações</th>
-      </tr>
-    </thead>
-    <tbody id="lista-laudos"></tbody>
-  </table>
-
+  <div class="table-container" >
+    <table>
+      <thead>
+        <tr>
+          <th>Paciente</th>
+          <th>Exame</th>
+          <th>Prazo</th>
+          <th>Hora</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="lista-laudos"></tbody>
+    </table>
+</div>
   <script>
   function avaliarStatus(prazo) {
     if (!prazo) return "Rascunho";
