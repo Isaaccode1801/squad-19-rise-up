@@ -93,15 +93,64 @@
             <a href="#" class="btn-paciente" data-bs-toggle="modal" data-bs-target="#patientModal">
               <i class="bi bi-heart me-2"></i>Sou Paciente
             </a>
-            <a href="Secretaria/dash-secretaria.html" class="btn-secretaria">
-              <i class="fa-solid fa-envelope"></i>
-              <span>Sou Secretaria</span>
-            </a>
+            <a href="#" class="btn-secretaria" data-bs-toggle="modal" data-bs-target="#secretariaModal">
+            <i class="fa-solid fa-envelope"></i>
+           <span>Sou Secretaria</span>
+          </a>
           </div>
         </div>
       </div>
     </div>
   </section>
+
+<!-- Modal para Login Secretaria -->
+<div class="modal fade" id="secretariaModal" tabindex="-1" aria-labelledby="secretariaModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="secretariaModalLabel">
+          <i class="fa-solid fa-user-tie me-2"></i> Login Secretaria
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body">
+        <form id="secretariaLoginForm">
+          <div class="mb-3">
+            <label for="cpfSecretaria" class="form-label">CPF</label>
+            <input type="text" class="form-control" id="cpfSecretaria" name="cpf" placeholder="Digite seu CPF" required>
+          </div>
+          <div class="mb-3">
+            <label for="emailSecretaria" class="form-label">E-mail</label>
+            <input type="email" class="form-control" id="emailSecretaria" name="email" placeholder="Digite seu e-mail" required>
+          </div>
+          <div class="mb-3">
+            <label for="senhaSecretaria" class="form-label">Senha</label>
+            <input type="password" class="form-control" id="senhaSecretaria" name="senha" placeholder="Digite sua senha" required>
+          </div>
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary btn-lg">
+              <i class="bi bi-box-arrow-in-right me-2"></i>Login
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const secretariaLoginForm = document.getElementById('secretariaLoginForm');
+    if (secretariaLoginForm) {
+      secretariaLoginForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        
+        // Aqui você pode validar os dados antes do redirecionamento
+        window.location.href = 'Secretaria/dash-secretaria.html';
+      });
+    }
+  });
+</script>
 
   <main class="main">
 
