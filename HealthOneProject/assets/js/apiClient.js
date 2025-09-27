@@ -1,5 +1,5 @@
 // /js/apiClient.js
-export const BASE_URL = 'https://mock.apidog.com/m1/1053378-0-default';
+export const BASE_URL = 'https://mock.apidog.com/m1/1053378-0-default/rest/v1/patients';
 
 export async function api(path, { method='GET', data, token } = {}) {
   const headers = { 'Content-Type': 'application/json' };
