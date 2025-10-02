@@ -166,109 +166,107 @@ function renderPreview(obj){
   el.textContent = JSON.stringify(obj, null, 2);
 }
 
-/* ========================= Edição via ?id= ========================= */
-let editingId = null;
-(function hydrateIfEditing(){
-  const params = new URLSearchParams(location.search);
-  const idParam = params.get('id');
-  if(!idParam) return;         // sem id = novo
-  const id = String(idParam);  // mantém string
-  const lista = loadPacientes();
-  const p = lista.find(x => String(x.id) === id);
-  if(!p) return;
+/* ========================= Edição via ?id= (Carregamento da Página) ========================= */
 
-  editingId = id;
+// Pega o ID da URL. Se não houver, 'editingId' será null.
+const params = new URLSearchParams(window.location.search);
+const editingId = params.get('id');
 
-  // Preenche campos
-  $('#nome').value = p.nome||'';
-  $('#nomeSocial').value = p.nomeSocial||'';
-  $('#cpf').value = p.cpf||'';
-  $('#rg').value = p.rg||'';
-  $('#docTipo').value = p.doc?.tipo||'';
-  $('#docNumero').value = p.doc?.numero||''; $('#docNumero').disabled = !p.doc?.tipo;
-  if(p.sexo){ const el = document.querySelector(`input[name="sexo"][value="${p.sexo}"]`); el && (el.checked=true); }
-  $('#nasc').value = toISODate(p.nasc || p.dataNascimento) || '';
-  $('#raca').value = p.raca||'';
-  $('#etnia').value = p.etnia||'';
-  $('#naturalidade').value = p.naturalidade||'';
-  $('#nacionalidade').value = p.nacionalidade||'';
-  $('#profissao').value = p.profissao||'';
-  $('#estadoCivil').value = p.estadoCivil||'';
-  $('#mae').value = p.filiacao?.mae||'';
-  $('#profMae').value = p.filiacao?.profMae||'';
-  $('#pai').value = p.filiacao?.pai||'';
-  $('#profPai').value = p.filiacao?.profPai||'';
-  $('#temResponsavel').value = p.responsavel?.ativo ? 'sim' : 'nao';
-  const on = p.responsavel?.ativo; $('#responsavel').disabled = $('#cpfResponsavel').disabled = !on;
-  $('#responsavel').value = p.responsavel?.nome||'';
-  $('#cpfResponsavel').value = p.responsavel?.cpf||'';
-  if(p.rnGuia) $('#rnToggle')?.classList.add('active');
-  $('#codigoLegado').value = p.codigoLegado||'';
-  $('#obs').value = p.obs||'';
-  $('#email').value = p.contato?.email||'';
-  $('#celular').value = p.contato?.celular||'';
-  $('#tel1').value = p.contato?.tel1||'';
-  $('#tel2').value = p.contato?.tel2||'';
-  $('#cep').value = p.endereco?.cep||'';
-  $('#logradouro').value = p.endereco?.logradouro||'';
-  $('#numero').value = p.endereco?.numero||'';
-  $('#complemento').value = p.endereco?.complemento||'';
-  $('#bairro').value = p.endereco?.bairro||'';
-  $('#cidade').value = p.endereco?.cidade||'';
-  $('#uf').value = p.endereco?.uf||'';
-  $('#referencia').value = p.endereco?.referencia||'';
+/**
+ * Preenche o formulário com dados de um paciente vindo da API.
+ */
+function preencherFormulario(paciente) {
+    // ❗️ Garanta que os IDs dos inputs e os nomes dos campos da API estão corretos.
+    $('#nome').value = paciente.full_name || '';
+    $('#cpf').value = maskCPF(paciente.cpf || ''); // Usa sua função de máscara
+    $('#email').value = paciente.email || '';
+    $('#celular').value = paciente.phone_mobile || '';
+    $('#nasc').value = paciente.birth_date || '';
+    $('#cidade').value = paciente.city || '';
+    $('#uf').value = paciente.state || '';
+    // Continue para outros campos do seu formulário...
+}
 
-  // ✅ Consultas (pré-preencher)
-  $('#ultimaConsulta').value  = toISODate(p.ultimaConsulta  ?? p.ultima_consulta  ?? p.ultConsulta) || '';
-  $('#proximaConsulta').value = toISODate(p.proximaConsulta ?? p.proxima_consulta ?? p.proxConsulta) || '';
+/**
+ * Função principal que roda para inicializar a página.
+ */
+async function inicializarPagina() {
+    if (editingId) {
+        // --- MODO EDIÇÃO ---
+        document.querySelector('.brand-title').textContent = 'Editar Paciente';
+        try {
+            const paciente = await getPaciente(editingId);
+            if (paciente) {
+                preencherFormulario(paciente);
+            } else {
+                toast('Paciente não encontrado.', false);
+            }
+        } catch (error) {
+            toast('Falha ao carregar dados do paciente.', false);
+            console.error(error);
+        }
+    } else {
+        // --- MODO CRIAÇÃO ---
+        document.querySelector('.brand-title').textContent = 'Novo Paciente';
+    }
+}
 
-  renderPreview(p);
-})();
-
-/* ========================= Salvar / Cancelar ========================= */
+// Roda a função de inicialização assim que a página carrega.
+inicializarPagina();
 /* ========================= Salvar / Cancelar ========================= */
 
-// Usamos 'async' para poder usar 'await' dentro da função
-$('#btnSave').addEventListener('click', async () => {
+// Usa o evento de 'submit' do formulário, que é mais robusto
+form.addEventListener('submit', async (event) => {
+  event.preventDefault(); // Impede o recarregamento da página
+
   const btn = $('#btnSave');
-  try {
-    const dadosPaciente = getFormData();
+  const dadosPaciente = getFormData();
 
-    // Validação básica (você pode usar sua função validateBeforeSave aqui se quiser)
-    if (!dadosPaciente.full_name || !dadosPaciente.cpf) {
-      toast('Nome e CPF são obrigatórios.', false);
-      return;
+  // Validação (usando seus helpers!)
+  if (!dadosPaciente.full_name) {
+    toast('Por favor, preencha o nome do paciente.', false);
+    return;
+  }
+  if (!isValidCPF(dadosPaciente.cpf)) {
+    toast('Por favor, preencha um CPF válido.', false);
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Salvando...';
+
+  try {
+    if (editingId) {
+      // Se a variável 'editingId' existe (veio da URL), estamos ATUALIZANDO
+      await updatePaciente(editingId, dadosPaciente);
+      toast('Paciente atualizado com sucesso!');
+    } else {
+      // Se não, estamos CRIANDO um novo paciente
+      await createPaciente(dadosPaciente);
+      toast('Paciente cadastrado com sucesso!');
     }
 
-    // Desabilita o botão para evitar cliques duplos
-    btn.disabled = true;
-    btn.textContent = 'Salvando...';
-
-    // A MÁGICA ACONTECE AQUI!
-    // Chama a função 'createPaciente' do seu service e espera a resposta.
-    await createPaciente(dadosPaciente);
-
-    // Se chegou até aqui, deu tudo certo!
-    toast('Paciente cadastrado com sucesso!', true);
-
-    // Redireciona para a lista de pacientes após um pequeno intervalo
+    // Redireciona de volta para a lista após o sucesso
     setTimeout(() => {
-      window.location.href = '../../Secretaria/pacientes.html'; // Verifique se o nome do arquivo está correto
-    }, 1000);
+      window.location.href = '../../Secretaria/pacientes.html'; // ❗️ Verifique o caminho
+    }, 1500);
 
   } catch (error) {
-    console.error('Erro ao cadastrar paciente:', error);
-    toast(`Falha ao cadastrar: ${error.message}`, false);
-    
-    // Habilita o botão novamente em caso de erro
+    console.error('Erro ao salvar paciente:', error);
+    if (error.message && error.message.includes('duplicate key value')) {
+        toast('Este CPF já está cadastrado no sistema.', false);
+    } else {
+        toast(`Falha ao salvar: ${error.message}`, false);
+    }
     btn.disabled = false;
     btn.textContent = 'Salvar';
   }
 });
 
+// Lógica do botão Cancelar (separada e mais simples)
 $('#btnCancel').addEventListener('click', () => {
   if (confirm('Cancelar e voltar à lista?')) {
-    window.location.href = '../../Secretaria/pacientes.html'; // Verifique o nome do arquivo
+    window.location.href = '../../Secretaria/pacientes.html'; // ❗️ Verifique o caminho
   }
 });
 /* ========================= UI ========================= */
@@ -302,42 +300,3 @@ function addAnexo(file){
 }
 
 
-
-const $form = document.querySelector('#patientForm');
-const params = new URLSearchParams(location.search);
-const id = params.get('id');
-
-function fillForm(obj = {}) {
-  Object.entries(obj).forEach(([k, v]) => {
-    const el = $form.elements.namedItem(k);
-    if (el) el.value = v ?? '';
-  });
-}
-
-async function load() {
-  if (!id) return;
-  try {
-    const p = await getPaciente(id);
-    if (!p) return alert('Paciente não encontrado');
-    fillForm(p);
-  } catch (e) {
-    console.error(e);
-    alert('Erro ao carregar paciente');
-  }
-}
-
-$form.addEventListener('submit', async (ev) => {
-  ev.preventDefault();
-  const data = Object.fromEntries(new FormData($form));
-  try {
-    if (id) await updatePaciente(id, data);
-    else await createPaciente(data);
-    alert('Salvo com sucesso!');
-    location.href = '../../Secretaria/pacientes.html';
-  } catch (e) {
-    console.error(e);
-    alert(`Erro ao salvar: ${e.message}`);
-  }
-});
-
-load();

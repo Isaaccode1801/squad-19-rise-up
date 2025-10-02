@@ -75,20 +75,59 @@ export async function createPaciente(dadosDoPaciente) {
   }
 }
 
+// Dentro do arquivo: pacientesService.js
+
+// ... (suas funções existentes: listPacientes, getPaciente, createPaciente, deletePaciente) ...
+
 /**
  * Atualiza um paciente existente.
- * Agora a URL será montada corretamente: .../rest/v1/patients?id=eq.{id}
+ * Corresponde ao endpoint: PATCH /patients?id=eq.{id}
+ * @param {string | number} id O ID do paciente a ser atualizado.
+ * @param {Object} dadosDoPaciente Objeto com os campos a serem atualizados.
  */
 export async function updatePaciente(id, dadosDoPaciente) {
   try {
     const response = await fetch(`${API_BASE_URL}/patients?id=eq.${id}`, {
-      method: 'PATCH',
+      method: 'PATCH', // Supabase usa PATCH para atualizações parciais
       headers: getAuthHeaders(),
       body: JSON.stringify(dadosDoPaciente)
     });
-    if (!response.ok) throw new Error(`Erro ao atualizar paciente: ${response.statusText}`);
+    if (!response.ok) {
+      // Tenta ler a mensagem de erro da API para ser mais específico
+      const errorData = await response.json();
+      throw new Error(errorData.message || `Erro ao atualizar paciente: ${response.statusText}`);
+    }
   } catch (error) {
     console.error(`Falha ao atualizar paciente ${id}:`, error);
+    throw error;
+  }
+}
+// Dentro do arquivo: pacientesService.js
+
+// ... (suas funções existentes: getAuthHeaders, listPacientes, getPaciente, createPaciente, updatePaciente) ...
+
+/**
+ * Exclui um paciente existente pelo ID.
+ * Corresponde ao endpoint: DELETE /patients?id=eq.{id}
+ * @param {string | number} id O ID do paciente a ser excluído.
+ */
+export async function deletePaciente(id) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/patients?id=eq.${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders()
+    });
+    
+    // Para DELETE, um status 204 (No Content) também é sucesso.
+    if (!response.ok && response.status !== 204) {
+      throw new Error(`Erro ao excluir paciente: ${response.statusText}`);
+    }
+    
+    // A resposta de um DELETE bem-sucedido geralmente é vazia, então não retornamos nada.
+    return true; 
+    
+  } catch (error) {
+    console.error(`Falha ao excluir paciente ${id}:`, error);
     throw error;
   }
 }
