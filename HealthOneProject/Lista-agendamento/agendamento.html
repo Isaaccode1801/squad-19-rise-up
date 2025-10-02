@@ -485,34 +485,75 @@
       return iso;
     }
 
-    async function load() {
+    // ---------- Configurações da API ----------
+const API_BASE = "https://yuanqfswhberkoevtmfr.supabase.co";
+const API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ";
+
+// ---------- Função de Login (Tentativa de Login Correta) ----------
+async function loginAdmin() {
+  const res = await fetch(`${API_BASE}/auth/v1/token?grant_type=password`, {
+    method: "POST",
+    headers: {
+      "apikey": API_KEY,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      email: "riseup@popcode.com.br",
+      password: "riseup"
+    })
+  });
+  if (!res.ok) {
+    const err = await res.text(); 
+    throw new Error(`Login falhou com status ${res.status}. Detalhes: ${err.slice(0, 50)}...`);
+  }
+  const data = await res.json();
+  return data.access_token; // Bearer Token
+}
+
+// ---------- Função LOAD (Busca Médicos com Token) ----------
+async function load() {
   try {
-    // URL provisória da API de pacientes
-    const res = await fetch('https://mock.apidog.com/m1/1053378-0-default/pacientes');
-    
+    const token = await loginAdmin(); // 1. Faz o login
+
+    // 2. BUSCA CORRIGIDA: Alterado /medicos para /doctors
+    const res = await fetch(`${API_BASE}/rest/v1/doctors`, { 
+      method: "GET",
+      headers: {
+        "apikey": API_KEY,
+        "Authorization": `Bearer ${token}` 
+      }
+    });
+
     if (!res.ok) {
-        throw new Error(`Erro na API: ${res.status}`);
+        throw new Error(`Busca falhou com status ${res.status}.`);
     }
 
-    // Acessa o objeto de resposta da API
-    const apiResponse = await res.json();
-
-    // 👉 Converte o array de pacientes, que está dentro de `apiResponse.data`,
-    //    para o formato de `medicos` que sua página espera
-    medicos = (apiResponse.data || []).map(p => ({
-      id: p.id,
-      nome: p.nome,
-      crm: p.cpf || '-',
-      especialidade: p.email || '-',
-      cidade: p.telefone || '-',
-      // Você pode adicionar mais campos se precisar, como status, etc.
-      disponivel: p.status === 'ativo' // ou outro campo que defina o status
+    const apiMedicos = await res.json();
+    
+    // 🔹 Adapta para o formato que sua tabela já espera
+    // ATENÇÃO: A API do Supabase pode retornar nomes de campos diferentes. 
+    // Mapeei os campos conforme o exemplo que o Apidog mostrou (ex: 'full_name' em vez de 'nome').
+    medicos = apiMedicos.map(m => ({
+      // Ajuste de mapeamento baseado na imagem (se o Supabase estiver retornando 'full_name' e 'specialty')
+      id: m.id,
+      nome: m.full_name || m.nome, // Tenta 'full_name' primeiro
+      crm: m.crm || "-",
+      especialidade: m.specialty || m.especialidade || "-", // Tenta 'specialty' primeiro
+      cidade: m.city || m.cidade || "-", // Tenta 'city'
+      telefone: m.phone_mobile || m.telefone || "-", // Tenta 'phone_mobile'
+      email: m.email || "-",
+      preco: m.price || m.preco || 0, // Tenta 'price'
+      proxDisponivel: m.next_available || m.proxDisponivel || null, // Se tiver campo de data
+      disponivel: m.active ?? true, // Tenta 'active'
+      atendePor: m.atendePor || "Particular"
     }));
 
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(medicos));
+
   } catch (e) {
-    console.error("Erro ao carregar pacientes:", e);
+    console.error("Erro ao carregar médicos:", e);
+    alert(`Não foi possível carregar os médicos da API. Detalhe: ${e.message}`);
     medicos = [];
-    alert("Não foi possível carregar os dados. Verifique a conexão com a API.");
   }
 
   // 🔹 Garante que todos os médicos tenham "atendePor" sem sobrescrever os existentes
