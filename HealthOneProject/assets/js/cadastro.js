@@ -1,17 +1,5 @@
 
-/* ========================= LocalStorage utils ========================= */
-const LS_KEY_PACIENTES = 'healthone.pacientes';
-function loadPacientes(){ try { return JSON.parse(localStorage.getItem(LS_KEY_PACIENTES) || '[]'); } catch { return []; } }
-function setPacientes(arr){ localStorage.setItem(LS_KEY_PACIENTES, JSON.stringify(arr)); }
-function ensureId(p){ p.id = p.id || (crypto?.randomUUID?.() || String(Date.now()+Math.floor(Math.random()*1000))); return p; }
-function salvarPaciente(paciente){
-  ensureId(paciente);
-  const arr = loadPacientes();
-  const idx = arr.findIndex(x => String(x.id) === String(paciente.id));
-  if (idx >= 0) arr[idx] = paciente; else arr.push(paciente);
-  setPacientes(arr);
-}
-
+import { createPaciente, getPaciente, updatePaciente } from './pacientesService.js';
 /* ========================= Helpers ========================= */
 // datas: aceita DD/MM/YYYY, D/M/YYYY, YYYY-MM-DD, YYYY/M/D
 function parseDateSmart(v){
@@ -139,34 +127,26 @@ cep.addEventListener('blur', ()=> buscarCEP(cep.value));
 
 /* ========================= Coletar dados / validar ========================= */
 const form = $('#patientForm');
-function getFormData(){
-  return {
-    foto: photoInput.files?.[0]?.name || null,
-    nome: $('#nome').value.trim(),
-    nomeSocial: $('#nomeSocial').value.trim(),
-    cpf: $('#cpf').value.trim(),
-    rg: $('#rg').value.trim(),
-    doc:{ tipo: $('#docTipo').value, numero: $('#docNumero').value.trim() },
-    sexo: (form.querySelector('input[name="sexo"]:checked')||{}).value || '',
-    nasc: $('#nasc').value, // <input type="date"> fornece YYYY-MM-DD
-    raca: $('#raca').value,
-    etnia: $('#etnia').value.trim(),
-    naturalidade: $('#naturalidade').value.trim(),
-    nacionalidade: $('#nacionalidade').value,
-    profissao: $('#profissao').value.trim(),
-    estadoCivil: $('#estadoCivil').value,
-    filiacao:{ mae: $('#mae').value.trim(), profMae: $('#profMae').value.trim(), pai: $('#pai').value.trim(), profPai: $('#profPai').value.trim() },
-    responsavel:{ ativo: $('#temResponsavel').value==='sim', nome: $('#responsavel').value.trim(), cpf: $('#cpfResponsavel').value.trim() },
-    esposo: $('#esposo').value.trim(),
-    rnGuia: rnToggle?.classList.contains('active') || false,
-    codigoLegado: $('#codigoLegado').value.trim(),
-    obs: $('#obs').value.trim(),
-    contato:{ email: $('#email').value.trim(), celular: $('#celular').value.trim(), tel1: $('#tel1').value.trim(), tel2: $('#tel2').value.trim() },
-    endereco:{ cep: $('#cep').value.trim(), logradouro: $('#logradouro').value.trim(), numero: $('#numero').value.trim(), complemento: $('#complemento').value.trim(), bairro: $('#bairro').value.trim(), cidade: $('#cidade').value.trim(), uf: $('#uf').value.trim(), referencia: $('#referencia').value.trim() },
+function getFormData() {
+  // Pega os valores dos inputs
+  const nome = $('#nome').value.trim();
+  const cpf = onlyDigits($('#cpf').value);
+  const email = $('#email').value.trim();
+  const dataNascimento = $('#nasc').value; // Formato YYYY-MM-DD
+  const telefone = $('#celular').value.trim();
+  const cidade = $('#cidade').value.trim();
+  const uf = $('#uf').value.trim();
 
-    // ✅ NOVOS CAMPOS — salva no formato ISO (YYYY-MM-DD)
-    ultimaConsulta:  toISODate($('#ultimaConsulta').value),
-    proximaConsulta: toISODate($('#proximaConsulta').value),
+  // Monta o objeto EXATAMENTE como a API espera
+  return {
+    full_name: nome,
+    cpf: cpf,
+    email: email,
+    birth_date: dataNascimento, // Nome do campo na API é 'birth_date'
+    phone_mobile: telefone,    // Nome do campo na API é 'phone_mobile'
+    city: cidade,              // Nome do campo na API é 'city'
+    state: uf,                 // Nome do campo na API é 'state' ou 'uf' (verifique na sua tabela)
+    // Adicione outros campos que sua API espera aqui
   };
 }
 function validateBeforeSave(data){
@@ -246,27 +226,51 @@ let editingId = null;
 })();
 
 /* ========================= Salvar / Cancelar ========================= */
-$('#btnSave').addEventListener('click', ()=>{
-  const paciente = getFormData();
-  if(!validateBeforeSave(paciente)) return;
+/* ========================= Salvar / Cancelar ========================= */
 
-  if (editingId){
-    paciente.id = editingId;           // mantém o mesmo id (update)
+// Usamos 'async' para poder usar 'await' dentro da função
+$('#btnSave').addEventListener('click', async () => {
+  const btn = $('#btnSave');
+  try {
+    const dadosPaciente = getFormData();
+
+    // Validação básica (você pode usar sua função validateBeforeSave aqui se quiser)
+    if (!dadosPaciente.full_name || !dadosPaciente.cpf) {
+      toast('Nome e CPF são obrigatórios.', false);
+      return;
+    }
+
+    // Desabilita o botão para evitar cliques duplos
+    btn.disabled = true;
+    btn.textContent = 'Salvando...';
+
+    // A MÁGICA ACONTECE AQUI!
+    // Chama a função 'createPaciente' do seu service e espera a resposta.
+    await createPaciente(dadosPaciente);
+
+    // Se chegou até aqui, deu tudo certo!
+    toast('Paciente cadastrado com sucesso!', true);
+
+    // Redireciona para a lista de pacientes após um pequeno intervalo
+    setTimeout(() => {
+      window.location.href = '../../Secretaria/pacientes.html'; // Verifique se o nome do arquivo está correto
+    }, 1000);
+
+  } catch (error) {
+    console.error('Erro ao cadastrar paciente:', error);
+    toast(`Falha ao cadastrar: ${error.message}`, false);
+    
+    // Habilita o botão novamente em caso de erro
+    btn.disabled = false;
+    btn.textContent = 'Salvar';
   }
-  salvarPaciente(paciente);            // cria ou atualiza
-
-  toast(editingId ? 'Paciente atualizado!' : 'Paciente salvo!', true);
-  renderPreview(paciente);
-  setTimeout(()=> location.href = 'crud-pacientes.html', 500);
 });
 
-$('#btnCancel').addEventListener('click', ()=>{
-  if(confirm('Cancelar e voltar à lista?')){
-    form.reset(); avatar.innerHTML = '<span class="muted">Sem foto</span>'; renderPreview({});
-    location.href = 'crud-pacientes.html';
+$('#btnCancel').addEventListener('click', () => {
+  if (confirm('Cancelar e voltar à lista?')) {
+    window.location.href = '../../Secretaria/pacientes.html'; // Verifique o nome do arquivo
   }
 });
-
 /* ========================= UI ========================= */
 (function highlightActive(){
   const cur = 'cadastro';
@@ -297,8 +301,7 @@ function addAnexo(file){
   anexosLista.appendChild(row);
 }
 
-// /js/cadastro.js
-import { getPaciente, updatePaciente, createPaciente } from './pacientesService.js';
+
 
 const $form = document.querySelector('#patientForm');
 const params = new URLSearchParams(location.search);
@@ -330,7 +333,7 @@ $form.addEventListener('submit', async (ev) => {
     if (id) await updatePaciente(id, data);
     else await createPaciente(data);
     alert('Salvo com sucesso!');
-    location.href = 'crud-pacientes.html';
+    location.href = '../../Secretaria/pacientes.html';
   } catch (e) {
     console.error(e);
     alert(`Erro ao salvar: ${e.message}`);

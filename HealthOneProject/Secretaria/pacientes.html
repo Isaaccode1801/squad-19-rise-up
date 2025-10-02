@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CRUD de Pacientes — Layout (HTML + CSS)</title>
+ <link rel="stylesheet" href="../../assets/css/pacientes-secre.css">
+</head>
+<body>
+  <!-- Barra superior -->
+  <div class="topbar">
+    <div class="wrap">
+      <small>Segunda a Sábado, 8h às 22h</small>
+      <small>📞 (55) 11 5589-5544</small>
+    </div>
+  </div>
+
+  <!-- Header -->
+<header>
+  <div class="brand">
+            <a href="../../index.html" class="logo-link">
+          <img src="../../assets/img/Logo do HealthOne.png" alt="Logo HealthOne - Página Principal">
+        </a>
+    <div class="logo">M</div>
+    <span>Dr(a). Camilla Millene</span>
+  </div>
+  
+  <div class="navbar">
+    <div class="nav-links">
+      <a href="../tabela-pacientes/dashboard.html">Início</a>
+      <a href="../laudo/Laudo.html" class="">Laudo</a>
+    </div>
+    <a class="active" href="#">Gerenciamento de Paciente</a>
+  </div>
+</header>
+
+  <main class="container">
+    <section class="card">
+      <div class="head">
+        <div class="title">
+          <h1>Pacientes</h1>
+          <span class="badge">CRUD</span>
+        </div>
+        <div class="toolbar">
+          <div class="search">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 21l-4.3-4.3" stroke="#6b7a88" stroke-width="2" stroke-linecap="round"/><circle cx="11" cy="11" r="7" stroke="#6b7a88" stroke-width="2"/></svg>
+            <input id="q" placeholder="Buscar por nome, CPF, telefone..." />
+          </div>
+          <a class="btn primary" id="btnNew" href="../medico/tabela-pacientes/cadastro.html">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
+            Novo paciente
+          </a>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Nome</th>
+              <th>CPF</th>
+              <th>E-mail</th>
+              <th>Telefone</th>
+              <th>Cidade/UF</th>
+              <th style="text-align:right;">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+
+      <div class="table-footer">
+        <small class="muted" id="countLabel">Mostrando 0 paciente(s)</small>
+        <nav class="pagination" id="pager"></nav>
+      </div>
+    </section>
+  </main>
+  <!-- EXEMPLO de botão olho na sua tabela -->
+<!-- <button class="btn-view" data-id="PACIENTE_ID" aria-label="Ver carteirinha">
+     👁️
+   </button> -->
+
+<!-- Modal de Carteirinha -->
+<div id="carteirinha-overlay" class="overlay" aria-hidden="true">
+  <div class="carteirinha-wrap" role="dialog" aria-modal="true" aria-labelledby="carteirinha-title">
+    <button class="close-btn" aria-label="Fechar">&times;</button>
+
+    <div class="carteirinha" id="carteirinha">
+      <header class="cart-header">
+        <div class="logo-dot"></div>
+        <h3 id="carteirinha-title">Carteirinha do Paciente</h3>
+        <span class="tag">HealthOne</span>
+      </header>
+
+      <section class="cart-body">
+        <div class="avatar">
+          <div class="avatar-ring"></div>
+          <span class="avatar-iniciais" id="c-iniciais">PT</span>
+        </div>
+
+        <div class="grid">
+          <div class="field">
+            <label>Nome</label>
+            <p id="c-nome">—</p>
+          </div>
+          <div class="field">
+            <label>Idade</label>
+            <p id="c-idade">—</p>
+          </div>
+          <div class="field">
+            <label>Gênero</label>
+            <p id="c-genero">—</p>
+          </div>
+          <div class="field">
+            <label>CPF</label>
+            <p id="c-cpf">—</p>
+          </div>
+          <div class="field">
+            <label>Última consulta</label>
+            <p id="c-ultima">—</p>
+          </div>
+          <div class="field">
+            <label>Próxima consulta</label>
+            <p id="c-proxima">—</p>
+          </div>
+        </div>
+
+        <div class="obs">
+          <label>Observações</label>
+          <p id="c-observacoes">—</p>
+        </div>
+      </section>
+
+      <footer class="cart-footer">
+        <div class="chips">
+          <span class="chip" id="chip-status">Paciente ativo</span>
+          <span class="chip outline" id="chip-prox">—</span>
+        </div>
+        <div class="actions">
+          <button class="ghost" id="btn-copiar">Copiar dados</button>
+          <button class="primary" id="btn-imprimir">Imprimir</button>
+        </div>
+      </footer>
+    </div>
+  </div>
+</div>
+
+
+  <script type="module" src="../../assets/js/crud-pacientes.js"></script>
+</body>
+</html>

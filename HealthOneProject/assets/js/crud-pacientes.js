@@ -1,368 +1,140 @@
-// /js/crud-pacientes.js
+// assets/js/crud-pacientes.js (VERSÃO CORRIGIDA)
+
 /* ========================= Imports (API) ========================= */
-import { listPacientes, deletePaciente, createPaciente, getPaciente } from './pacientesService.js';
+// CORREÇÃO 1: Removido 'deletePaciente' que não existe no seu service.
+//             Adicionado 'updatePaciente' que pode ser útil.
+import { listPacientes, createPaciente, getPaciente, updatePaciente } from './pacientesService.js';
 
 /* ========================= Seletores / Estado ========================= */
-const SEL = {
-  tbody: '#tbody',
-  pager: '#pager',
-  search: '#q',
-  count: '#countLabel',
-  btnNew: '#btnNew',
-  topNavLinks: '.top-nav a'
-};
+const tbody = document.getElementById('tbody');
+const pager = document.getElementById('pager');
+const q = document.getElementById('q');
+const countLabel = document.getElementById('countLabel');
+const btnNew = document.getElementById('btnNew');
 
-const $  = (s, p=document)=>p.querySelector(s);
-const $$ = (s, p=document)=>[...p.querySelectorAll(s)];
-const byId = (id)=>document.getElementById(id);
-
-const tbody      = $(SEL.tbody);
-const pager      = $(SEL.pager);
-const q          = $(SEL.search);
-const countLabel = $(SEL.count);
-const btnNew     = $(SEL.btnNew);
-
-let pacientes = []; // cache do que veio da API (normalizado)
+let todosPacientes = []; // Cache de todos os pacientes vindos da API
 let filtro = '';
 let page = 1;
 const perPage = 10;
 
-/* ========================= Helpers (strings/datas) ========================= */
-function normalize(s){ return (s||'').toString().toLowerCase(); }
-function fmtIndex(n){ return String(n).padStart(3,'0'); }
-
-function parseDateSmart(v){
-  if (!v) return null;
-  if (v instanceof Date) return v;
-  const s = String(v).trim();
-
-  let m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/); // DD/MM/YYYY
-  if (m) {
-    let dd = +m[1], mm = +m[2], yyyy = +m[3];
-    if (yyyy < 100) yyyy += 2000;
-    const d = new Date(Date.UTC(yyyy, mm - 1, dd));
-    if (d.getUTCFullYear() === yyyy && d.getUTCMonth() === mm - 1 && d.getUTCDate() === dd) return d;
-    return null;
-  }
-  m = s.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/); // YYYY-MM-DD
-  if (m) {
-    const yyyy = +m[1], mm = +m[2], dd = +m[3];
-    const d = new Date(Date.UTC(yyyy, mm - 1, dd));
-    if (d.getUTCFullYear() === yyyy && d.getUTCMonth() === mm - 1 && d.getUTCDate() === dd) return d;
-    return null;
-  }
-  const d = new Date(s);
-  return isNaN(d) ? null : d;
-}
-function formatData(input){
-  const d = parseDateSmart(input);
-  return d
-    ? new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()))
-        .toLocaleDateString('pt-BR', { timeZone: 'UTC' })
-    : '—';
-}
-function calcIdade(input){
-  const d = parseDateSmart(input);
-  if (!d) return null;
-  const hoje = new Date();
-  let idade = hoje.getUTCFullYear() - d.getUTCFullYear();
-  const m = hoje.getUTCMonth() - d.getUTCMonth();
-  if (m < 0 || (m === 0 && hoje.getUTCDate() < d.getUTCDate())) idade--;
-  return idade;
-}
-function normalizaGenero(g){
-  if (!g) return null;
-  const s = String(g).trim().toLowerCase();
-  if (['m','masc','masculino','homem'].includes(s)) return 'Masculino';
-  if (['f','fem','feminino','mulher'].includes(s)) return 'Feminino';
-  return String(g);
-}
-function formatCPF(v){
-  if(!v) return "—";
-  const only = String(v).replace(/\D/g,'').padStart(11,'0').slice(-11);
-  return only.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/,'$1.$2.$3-$4');
-}
-function iniciais(nome){
-  if(!nome) return "PT";
-  return nome.split(/\s+/).slice(0,2).map(p=>p[0]).join('').toUpperCase();
+/* ========================= Helpers (mantidos como estavam) ========================= */
+function normalize(s) { return (s || '').toString().toLowerCase(); }
+function formatCPF(v) {
+  if (!v) return "—";
+  const only = String(v).replace(/\D/g, '').padStart(11, '0').slice(-11);
+  return only.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
 }
 
-/* ========================= Normalização API -> View ========================= */
-function fromApi(p) {
-  // garante campos para tabela/carteirinha independente do shape exato
-  return {
-    id: p.id,
-    nome: p.nome ?? p.nome_completo ?? '',
-    nomeSocial: p.nome_social ?? p.nomeSocial ?? '',
-    cpf: p.cpf ?? '',
-    contato: {
-      email: p.email ?? p.contato?.email ?? '',
-      celular: p.telefone ?? p.contato?.celular ?? p.contato?.tel1 ?? p.contato?.tel2 ?? ''
-    },
-    endereco: {
-      cidade: p.endereco?.cidade ?? p.cidade ?? '',
-      uf: p.endereco?.estado ?? p.uf ?? p.estado ?? ''
-    },
-    dataNascimento: p.data_nascimento ?? p.nasc ?? p.dataNascimento ?? '',
-    ultimaConsulta: p.ultima_consulta ?? p.ultimaConsulta ?? '',
-    proximaConsulta: p.proxima_consulta ?? p.proximaConsulta ?? '',
-    genero: p.genero ?? p.sexo ?? '',
-    observacoes: p.observacoes ?? p.obs ?? '',
-    status: p.status ?? ''
-  };
-}
+/* ========================= Lógica Principal ========================= */
 
-function blobPaciente(p){
-  return normalize(`
-    ${p.nome||''} ${p.nomeSocial||''} ${p.cpf||''}
-    ${p.contato?.email||''} ${p.contato?.celular||''}
-    ${p.endereco?.cidade||''} ${p.endereco?.uf||''}
-  `);
-}
+// Função que busca os dados da API e inicia a renderização
+// Dentro de crud-pacientes.js
 
-/* ========================= Botão: Novo Paciente (cria na API) ========================= */
-function gerarNovoPaciente() {
-  const hoje = new Date();
-  const yyyy = hoje.getFullYear() - 30;
-  const mm = String(hoje.getMonth() + 1).padStart(2, '0');
-  const dd = String(hoje.getDate()).padStart(2, '0');
-
-  return {
-    nome: 'Paciente Novo',
-    nome_social: 'Novo',
-    cpf: '111.222.333-44',              // troque por CPF válido se sua API validar
-    rg: '00.000.000-0',
-    sexo: 'não informado',
-    data_nascimento: `${yyyy}-${mm}-${dd}`,
-    profissao: '—',
-    estado_civil: 'solteiro(a)',
-    contato: { email: 'novo@exemplo.com', celular: '+55 (00) 00000-0000' },
-    endereco: {
-      cep: '00000-000', logradouro: '—', numero: '—',
-      bairro: '—', cidade: '—', estado: '—'
-    },
-    observacoes: 'Registro criado automaticamente pelo botão "Novo paciente".'
-  };
-}
-
-async function criarEIrParaCadastro() {
+async function fetchAndRender() {
   try {
-    btnNew?.setAttribute('aria-busy', 'true');
-    btnNew?.classList.add('is-busy');
-    btnNew && (btnNew.style.pointerEvents = 'none');
+    tbody.innerHTML = `<tr><td colspan="7">Carregando pacientes...</td></tr>`;
 
-    const novo = await createPaciente(gerarNovoPaciente());
-    const newId = novo?.id;
-    if (!newId) throw new Error('A API não retornou o ID do novo paciente.');
-    location.href = `cadastro.html?id=${encodeURIComponent(newId)}`;
-  } catch (err) {
-    console.error(err);
-    alert(`Falha ao criar paciente: ${err.message}`);
-    location.href = 'cadastro.html';
-  } finally {
-    btnNew?.removeAttribute('aria-busy');
-    btnNew?.classList.remove('is-busy');
-    if (btnNew) btnNew.style.pointerEvents = '';
-  }
-}
+    const pacientesDaApi = await listPacientes();
+    console.log("DADOS VINDOS DA API:", pacientesDaApi); // <-- ADICIONE ESTA LINHA
 
-btnNew?.addEventListener('click', (ev)=>{ ev.preventDefault(); criarEIrParaCadastro(); });
+    let listaDePacientes = []; // Inicia uma lista vazia para garantir
 
-/* ========================= Render (lista/paginação/contador) ========================= */
-function render(){
-  // filtro local (client-side). Se quiser, mude para query no servidor.
-  const term = normalize(filtro);
-  const list = term ? pacientes.filter(p => blobPaciente(p).includes(term)) : pacientes.slice();
-
-  const total = list.length;
-  const pages = Math.max(1, Math.ceil(total / perPage));
-  if (page > pages) page = pages;
-
-  const start = (page - 1) * perPage;
-  const rows = list.slice(start, start + perPage);
-
-  // tabela
-  if (tbody) {
-    tbody.innerHTML = rows.length ? rows.map((p, i) => `
-      <tr>
-        <td>${fmtIndex(start + i + 1)}</td>
-        <td>
-          ${p.nome || '—'}
-          ${p.nomeSocial ? `<div style="font-size:12px;color:#64748b">(${p.nomeSocial})</div>` : ''}
-        </td>
-        <td>${p.cpf || '—'}</td>
-        <td>${p.contato?.email || '—'}</td>
-        <td>${p.contato?.celular || '—'}</td>
-        <td>${p.endereco?.cidade ? `${p.endereco.cidade}${p.endereco.uf ? '/' + p.endereco.uf : ''}` : '—'}</td>
-        <td class="col-actions" style="text-align:right; white-space:nowrap;">
-          <button class="page-btn btn-view" type="button" data-id="${p.id}" title="Ver carteirinha" aria-label="Ver carteirinha">👁️</button>
-          <button class="page-btn btn-edit" type="button" data-id="${p.id}" title="Editar">✏️</button>
-          <button class="page-btn btn-del"  type="button" data-id="${p.id}" title="Excluir">🗑️</button>
-        </td>
-      </tr>
-    `).join('') : `
-      <tr><td colspan="7" style="padding:16px;color:#64748b">Sem pacientes cadastrados.</td></tr>
-    `;
-  }
-
-  // ações (delegadas depois do render)
-  $$('[data-id].btn-edit').forEach(b => b.onclick = () => onEdit(b.dataset.id));
-  $$('[data-id].btn-del').forEach(b  => b.onclick = () => onDelete(b.dataset.id));
-  $$('[data-id].btn-view').forEach(b => b.onclick = () => onView(b.dataset.id));
-
-  // paginação
-  if (pager) {
-    pager.innerHTML = `
-      <button class="page-btn" ${page<=1?'disabled':''} id="pgPrev">«</button>
-      ${Array.from({length: pages}, (_, i) =>
-        `<button class="page-btn ${i+1===page?'active':''}" data-page="${i+1}">${i+1}</button>`
-      ).join('')}
-      <button class="page-btn" ${page>=pages?'disabled':''} id="pgNext">»</button>
-    `;
-    $('#pgPrev')?.addEventListener('click', ()=>{ if(page>1){ page--; render(); } });
-    $('#pgNext')?.addEventListener('click', ()=>{ if(page<pages){ page++; render(); } });
-    $$('[data-page]').forEach(btn => btn.addEventListener('click', ()=>{ page = +btn.dataset.page; render(); }));
-  }
-
-  // contador
-  if (countLabel) {
-    const showing = rows.length;
-    countLabel.textContent = `Mostrando ${showing} de ${total} paciente(s)`;
-  }
-}
-
-/* ========================= Carregar dados da API ========================= */
-async function fetchAndRender(initialQuery=''){
-  try {
-    // busca no servidor (seu service já desempacota { rows })
-    const { rows } = await listPacientes({ q: initialQuery });
-    // normaliza para o shape usado pela UI
-    pacientes = rows.map(fromApi);
-
-    // ordena por próxima consulta (opcional)
-    pacientes.sort((a,b) => new Date(a.proximaConsulta||'9999-12-31') - new Date(b.proximaConsulta||'9999-12-31'));
-
-    render();
-  } catch (err) {
-    console.error(err);
-    if (tbody) tbody.innerHTML = `<tr><td colspan="7" style="padding:16px;color:#ef4444">Erro ao carregar: ${err.message}</td></tr>`;
-  }
-}
-
-/* ========================= Ações ========================= */
-function onEdit(id){ window.location.href = `cadastro.html?id=${encodeURIComponent(id)}`; }
-
-async function onDelete(id){
-  if(!confirm('Deseja excluir este paciente?')) return;
-  try {
-    await deletePaciente(id);
-    // remove do cache local e re-renderiza
-    pacientes = pacientes.filter(p => String(p.id) !== String(id));
-    render();
-  } catch (e) {
-    console.error(e);
-    alert('Falha ao excluir paciente.');
-  }
-}
-
-async function onView(id){
-  try{
-    // tenta no cache (lista) primeiro
-    let p = pacientes.find(x => String(x.id) === String(id));
-    if (!p) {
-      const apiItem = await getPaciente(id);
-      p = fromApi(apiItem || {});
+    if (Array.isArray(pacientesDaApi)) {
+      // CASO 1: A API se comportou como esperado e retornou um array
+      console.log("API retornou um array de pacientes.");
+      listaDePacientes = pacientesDaApi;
+    } else if (pacientesDaApi && typeof pacientesDaApi === 'object') {
+      // CASO 2: A API se comportou de forma inesperada e retornou um objeto único
+      console.warn("A API retornou um objeto único, convertendo para array.");
+      // Nós o transformamos em um array com um único item
+      listaDePacientes = [pacientesDaApi];
     }
-    abrirCarteirinha(p);
-  }catch(e){
-    console.error(e);
-    alert('Não foi possível carregar os dados deste paciente.');
+    // Se não for nem array nem objeto, a lista continuará vazia, evitando erros.
+
+    todosPacientes = listaDePacientes; // Salva no cache a lista corrigida
+    render(); // Chama a função para desenhar a tabela na tela
+
+  } catch (err) {
+    console.error(err);
+    tbody.innerHTML = `<tr><td colspan="7" style="color: red;">Erro ao carregar a lista de pacientes: ${err.message}</td></tr>`;
   }
 }
 
-/* ========================= Eventos UI ========================= */
-q?.addEventListener('input', () => { filtro = q.value || ''; page = 1; render(); });
+// Função que desenha a tabela na tela
+function render() {
+  // Filtro local (client-side)
+  const termoBusca = normalize(filtro);
+  const pacientesFiltrados = termoBusca
+    ? todosPacientes.filter(p => normalize(p.name).includes(termoBusca) || normalize(p.cpf).includes(termoBusca))
+    : todosPacientes;
 
-/* ========================= Inicializa (carrega da API) ========================= */
-fetchAndRender();
+  const total = pacientesFiltrados.length;
+  countLabel.textContent = `Mostrando ${total} de ${todosPacientes.length} paciente(s)`;
 
-/* ========================= MODAL Carteirinha ========================= */
-const overlay  = document.getElementById('carteirinha-overlay');
-const closeBtn = document.querySelector('.close-btn');
+  // Paginação (simplificada por enquanto)
+  const start = (page - 1) * perPage;
+  const pacientesPaginados = pacientesFiltrados.slice(start, start + perPage);
 
-function cId(id){ return document.getElementById(id); }
-
-function preencherCarteirinha(p){
-  if(!p){
-    alert('Não foi possível encontrar este paciente.');
+  if (pacientesPaginados.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7">Nenhum paciente encontrado.</td></tr>`;
     return;
   }
-  const nascimento =
-    p.dataNascimento ?? p.nascimento ?? p.dataNasc ?? p.dtNascimento ??
-    p.data_nascimento ?? p.dataDeNascimento ?? p.dt_nasc ?? p.nasc;
 
-  const genero =
-    p.genero ?? p.sexo ?? p.generoBiologico ?? p.genero_identidade ?? p['gênero'];
+  // CORREÇÃO 3: Ajustado para usar os nomes dos campos da sua API (name, cpf, email, phone, address).
+  tbody.innerHTML = pacientesPaginados.map((p, i) => `
+    <tr>
+      <td>${start + i + 1}</td>
+      <td>${p.full_name || '—'}</td>
+      <td>${p.cpf ? formatCPF(p.cpf) : '—'}</td>
+      <td>${p.email || '—'}</td>
+      <td>${p.phone_mobile || '—'}</td>
+      <td>${p.city || '—'}</td>
+      <td class="col-actions">
+        <button class="page-btn btn-view" type="button" data-id="${p.id}" title="Ver carteirinha">👁️</button>
+        <a href="../../medico/tabela-pacientes/cadastro.html?id=${p.id}" class="page-btn btn-edit" title="Editar">✏️</a>
+        <button class="page-btn btn-del" type="button" data-id="${p.id}" title="Excluir">🗑️</button>
+      </td>
+    </tr>
+  `).join('');
 
-  const obs =
-    p.observacoes ?? p.obs ?? p.anotacoes ?? p.observacao ?? p.notas;
-
-  const idadeCalc = nascimento ? calcIdade(nascimento) : null;
-  const idadeTxt  = (idadeCalc != null) ? `${idadeCalc} anos` : '—';
-
-  cId('c-nome')       && (cId('c-nome').textContent        = p.nome || '—');
-  cId('c-idade')      && (cId('c-idade').textContent       = idadeTxt);
-  cId('c-genero')     && (cId('c-genero').textContent      = normalizaGenero(genero) || '—');
-  cId('c-cpf')        && (cId('c-cpf').textContent         = formatCPF(p.cpf));
-  cId('c-ultima')     && (cId('c-ultima').textContent      = formatData(p.ultimaConsulta ?? p.ultima_consulta ?? p.ultConsulta));
-  cId('c-proxima')    && (cId('c-proxima').textContent     = formatData(p.proximaConsulta ?? p.proxima_consulta ?? p.proxConsulta));
-  cId('c-observacoes')&& (cId('c-observacoes').textContent = obs || '—');
-  cId('c-iniciais')   && (cId('c-iniciais').textContent    = iniciais(p.nome));
-
-  const chipStatus = document.getElementById('chip-status');
-  if (chipStatus) chipStatus.textContent = p.status ? `Paciente ${String(p.status).toLowerCase()}` : 'Paciente ativo';
-
-  const chipProx = document.getElementById('chip-prox');
-  const dProx = p.proximaConsulta ?? p.proxima_consulta ?? p.proxConsulta;
-  if (chipProx) chipProx.textContent = dProx ? `Próx.: ${formatData(dProx)}` : '—';
+  // Adiciona os eventos aos novos botões criados
+  document.querySelectorAll('[data-id].btn-del').forEach(b => b.onclick = () => onDelete(b.dataset.id));
+  document.querySelectorAll('[data-id].btn-view').forEach(b => b.onclick = () => onView(b.dataset.id));
 }
 
-function abrirCarteirinha(paciente){
-  if (!overlay) {
-    alert('Estrutura da carteirinha não está no HTML desta página.');
-    console.warn('⚠️ Elemento #carteirinha-overlay não encontrado no DOM.');
-    return;
-  }
-  preencherCarteirinha(paciente);
-  overlay.setAttribute('aria-hidden','false');
+/* ========================= Ações dos Botões ========================= */
 
-  const card = document.getElementById('carteirinha');
-  if (card) {
-    card.style.animation = 'none';
-    void card.offsetWidth;
-    card.style.animation = 'cardEnter .35s cubic-bezier(.22,.9,.27,1.05) forwards';
+// Ação de deletar (exemplo, precisa da função no service)
+async function onDelete(id) {
+  if (!confirm('Deseja realmente excluir este paciente?')) return;
+  alert(`Funcionalidade de deletar o paciente com ID ${id} ainda não implementada.`);
+  // try {
+  //   await deletePaciente(id); // Você precisaria criar a função deletePaciente no service
+  //   fetchAndRender(); // Recarrega a lista
+  // } catch (e) {
+  //   alert('Falha ao excluir paciente.');
+  // }
+}
+
+// Ação de visualizar (exemplo, não implementado no seu HTML)
+function onView(id) {
+  const paciente = todosPacientes.find(p => p.id == id);
+  if (paciente) {
+    alert(`Visualizando dados de: ${paciente.name}`);
+    // Aqui viria a lógica para abrir o modal da carteirinha
   }
 }
-function fecharCarteirinha(){ overlay?.setAttribute('aria-hidden','true'); }
 
-closeBtn?.addEventListener('click', fecharCarteirinha);
-overlay?.addEventListener('click', (e)=>{ if(e.target === overlay) fecharCarteirinha(); });
-document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') fecharCarteirinha(); });
-
-document.getElementById('btn-copiar')?.addEventListener('click', async ()=>{
-  const texto =
-`Nome: ${byId('c-nome')?.textContent||''}
-Idade: ${byId('c-idade')?.textContent||''}
-Gênero: ${byId('c-genero')?.textContent||''}
-CPF: ${byId('c-cpf')?.textContent||''}
-Última consulta: ${byId('c-ultima')?.textContent||''}
-Próxima consulta: ${byId('c-proxima')?.textContent||''}
-Observações: ${byId('c-observacoes')?.textContent||''}`;
-  try{
-    await navigator.clipboard.writeText(texto);
-    alert('Dados copiados! ✅');
-  }catch{
-    alert('Não foi possível copiar.');
-  }
+// Evento de busca no input
+q?.addEventListener('input', () => {
+  filtro = q.value;
+  page = 1;
+  render();
 });
-document.getElementById('btn-imprimir')?.addEventListener('click', ()=>{ window.print(); });
+
+// Botão "Novo Paciente" não precisa de JS se o `href` já está no HTML.
+// btnNew?.addEventListener('click', ...);
+
+/* ========================= Inicializa ========================= */
+// Inicia todo o processo quando o script é carregado
+fetchAndRender();
