@@ -242,3 +242,24 @@ export async function updateLaudo(id, dadosDoLaudo) {
     throw error;
   }
 }
+// Dentro de pacientesService.js
+
+// ... (suas funções de pacientes e laudos) ...
+
+/**
+ * Busca a lista completa de MÉDICOS na API.
+ */
+export async function listarMedicos() {
+  // ❗️ Assumindo que sua tabela de médicos se chama 'doctors'. Verifique no Supabase!
+  try {
+    const response = await fetch(`${API_BASE_URL}/doctors?select=*`, {
+      method: 'GET',
+      headers: getAuthHeaders()
+    });
+    if (!response.ok) throw new Error(`Erro de rede: ${response.statusText}`);
+    return await response.json();
+  } catch (error) {
+    console.error('Falha ao listar médicos:', error);
+    throw error;
+  }
+}

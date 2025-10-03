@@ -27,7 +27,8 @@ async function handleLogin(event, intendedRole) {
     const submitButton = form.querySelector('button[type="submit"]');
 
     errorMessageDiv.style.display = 'none';
-    localStorage.clear();
+    localStorage.removeItem('user_token');
+    localStorage.removeItem('user_role');
     submitButton.disabled = true;
     submitButton.textContent = 'Entrando...';
 
