@@ -10,7 +10,7 @@
 <body>
 
 <h1>Editar Laudo</h1>
-
+<form id="form-editar-laudo">
 <div class="editor-toolbar">
   <button onclick="execCmd('bold')"><i class="fa fa-bold"></i></button>
   <button onclick="execCmd('italic')"><i class="fa fa-italic"></i></button>
@@ -23,7 +23,11 @@
 <div id="laudo-conteudo" contenteditable="true"></div>
 
 <div class="opcoes">
-  <label>Paciente: <input type="text" id="paciente"></label>
+ <label>Paciente:
+    <select id="paciente-id" required>
+        <option value="">Carregando...</option>
+    </select>
+</label>
   <label>Solicitante: <input type="text" id="solicitante"></label>
   <label>Exame:
     <select id="exame">
@@ -45,68 +49,8 @@
   <button class="btn-salvar" onclick="salvarEdicao() , window.location.href='Laudo.html'">Salvar Alterações</button>
   <button class="btn-cancelar" onclick="window.location.href='Laudo.html'">Cancelar</button>
 </div>
-
-<script>
-const params = new URLSearchParams(window.location.search);
-const laudoId = params.get("id");
-let laudos = JSON.parse(localStorage.getItem("laudos")) || [];
-let laudo = laudos.find(l => l.id === laudoId);
-
-if(!laudo) { alert("Laudo não encontrado!"); window.location.href = "Laudo.html"; }
-
-document.getElementById("laudo-conteudo").innerHTML = laudo.conteudo;
-document.getElementById("paciente").value = laudo.paciente;
-document.getElementById("solicitante").value = laudo.solicitante;
-document.getElementById("exame").value = laudo.exame;
-document.getElementById("prazo").value = laudo.prazo;
-document.getElementById("assinatura").checked = laudo.assinatura;
-
-function execCmd(command){ document.execCommand(command, false, null); }
-
-function preencherHoras() {
-  const selectHora = document.getElementById("hora");
-  selectHora.innerHTML = "";
-  for (let h=8; h<=22; h++){
-    ["00","30"].forEach(min=>{
-      if(h===22 && min==="30") return;
-      const o = document.createElement("option");
-      o.value = `${String(h).padStart(2,"0")}:${min}`;
-      o.textContent = `${String(h).padStart(2,"0")}:${min}`;
-      selectHora.appendChild(o);
-    });
-  }
-}
-
-function atualizarStatusPrazo() {
-  const prazo = document.getElementById("prazo").value;
-  const statusEl = document.getElementById("statusPrazo");
-  if(!prazo){ statusEl.textContent="Sem prazo"; statusEl.className="status"; return; }
-  const hoje = new Date();
-  const dataPrazo = new Date(prazo+"T23:59:59");
-  if(dataPrazo>=hoje){ statusEl.textContent="Dentro do prazo"; statusEl.className="status ok"; }
-  else { statusEl.textContent="Vencido"; statusEl.className="status vencido"; }
-}
-
-function salvarEdicao(){
-  laudo.conteudo = document.getElementById("laudo-conteudo").innerHTML;
-  laudo.paciente = document.getElementById("paciente").value;
-  laudo.solicitante = document.getElementById("solicitante").value;
-  laudo.exame = document.getElementById("exame").value;
-  laudo.prazo = document.getElementById("prazo").value;
-  laudo.hora = document.getElementById("hora").value;
-  laudo.assinatura = document.getElementById("assinatura").checked;
-
-  localStorage.setItem("laudos", JSON.stringify(laudos));
-  alert("Laudo atualizado com sucesso!");
-  window.location.href="laudo.html";
-}
-
-window.onload = () => {
-  preencherHoras();
-  document.getElementById("hora").value = laudo.hora || "08:00";
-  atualizarStatusPrazo();
-};
-</script>
+</form>
+<script type="module" src="../../assets/js/editar-laudo.js"></script>
 
 </body>
 </html>

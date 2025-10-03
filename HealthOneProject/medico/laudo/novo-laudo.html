@@ -11,6 +11,8 @@
 
  <h1>Novo Laudo</h1>
 
+  <form id="form-novo-laudo">
+
 <div class="editor-toolbar">
   <button onclick="execCmd('bold')"><i class="fa fa-bold"></i></button>
   <button onclick="execCmd('italic')"><i class="fa fa-italic"></i></button>
@@ -23,10 +25,14 @@
   <button onclick="insertCampo('[[CID]]')">CID</button>
 </div>
 
-<div id="laudo-conteudo" contenteditable="true"></div>
+    <div id="laudo-conteudo" contenteditable="true"></div>
 
-<div class="opcoes">
-  <label>Paciente: <input type="text" id="paciente" placeholder="Nome do paciente"></label>
+    <div class="opcoes">
+<label>Paciente:
+    <select id="paciente-id" required>
+        <option value="">Carregando pacientes...</option>
+    </select>
+</label>
   <label>Solicitante: <input type="text" id="solicitante" placeholder="Médico solicitante"></label>
   <label>Exame:
     <select id="exame">
@@ -54,70 +60,25 @@
   <label>Hora:
     <select id="hora"></select>
   </label>
+  <label>Status:
+  <select id="laudo-status">
+    <option value="draft">Rascunho</option>
+    <option value="published">Publicado</option>
+    <option value="archived">Arquivado</option>
+  </select>
+</label>
+
   <label>Assinatura digital: <input type="checkbox" id="assinatura"></label><br>
+      <button type="submit" class="btn-salvar">Salvar</button>
+      <button type="button" class="btn-cancelar">Cancelar</button>
+    </div>
 
-  <button class="btn-salvar" onclick="salvarLaudo() , window.location.href='Laudo.html' ">Salvar</button>
-  <button class="btn-cancelar" onclick="window.location.href='laudo.html'">Cancelar</button>
-</div>
 
-<script>
-function execCmd(command) { document.execCommand(command, false, null); }
-function insertCampo(texto) {
-  const selection = window.getSelection();
-  if (!selection.rangeCount) return;
-  const range = selection.getRangeAt(0);
-  range.deleteContents();
-  range.insertNode(document.createTextNode(texto));
-}
 
-// Preencher horas 08:00 a 22:00
-function preencherHoras() {
-  const selectHora = document.getElementById("hora");
-  selectHora.innerHTML = "";
-  for (let h = 8; h <= 22; h++) {
-    ["00","30"].forEach(min => {
-      if(h === 22 && min === "30") return;
-      const o = document.createElement("option");
-      o.value = `${String(h).padStart(2,"0")}:${min}`;
-      o.textContent = `${String(h).padStart(2,"0")}:${min}`;
-      selectHora.appendChild(o);
-    });
-  }
-}
+ </form>
+<script type="module" src="../../assets/js/novo-laudo.js"></script>
 
-function salvarLaudo() {
-  const conteudo = document.getElementById("laudo-conteudo").innerHTML;
-  const paciente = document.getElementById("paciente").value;
-  const solicitante = document.getElementById("solicitante").value;
-  const exame = document.getElementById("exame").value;
-  const prazo = document.getElementById("prazo").value;
-  const hora = document.getElementById("hora").value;
 
-  if (!paciente || !solicitante || !prazo) { alert("Preencha paciente, solicitante e prazo!"); return; }
-
-  const laudos = JSON.parse(localStorage.getItem("laudos")) || [];
-  const novoLaudo = {
-    id: Date.now().toString(),
-    pedido: "PED" + Math.floor(Math.random()*10000),
-    data: new Date().toISOString().split("T")[0],
-    prazo,
-    hora,
-    paciente,
-    solicitante,
-    exame,
-    status: "Dentro do prazo",
-    conteudo,
-    assinatura: document.getElementById("assinatura").checked
-  };
-
-  laudos.push(novoLaudo);
-  localStorage.setItem("laudos", JSON.stringify(laudos));
-  alert("Laudo salvo com sucesso!");
-  window.location.href = "laudo.html";
-}
-
-window.onload = () => { preencherHoras(); };
-</script>
 
 </body>
 </html>

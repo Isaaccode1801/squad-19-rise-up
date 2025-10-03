@@ -54,12 +54,21 @@
       <tbody id="lista-laudos"></tbody>
     </table>
 </div>
-  <script>
-  function avaliarStatus(prazo) {
-    if (!prazo) return "Rascunho";
+<script type="module">
+  // 1. Importa as funções necessárias do nosso arquivo de serviço
+  import { listarLaudos, excluirLaudo as excluirLaudoDaApi } from '../../assets/js/pacientesService.js'; // ❗️ Verifique se o caminho do arquivo está correto
 
+  // --- Seletores do HTML ---
+  const tbody = document.getElementById("lista-laudos");
+  const pesquisaInput = document.getElementById("pesquisa");
+
+  // --- Funções Auxiliares (mantivemos as suas) ---
+  function avaliarStatus(prazo) {
+    if (!prazo) return '<span class="status-rascunho">Rascunho</span>';
     const hoje = new Date();
-    const dataPrazo = new Date(prazo + "T23:59:59");
+    const dataPrazo = new Date(prazo);
+    hoje.setHours(0, 0, 0, 0); // Zera a hora para comparar apenas o dia
+    dataPrazo.setHours(0, 0, 0, 0);
 
     if (dataPrazo >= hoje) {
       return '<span class="status-verde">Dentro do prazo</span>';
@@ -71,74 +80,101 @@
   function formatarData(dataStr) {
     if (!dataStr) return "-";
     const data = new Date(dataStr);
-    const dia = String(data.getDate() + 1).padStart(2, '0');
-    const mes = String(data.getMonth() + 1).padStart(2, '0');
-    const ano = data.getFullYear();
-    return `${dia}/${mes}/${ano}`;
+    return new Intl.DateTimeFormat('pt-BR', { timeZone: 'UTC' }).format(data);
   }
 
-  function carregarLaudos() {
-  const laudos = JSON.parse(localStorage.getItem("laudos")) || [];
-  const tbody = document.getElementById("lista-laudos");
-  tbody.innerHTML = "";
+  // --- Lógica Principal ---
+  
+  /**
+   * Função principal que busca os laudos na API e os exibe na tabela.
+   */
+  async function carregarLaudos() {
+    tbody.innerHTML = `<tr><td colspan="6" class="text-center">Carregando laudos...</td></tr>`;
 
-  laudos.forEach((laudo) => {
-    const statusCalculado = avaliarStatus(laudo.prazo);
-    const prazoFormatado = formatarData(laudo.prazo);
+    try {
+      const laudos = await listarLaudos();
+      tbody.innerHTML = ""; // Limpa a mensagem de "carregando"
 
-    const tr = document.createElement("tr");
+      if (laudos.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center">Nenhum laudo encontrado.</td></tr>`;
+        return;
+      }
 
-    tr.innerHTML = `
-      <td>${laudo.paciente || "-"}</td>
-      <td>${laudo.exame || "-"}</td>
-      <td>${prazoFormatado}</td>
-      <td>${laudo.hora || "-"}</td> <!-- 🔹 Mostra hora salva -->
-      <td>${statusCalculado}</td>
-      <td class="acoes">
-          <button class="btn-revisar" onclick="window.location.href='revisar-laudo.html?id=${laudo.id}'">
-            <i class="fa fa-eye"></i> Revisar
-          </button>
-        <button class="btn-editar" onclick="window.location.href='editar-laudo.html?id=${laudo.id}'">
-          <i class="fa fa-edit"></i> Editar
-        </button>
-        <button class="btn-excluir" onclick="excluirLaudo('${laudo.id}')">
-          <i class="fa fa-trash"></i> Excluir
-        </button>
-      </td>
-    `;
+      laudos.forEach((laudo) => {
+        // ❗️ Verifique os nomes dos campos (laudo.patients.full_name, laudo.title, etc.)
+        // para baterem com os nomes das colunas da sua API.
+        const nomePaciente = laudo.patients ? laudo.patients.full_name : 'Paciente não vinculado';
+        
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${nomePaciente}</td>
+          <td>${laudo.title || "-"}</td>
+          <td>${formatarData(laudo.due_date)}</td>
+          <td>${laudo.exam_time || "-"}</td>
+          <td>${avaliarStatus(laudo.due_date)}</td>
+          <td class="acoes">
+            <button class="btn-revisar" data-laudo-id="${laudo.id}"><i class="fa fa-eye"></i> Revisar</button>
+            <button class="btn-editar" data-laudo-id="${laudo.id}"><i class="fa fa-edit"></i> Editar</button>
+            <button class="btn-excluir" data-laudo-id="${laudo.id}"><i class="fa fa-trash"></i> Excluir</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    } catch (error) {
+      console.error("Falha ao carregar laudos:", error);
+      tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Erro ao carregar laudos.</td></tr>`;
+    }
+  }
 
-    tbody.appendChild(tr);
-  });
-}
-
-  function excluirLaudo(id) {
+  /**
+   * Função para excluir um laudo, agora usando a API.
+   */
+  async function excluirLaudo(id) {
     if (!confirm("Tem certeza que deseja excluir este laudo?")) return;
-
-    let laudos = JSON.parse(localStorage.getItem("laudos")) || [];
-    laudos = laudos.filter((l) => l.id !== id);
-
-    localStorage.setItem("laudos", JSON.stringify(laudos));
-    carregarLaudos();
+    
+    try {
+      await excluirLaudoDaApi(id);
+      alert("Laudo excluído com sucesso!");
+      carregarLaudos(); // Recarrega a lista para remover a linha da tabela
+    } catch (error) {
+      alert("Falha ao excluir o laudo.");
+      console.error(error);
+    }
   }
 
-  // 🔹 Função de pesquisa corrigida
-  function filtrarLaudos() {
-    const filtro = document.getElementById("pesquisa").value.toLowerCase();
+  // --- Event Listeners ---
+
+  // Filtro de pesquisa
+  pesquisaInput.addEventListener("keyup", () => {
+    const filtro = pesquisaInput.value.toLowerCase();
     const linhas = document.querySelectorAll("#lista-laudos tr");
 
     linhas.forEach(linha => {
       const texto = linha.innerText.toLowerCase();
       linha.style.display = texto.includes(filtro) ? "" : "none";
     });
-  }
+  });
+  
+  // Delegação de eventos para os botões de ação
+  tbody.addEventListener('click', (event) => {
+    const target = event.target.closest('button');
+    if (!target) return;
+    
+    const laudoId = target.dataset.laudoId;
 
-  // Atualização periódica do status a cada minuto
-  setInterval(carregarLaudos, 60000);
+    if (target.classList.contains('btn-excluir')) {
+      excluirLaudo(laudoId);
+    }
+    if (target.classList.contains('btn-editar')) {
+      window.location.href = `editar-laudo.html?id=${laudoId}`;
+    }
+    if (target.classList.contains('btn-revisar')) {
+      window.location.href = `revisar-laudo.html?id=${laudoId}`;
+    }
+  });
 
-  window.onload = () => {
-    carregarLaudos();
-    document.getElementById("pesquisa").addEventListener("keyup", filtrarLaudos);
-  };
+  // Carrega os laudos assim que a página é aberta.
+  carregarLaudos();
 </script>
 
 </body>

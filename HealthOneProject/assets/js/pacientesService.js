@@ -131,3 +131,114 @@ export async function deletePaciente(id) {
     throw error;
   }
 }
+// Dentro do arquivo: pacientesService.js
+
+// ... (suas funções existentes: listPacientes, deletePaciente, etc.) ...
+
+/**
+ * Busca a lista completa de laudos na API.
+ */
+export async function listarLaudos() {
+  // ❗️ Lembre-se: Assumindo que a tabela se chama 'laudos'. Altere se for diferente.
+  // A query `select=*,patients(full_name)` já traz o nome do paciente.
+  try {
+    const response = await fetch(`${API_BASE_URL}/reports?select=*,patients(full_name)`, {
+      method: 'GET',
+      headers: getAuthHeaders()
+    });
+    if (!response.ok) throw new Error(`Erro de rede: ${response.statusText}`);
+    return await response.json();
+  } catch (error) {
+    console.error('Falha ao listar laudos:', error);
+    throw error;
+  }
+}
+
+/**
+ * Exclui um laudo existente pelo ID.
+ */
+export async function excluirLaudo(id) {
+  // ❗️ Assumindo que a tabela se chama 'laudos'. Altere se for diferente.
+  try {
+    const response = await fetch(`${API_BASE_URL}/reports?id=eq.${id}`, {
+      method: 'DELETE',
+      headers: getAuthHeaders()
+    });
+    if (!response.ok && response.status !== 204) {
+      throw new Error(`Erro ao excluir laudo: ${response.statusText}`);
+    }
+    return true;
+  } catch (error) {
+    console.error(`Falha ao excluir laudo ${id}:`, error);
+    throw error;
+  }
+}// Dentro do arquivo: pacientesService.js
+
+// ... (suas funções existentes: listarLaudos, excluirLaudo, etc.) ...
+
+/**
+ * Cria um novo laudo no banco de dados.
+ * @param {Object} dadosDoLaudo - Objeto com os dados do novo laudo.
+ */
+export async function createLaudo(dadosDoLaudo) {
+  // ❗️ Lembre-se: Assumindo que a tabela se chama 'laudos'. Altere se for diferente.
+  try {
+    const response = await fetch(`${API_BASE_URL}/reports`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(dadosDoLaudo)
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Erro ao criar laudo.');
+    }
+  } catch (error) {
+    console.error('Falha ao criar laudo:', error);
+    throw error;
+  }
+}
+// Dentro do arquivo: pacientesService.js
+
+// ... (suas funções existentes: createLaudo, listarLaudos, etc.) ...
+
+/**
+ * Busca os dados de UM laudo específico pelo ID.
+ * @param {string | number} id O ID do laudo a ser buscado.
+ */
+export async function getLaudo(id) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/reports?id=eq.${id}&select=*,patients(full_name)`, {
+      method: 'GET',
+      headers: getAuthHeaders()
+    });
+    if (!response.ok) throw new Error(`Erro ao buscar laudo: ${response.statusText}`);
+    const data = await response.json();
+    return data[0]; // A API retorna uma lista com um item, então pegamos o primeiro.
+  } catch (error) {
+    console.error(`Falha ao buscar laudo ${id}:`, error);
+    throw error;
+  }
+}
+
+
+/**
+ * Atualiza um laudo existente.
+ * @param {string | number} id O ID do laudo a ser atualizado.
+ * @param {Object} dadosDoLaudo Objeto com os campos a serem atualizados.
+ */
+export async function updateLaudo(id, dadosDoLaudo) {
+  try {
+    const response = await fetch(`${API_BASE_URL}/reports?id=eq.${id}`, {
+      method: 'PATCH',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(dadosDoLaudo)
+    });
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Erro ao atualizar laudo.');
+    }
+  } catch (error) {
+    console.error(`Falha ao atualizar laudo ${id}:`, error);
+    throw error;
+  }
+}
