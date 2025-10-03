@@ -9,7 +9,7 @@ const API_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsIn
 // No topo do seu JS de cadastro
 
 function getAuthHeaders() {
-  const userToken = localStorage.getItem('token');
+  const userToken = localStorage.getItem('user_token');
   if (!userToken) {
     console.warn('Token de usuário não encontrado no localStorage.');
   }

@@ -87,13 +87,13 @@
       <div class="row justify-content-center">
         <div class="col-lg-8 text-center">
           <div class="d-flex flex-column flex-md-row gap-3 justify-content-center">
-            <a href="#" class="btn-med" data-bs-toggle="modal" data-bs-target="#doctorModal">
+            <a href="#" class="btn-med" data-bs-toggle="modal" data-bs-target="#doctorModal" data-role="medico">
               <i class="bi bi-heart-pulse me-2"></i>Sou Médico
             </a>
-            <a href="#" class="btn-paciente" data-bs-toggle="modal" data-bs-target="#patientModal">
+            <a href="#" class="btn-paciente" data-bs-toggle="modal" data-bs-target="#patientModal" data-role="paciente">
               <i class="bi bi-heart me-2"></i>Sou Paciente
             </a>
-            <a href="#" class="btn-secretaria" data-bs-toggle="modal" data-bs-target="#secretariaModal">
+            <a href="#" class="btn-secretaria" data-bs-toggle="modal" data-bs-target="#secretariaModal" data-role="secretaria">
             <i class="fa-solid fa-envelope"></i>
            <span>Sou Secretaria</span>
           </a>
@@ -204,16 +204,19 @@
           </h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="modal-body text-center">
-          <div class="d-flex flex-column gap-3">
-            <button type="button" class="btn btn-primary btn-lg px-4 py-3" onclick="handlePatientOption('login'), window.location.href='Lista-agendamento/dash-pacientes.html'">
-              <i class="bi bi-box-arrow-in-right me-2"></i>Fazer Login
-            </button>
-            <button type="button" class="btn btn-success btn-lg px-4 py-3" onclick="handlePatientOption('cadastro')">
-              <i class="bi bi-person-plus me-2"></i>Criar Cadastro
-            </button>
-          </div>
-        </div>
+<div class="modal-body text-center">
+    <div class="d-flex flex-column gap-3">
+
+        <button type="button" class="btn btn-primary btn-lg px-4 py-3" onclick="window.location.href='Lista-agendamento/dash-pacientes.html'">
+            <i class="bi bi-box-arrow-in-right me-2"></i>Fazer Login
+        </button>
+
+        <button type="button" class="btn btn-success btn-lg px-4 py-3" onclick="alert('Funcionalidade de cadastro de paciente a ser implementada.')">
+            <i class="bi bi-person-plus me-2"></i>Criar Cadastro
+        </button>
+
+    </div>
+</div>
       </div>
     </div>
   </div>
@@ -228,27 +231,34 @@
           </h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="modal-body">
-          <form id="doctorLoginForm">
-            <div class="mb-3">
-              <label for="crm" class="form-label">CRM</label>
-              <input type="text" class="form-control" id="crm" name="crm" placeholder="Digite seu CRM" required>
-            </div>
-            <div class="mb-3">
-              <label for="email" class="form-label">E-mail</label>
-              <input type="email" class="form-control" id="email" name="email" placeholder="Digite seu e-mail" required>
-            </div>
-            <div class="mb-3">
-              <label for="senha" class="form-label">Senha</label>
-              <input type="password" class="form-control" id="senha" name="senha" placeholder="Digite sua senha" required>
-            </div>
-            <div class="d-grid">
-              <button type="submit" class="btn btn-primary btn-lg">
-                <i class="bi bi-box-arrow-in-right me-2"></i>Login
-              </button>
-            </div>
-          </form>
-        </div>
+<div class="modal-body">
+  <form id="doctorLoginForm">
+
+    <div class="mb-3">
+      <label for="crm" class="form-label">CRM</label>
+      <input type="text" class="form-control" id="crm" name="crm" placeholder="Digite seu CRM">
+    </div>
+
+    <div class="mb-3">
+      <label for="emailMedico" class="form-label">E-mail</label>
+      <input type="email" class="form-control" id="emailMedico" name="email" placeholder="Digite seu e-mail" required>
+    </div>
+
+    <div class="mb-3">
+      <label for="senhaMedico" class="form-label">Senha</label>
+      <input type="password" class="form-control" id="senhaMedico" name="senha" placeholder="Digite sua senha" required>
+    </div>
+
+    <div id="medicoError" class="error-message" style="display: none;"></div>
+
+    <div class="d-grid">
+      <button type="submit" class="btn btn-primary btn-lg">
+        <i class="bi bi-box-arrow-in-right me-2"></i>Login
+      </button>
+    </div>
+    
+  </form>
+</div>
       </div>
     </div>
   </div>
