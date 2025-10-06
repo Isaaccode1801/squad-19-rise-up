@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestão de Laudos - HealthOne</title>
+  <!-- Fontes e Ícones -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+  <style>
+    /* ===== VARIÁVEIS DE DESIGN - TEMA CLARO COM EFEITO DE VIDRO ===== */
+    :root {
+      --cor-fundo: #F8F9FA;
+      --cor-sidebar-vidro: rgba(255, 255, 255, 0.7);
+      --cor-borda: rgba(0, 0, 0, 0.1);
+      --cor-texto-principal: #212529;
+      --cor-texto-secundario: #6C757D;
+      --cor-acento-healthone: #3fbbc0;
+      --cor-acento-healthone-claro: #e5f7f8;
+      --raio-borda: 12px;
+      --sombra: 0 8px 24px rgba(0, 0, 0, 0.07);
+      --blur-fundo: 10px;
+      --transicao: all 0.3s ease-in-out;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--cor-fundo);
+      color: var(--cor-texto-principal);
+      background-image: radial-gradient(circle at 5% 15%, rgba(63, 187, 192, 0.15), transparent 40%),
+                        radial-gradient(circle at 95% 85%, rgba(63, 187, 192, 0.1), transparent 40%);
+      min-height: 100vh;
+    }
+
+    /* ===== ESTILO DA SIDEBAR - EFEITO DE VIDRO ===== */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 260px;
+      height: 100%;
+      background-color: var(--cor-sidebar-vidro);
+      backdrop-filter: blur(var(--blur-fundo));
+      border-right: 1px solid var(--cor-borda);
+      box-shadow: var(--sombra);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      padding: 20px 0;
+      transition: var(--transicao);
+    }
+    .sidebar-header { display: flex; align-items: center; gap: 12px; padding: 0 25px 20px 25px; font-size: 22px; font-weight: 700; color: var(--cor-texto-principal); border-bottom: 1px solid var(--cor-borda); }
+    .sidebar-header i { color: var(--cor-acento-healthone); }
+    .nav-links { flex-grow: 1; margin-top: 20px; }
+    .nav-links a { display: flex; align-items: center; gap: 15px; padding: 15px 25px; margin: 5px 15px; text-decoration: none; color: var(--cor-texto-secundario); font-size: 16px; font-weight: 500; border-radius: var(--raio-borda); position: relative; transition: var(--transicao); }
+    .nav-links a i { width: 20px; text-align: center; }
+    .nav-links a:hover { background: var(--cor-acento-healthone-claro); color: var(--cor-acento-healthone); }
+    .nav-links a.active { background-color: var(--cor-acento-healthone-claro); color: var(--cor-acento-healthone); font-weight: 600; }
+    .nav-links a.active::before { content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%); height: 60%; width: 4px; background-color: var(--cor-acento-healthone); border-radius: 0 4px 4px 0; }
+    .sidebar-footer { padding: 10px 0; border-top: 1px solid var(--cor-borda); }
+
+    /* ===== CONTEÚDO PRINCIPAL E LAYOUT CORRIGIDO ===== */
+    .main-content {
+      margin-left: 260px;
+      padding: 20px;
+      transition: var(--transicao);
+    }
+
+    /* ===== BOTÃO DE TOGGLE ===== */
+    #toggle-sidebar-btn {
+      position: fixed;
+      top: 20px;
+      left: 275px;
+      z-index: 1001;
+      background: var(--cor-sidebar-vidro);
+      backdrop-filter: blur(var(--blur-fundo));
+      border: 1px solid var(--cor-borda);
+      color: var(--cor-acento-healthone);
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      font-size: 18px;
+      transition: var(--transicao);
+      box-shadow: var(--sombra);
+    }
+    #toggle-sidebar-btn:hover { transform: scale(1.1); color: #fff; background-color: var(--cor-acento-healthone); }
+
+    /* ===== ESTADO FECHADO ===== */
+    body.sidebar-fechada .sidebar { left: -260px; }
+    body.sidebar-fechada .main-content { margin-left: 0; }
+    body.sidebar-fechada #toggle-sidebar-btn { left: 20px; }
+    
+    /* ===== ESTILOS "REPAGINADOS" PARA A PÁGINA DE LAUDOS ===== */
+    .top-bar { display: none; } /* Oculta a top-bar antiga para um visual mais limpo */
+    .header {
+      background: var(--cor-sidebar-vidro);
+      backdrop-filter: blur(var(--blur-fundo));
+      border: 1px solid var(--cor-borda);
+      padding: 15px 20px;
+      border-radius: var(--raio-borda);
+      box-shadow: var(--sombra);
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header .brand { display: flex; align-items: center; gap: 12px; }
+    .header .brand img { height: 40px; }
+    .header .user { font-weight: 600; }
+    .header .nav-links a, .header .btn-header { color: var(--cor-texto-secundario); font-weight: 500; text-decoration: none; }
+    .header .nav-links a.active { color: var(--cor-acento-healthone); }
+
+    .controls-bar {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+        align-items: center;
+    }
+    .controls-bar input, .controls-bar button {
+        padding: 12px 15px;
+        border-radius: var(--raio-borda);
+        border: 1px solid var(--cor-borda);
+        background: #fff;
+        font-family: 'Inter', sans-serif;
+        font-size: 1rem;
+    }
+    .controls-bar input { flex-grow: 1; }
+    .controls-bar button {
+        background: var(--cor-acento-healthone);
+        color: #fff;
+        font-weight: 600;
+        cursor: pointer;
+        border: none;
+    }
+    
+    .table-container {
+        background: #fff;
+        border-radius: var(--raio-borda);
+        padding: 20px;
+        box-shadow: var(--sombra);
+        border: 1px solid var(--cor-borda);
+        overflow-x: auto;
+    }
+    table { width: 100%; border-collapse: collapse; white-space: nowrap; }
+    th, td { padding: 12px; border-bottom: 1px solid var(--cor-borda); text-align: left; }
+    th { color: var(--cor-texto-secundario); font-weight: 500; font-size: 0.9rem; }
+    tr:last-child td { border-bottom: none; }
+    .status-verde { color: #16a34a; font-weight: bold; }
+    .status-vermelho { color: #ef4444; font-weight: bold; }
+    .acoes button { border: none; padding: 6px 10px; border-radius: 6px; margin-right: 5px; cursor: pointer; color: white; }
+    .btn-editar { background: #2196f3; }
+    .btn-revisar { background: #607d8b; }
+    .btn-excluir { background: #f44336; }
+  </style>
+</head>
+<body>
+
+  <!-- ======================== HTML DA SIDEBAR (CORRIGIDO) ======================== -->
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <i class="fa-solid fa-building"></i>
+      <span>Medconnect</span>
+    </div>
+    <div class="nav-links">
+      <a href="../dash-secretaria.html"><i class="fa-solid fa-house"></i> Início</a>
+      <a href="../medicos.html"><i class="fa-solid fa-user-doctor"></i> Gerenciar Médicos</a>
+      <a href="../pacientes.html"><i class="fa-solid fa-users"></i> Gerenciar Pacientes</a>
+      <a href="../secretaria.html"><i class="fa-solid fa-calendar-check"></i> Gerenciar Consultas</a>
+      <a href="#" class="active"><i class="fa-solid fa-file-lines"></i> Laudos</a>
+      <a href="Laudo.html"><i class="fa-solid fa-gear"></i> Configurações</a>
+    </div>
+    <div class="sidebar-footer">
+      <a href="../../index.html"><i class="fa-solid fa-right-from-bracket"></i> Sair</a>
+    </div>
+  </nav>
+
+  <!-- ================== BOTÃO E CONTEÚDO PRINCIPAL ================== -->
+  <button id="toggle-sidebar-btn" title="Abrir/Fechar Menu">
+    <i class="fa-solid fa-bars"></i>
+  </button>
+
+  <div class="main-content">
+    <div class="header">
+      <div class="brand">
+        <img src="../../assets/img/Logo do HealthOne.png" alt="Logo HealthOne">
+        <h1>Gerenciamento de Laudos</h1>
+      </div>
+    </div>
+
+    <div class="controls-bar">
+        <input type="text" id="pesquisa" placeholder="Pesquisar por paciente ou exame...">
+        <button onclick="window.location.href='novo-laudo.html'">
+            <i class="fa fa-plus"></i> Novo Laudo
+        </button>
+    </div>
+  
+    <div class="table-container">
+      <table>
+        <thead>
+          <tr>
+            <th>Paciente</th>
+            <th>Exame</th>
+            <th>Prazo</th>
+            <th>Hora</th>
+            <th>Status</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="lista-laudos"></tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ======================== JAVASCRIPT ======================== -->
+  <script type="module">  // 1. Importa as funções necessárias do nosso arquivo de serviço
+  import { listarLaudos, excluirLaudo as excluirLaudoDaApi } from '../../assets/js/pacientesService.js'; // ❗️ Verifique se o caminho do arquivo está correto
+
+  // --- Seletores do HTML ---
+  const tbody = document.getElementById("lista-laudos");
+  const pesquisaInput = document.getElementById("pesquisa");
+
+  // --- Funções Auxiliares (mantivemos as suas) ---
+  function avaliarStatus(prazo) {
+    if (!prazo) return '<span class="status-rascunho">Rascunho</span>';
+    const hoje = new Date();
+    const dataPrazo = new Date(prazo);
+    hoje.setHours(0, 0, 0, 0); // Zera a hora para comparar apenas o dia
+    dataPrazo.setHours(0, 0, 0, 0);
+
+    if (dataPrazo >= hoje) {
+      return '<span class="status-verde">Dentro do prazo</span>';
+    } else {
+      return '<span class="status-vermelho">Vencido</span>';
+    }
+  }
+
+  function formatarData(dataStr) {
+    if (!dataStr) return "-";
+    const data = new Date(dataStr);
+    return new Intl.DateTimeFormat('pt-BR', { timeZone: 'UTC' }).format(data);
+  }
+
+  // --- Lógica Principal ---
+  
+  /**
+   * Função principal que busca os laudos na API e os exibe na tabela.
+   */
+  async function carregarLaudos() {
+    tbody.innerHTML = `<tr><td colspan="6" class="text-center">Carregando laudos...</td></tr>`;
+
+    try {
+      const laudos = await listarLaudos();
+      tbody.innerHTML = ""; // Limpa a mensagem de "carregando"
+
+      if (laudos.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center">Nenhum laudo encontrado.</td></tr>`;
+        return;
+      }
+
+      laudos.forEach((laudo) => {
+        // ❗️ Verifique os nomes dos campos (laudo.patients.full_name, laudo.title, etc.)
+        // para baterem com os nomes das colunas da sua API.
+        const nomePaciente = laudo.patients ? laudo.patients.full_name : 'Paciente não vinculado';
+        
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${nomePaciente}</td>
+          <td>${laudo.exam || "-"}</td>
+          <td>${formatarData(laudo.due_date)}</td>
+          <td>${laudo.created_at || "-"}</td>
+          <td>${avaliarStatus(laudo.due_date)}</td>
+          <td class="acoes">
+            <button class="btn-revisar" data-laudo-id="${laudo.id}"><i class="fa fa-eye"></i> Revisar</button>
+            <button class="btn-editar" data-laudo-id="${laudo.id}"><i class="fa fa-edit"></i> Editar</button>
+            <button class="btn-excluir" data-laudo-id="${laudo.id}"><i class="fa fa-trash"></i> Excluir</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    } catch (error) {
+      console.error("Falha ao carregar laudos:", error);
+      tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Erro ao carregar laudos.</td></tr>`;
+    }
+  }
+
+  /**
+   * Função para excluir um laudo, agora usando a API.
+   */
+  async function excluirLaudo(id) {
+    if (!confirm("Tem certeza que deseja excluir este laudo?")) return;
+    
+    try {
+      await excluirLaudoDaApi(id);
+      alert("Laudo excluído com sucesso!");
+      carregarLaudos(); // Recarrega a lista para remover a linha da tabela
+    } catch (error) {
+      alert("Falha ao excluir o laudo.");
+      console.error(error);
+    }
+  }
+
+  // --- Event Listeners ---
+
+  // Filtro de pesquisa
+  pesquisaInput.addEventListener("keyup", () => {
+    const filtro = pesquisaInput.value.toLowerCase();
+    const linhas = document.querySelectorAll("#lista-laudos tr");
+
+    linhas.forEach(linha => {
+      const texto = linha.innerText.toLowerCase();
+      linha.style.display = texto.includes(filtro) ? "" : "none";
+    });
+  });
+  
+  // Delegação de eventos para os botões de ação
+  tbody.addEventListener('click', (event) => {
+    const target = event.target.closest('button');
+    if (!target) return;
+    
+    const laudoId = target.dataset.laudoId;
+
+    if (target.classList.contains('btn-excluir')) {
+      excluirLaudo(laudoId);
+    }
+    if (target.classList.contains('btn-editar')) {
+      window.location.href = `editar-laudo.html?id=${laudoId}`;
+    }
+    if (target.classList.contains('btn-revisar')) {
+      window.location.href = `revisar-laudo.html?id=${laudoId}`;
+    }
+  });
+
+  // Carrega os laudos assim que a página é aberta.
+  carregarLaudos();</script>
+
+  <script>
+    // Script da Sidebar
+    document.addEventListener('DOMContentLoaded', () => {
+      const toggleBtn = document.getElementById('toggle-sidebar-btn');
+      const body = document.body;
+      const icon = toggleBtn.querySelector('i');
+      if (toggleBtn && body && icon) {
+        toggleBtn.addEventListener('click', () => {
+          body.classList.toggle('sidebar-fechada');
+          if (body.classList.contains('sidebar-fechada')) {
+            icon.classList.remove('fa-bars');
+            icon.classList.add('fa-xmark');
+          } else {
+            icon.classList.remove('fa-xmark');
+            icon.classList.add('fa-bars');
+          }
+        });
+      }
+    });
+  </script>
+
+</body>
+</html>
+

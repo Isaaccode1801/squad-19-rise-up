@@ -4,6 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Dashboard Admin - Clínica (Médicos)</title>
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+     <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
     :root{
       --bg:#ffffff; /* fundo branco */
@@ -120,13 +125,226 @@
       .layout{grid-template-columns:1fr}
       .app{padding:16px}
     }
+    /* ===== VARIÁVEIS DE DESIGN FUTURISTA ===== */
+    :root {
+      --cor-fundo: #0D1117;
+      --cor-sidebar: rgba(22, 27, 34, 0.7); /* Fundo semi-transparente para o efeito de vidro */
+      --cor-borda: rgba(137, 147, 158, 0.2);
+      --cor-texto: #c9d1d9;
+      --cor-texto-hover: #ffffff;
+      --cor-acento-neon: #30C5FF; /* Azul neon/ciano */
+      --cor-acento-neon-sombra: rgba(48, 197, 255, 0.3);
+      --raio-borda: 12px;
+      --blur-fundo: 10px;
+      --transicao: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--cor-fundo);
+      color: var(--cor-texto);
+      /* Fundo com gradiente sutil para dar profundidade */
+      background-image: radial-gradient(circle at 10% 20%, rgba(48, 197, 255, 0.1), transparent 30%),
+                        radial-gradient(circle at 90% 80%, rgba(48, 197, 255, 0.08), transparent 40%);
+    }
+
+  /* ===== VARIÁVEIS DE DESIGN - TEMA CLARO COM EFEITO DE VIDRO ===== */
+    :root {
+      --cor-fundo: #F8F9FA;
+      --cor-sidebar-vidro: rgba(255, 255, 255, 0.7); /* Fundo branco semi-transparente */
+      --cor-borda: rgba(0, 0, 0, 0.1);
+      --cor-texto-principal: #212529;
+      --cor-texto-secundario: #6C757D;
+      --cor-acento-healthone: #3fbbc0;
+      --cor-acento-healthone-claro: #e5f7f8;
+      --raio-borda: 10px;
+      --sombra: 0 4px 12px rgba(0, 0, 0, 0.05);
+      --blur-fundo: 10px; /* Intensidade do desfoque */
+      --transicao: all 0.3s ease-in-out;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--cor-fundo);
+      color: var(--cor-texto-principal);
+      /* Fundo com gradiente sutil para o efeito de vidro ser visível */
+      background-image: radial-gradient(circle at 5% 15%, rgba(63, 187, 192, 0.15), transparent 40%),
+                        radial-gradient(circle at 95% 85%, rgba(63, 187, 192, 0.1), transparent 40%);
+      min-height: 100vh;
+    }
+
+    /* ===== ESTILO DA SIDEBAR - EFEITO DE VIDRO ===== */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 260px;
+      height: 100%;
+      background-color: var(--cor-sidebar-vidro);
+      backdrop-filter: blur(var(--blur-fundo)); /* A MÁGICA DO EFEITO DE VIDRO */
+      border-right: 1px solid var(--cor-borda);
+      box-shadow: var(--sombra);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      padding: 20px 0;
+      transition: var(--transicao);
+    }
+
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 25px 20px 25px;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--cor-texto-principal);
+      border-bottom: 1px solid var(--cor-borda);
+    }
+    .sidebar-header i {
+      color: var(--cor-acento-healthone);
+    }
+
+    .nav-links {
+      flex-grow: 1;
+      margin-top: 20px;
+    }
+
+    .nav-links a {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 15px 25px;
+      margin: 5px 15px;
+      text-decoration: none;
+      color: var(--cor-texto-secundario);
+      font-size: 16px;
+      font-weight: 500;
+      border-radius: var(--raio-borda);
+      position: relative;
+      transition: var(--transicao);
+    }
+    .nav-links a i { width: 20px; text-align: center; }
+
+    .nav-links a:hover {
+      background: var(--cor-acento-healthone-claro);
+      color: var(--cor-acento-healthone);
+    }
+
+    .nav-links a.active {
+      background-color: var(--cor-acento-healthone-claro);
+      color: var(--cor-acento-healthone);
+      font-weight: 600;
+    }
+    .nav-links a.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 60%;
+      width: 4px;
+      background-color: var(--cor-acento-healthone);
+      border-radius: 0 4px 4px 0;
+    }
+
+    .sidebar-footer {
+      padding: 10px 0;
+      border-top: 1px solid var(--cor-borda);
+    }
+
+    /* ===== CONTEÚDO PRINCIPAL ===== */
+    .main-content {
+      margin-left: 260px;
+      padding: 30px;
+      transition: var(--transicao);
+    }
+    .main-content h1 { font-size: 2.5rem; }
+    .main-content p { font-size: 1.1rem; max-width: 700px; color: var(--cor-texto-secundario); }
+
+    /* ===== BOTÃO DE TOGGLE - EFEITO DE VIDRO ===== */
+    #toggle-sidebar-btn {
+      position: fixed;
+      top: 20px;
+      left: 275px;
+      z-index: 1001;
+      background: var(--cor-sidebar-vidro);
+      backdrop-filter: blur(var(--blur-fundo));
+      border: 1px solid var(--cor-borda);
+      color: var(--cor-acento-healthone);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      font-size: 18px;
+      transition: var(--transicao);
+      box-shadow: var(--sombra);
+    }
+     #toggle-sidebar-btn:hover {
+        transform: scale(1.1);
+        color: #fff;
+        background-color: var(--cor-acento-healthone);
+     }
+
+    /* ===== ESTADO FECHADO ===== */
+    body.sidebar-fechada .sidebar { left: -260px; }
+    body.sidebar-fechada .main-content { margin-left: 0; }
+    body.sidebar-fechada #toggle-sidebar-btn { left: 20px; }
   </style>
 </head>
 <body>
+  <!-- Bloco de código da Sidebar -->
+
+  <!-- ======================== HTML DA SIDEBAR ======================== -->
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <i class="fa-solid fa-building"></i>
+      <span>Medconnect</span>
+    </div>
+
+    <div class="nav-links">
+      <a href="dash-secretaria.html"><i class="fa-solid fa-house"></i> Início</a>
+      <a href="#" class="active"><i class="fa-solid fa-user-doctor"></i> Gerenciar Médicos</a>
+      <a href="pacientes.html" ><i class="fa-solid fa-users"></i> Gerenciar Pacientes</a>
+      <a href="secretaria.html"><i class="fa-solid fa-calendar-check"></i> Gerenciar Consultas</a>
+      <a href="laudo/Laudo.html"><i class="fa-solid fa-file-lines"></i> Relatórios</a>
+      <a href="#"><i class="fa-solid fa-gear"></i> Configurações</a>
+    </div>
+
+    <div class="sidebar-footer">
+      <a href="#"><i class="fa-solid fa-right-from-bracket"></i> Sair</a>
+    </div>
+  </nav>
+
+  <!-- ======================== BOTÃO E CONTEÚDO ======================== -->
+  <button id="toggle-sidebar-btn" title="Abrir/Fechar Menu">
+    <i class="fa-solid fa-bars"></i>
+  </button>
+
+  <main class="main-content">
+    <h1>Gerenciamento de Medicos</h1>
+
+
+
   <div class="app">
     <header>
+
       <div>
-        <h1>Dashboard Admin — Clínica</h1>
+              <!-- Botão para abrir/fechar a sidebar -->
+<button id="toggle-sidebar-btn" title="Abrir/Fechar Menu">
+  <i class="fa-solid fa-bars"></i>
+</button>
+     
         <div style="color:var(--muted);font-size:13px">Gerencie médicos: adicionar, remover e marcar presença</div>
       </div>
       <div class="controls">
@@ -583,7 +801,16 @@
   (async function init(){
     await listarMedicos();
   })();
-
+// ===== SCRIPT DA SIDEBAR =====
+document.addEventListener('DOMContentLoaded', () => {
+  const toggleBtn = document.getElementById('toggle-sidebar-btn');
+  const body = document.body;
+  if (toggleBtn && body) {
+    toggleBtn.addEventListener('click', () => {
+      body.classList.toggle('sidebar-fechada');
+    });
+  }
+});
   </script>
 
 </body>

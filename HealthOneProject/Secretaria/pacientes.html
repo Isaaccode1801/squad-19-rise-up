@@ -1,146 +1,280 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Gerenciamento de Pacientes • HealthOne</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gerenciamento de Pacientes - HealthOne</title>
+  <!-- Importando a fonte e os ícones -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <!-- O seu CSS principal da página -->
-  <link rel="stylesheet" href="../../assets/css/pacientes-secre.css">
-  
-  <!-- CSS Corrigido para a Animação Perfeita da Sidebar -->
+  <link rel="stylesheet" href="../assets/css/pacientes-secre.css">
+
   <style>
-    /* ===== CSS DA SIDEBAR (sem alterações) ===== */
+    /* ===== ESTILOS GERAIS E DA PÁGINA (BASE) ===== */
+    :root {
+      --brand: #1db7ae;
+      --brand-600: #12968f;
+      --cor-fundo: #F8F9FA;
+      --cor-sidebar-vidro: rgba(255, 255, 255, 0.8);
+      --cor-borda: rgba(0, 0, 0, 0.1);
+      --cor-texto-principal: #212529;
+      --cor-texto-secundario: #6C757D;
+      --cor-acento-healthone: #3fbbc0;
+      --cor-acento-healthone-claro: #e5f7f8;
+      --raio-borda: 10px;
+      --sombra: 0 4px 12px rgba(0, 0, 0, 0.05);
+      --blur-fundo: 8px;
+      --transicao: all 0.3s ease-in-out;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--cor-fundo);
+      color: var(--cor-texto-principal);
+      background-image: radial-gradient(circle at 5% 15%, rgba(63, 187, 192, 0.15), transparent 40%),
+                        radial-gradient(circle at 95% 85%, rgba(63, 187, 192, 0.1), transparent 40%);
+      min-height: 100vh;
+    }
+
+    /* ===== ESTILO DA SIDEBAR (EFEITO DE VIDRO) ===== */
     .sidebar {
       position: fixed;
       top: 0;
       left: 0;
-      width: 240px;
+      width: 260px;
       height: 100%;
-      background-color: #3fbbc0;
-      color: #fff;
-      z-index: 1050;
+      background-color: var(--cor-sidebar-vidro);
+      backdrop-filter: blur(var(--blur-fundo));
+      border-right: 1px solid var(--cor-borda);
+      box-shadow: var(--sombra);
+      z-index: 1000;
       display: flex;
       flex-direction: column;
-      transition: left 0.3s ease-in-out;
+      padding: 20px 0;
+      transition: var(--transicao);
     }
-.sidebar .logo { padding: 20px; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 20px; font-weight: 700; }
-    .sidebar a { display: flex; align-items: center; gap: 12px; padding: 12px 20px; text-decoration: none; color: #fff; font-size: 15px; transition: background 0.3s ease; }
-    .sidebar a:hover { background: rgba(255, 255, 255, 0.15); }
-    .sidebar a.active { background: rgba(255, 255, 255, 0.25); font-weight: 600; }
-    .sidebar .logout { margin-top: auto; border-top: 1px solid rgba(255, 255, 255, 0.2); }
+    .sidebar-header { display: flex; align-items: center; gap: 12px; padding: 0 25px 20px 25px; font-size: 22px; font-weight: 700; color: var(--cor-texto-principal); border-bottom: 1px solid var(--cor-borda); }
+    .sidebar-header i { color: var(--cor-acento-healthone); }
+    .nav-links { flex-grow: 1; margin-top: 20px; }
+    .nav-links a { display: flex; align-items: center; gap: 15px; padding: 15px 25px; margin: 5px 15px; text-decoration: none; color: var(--cor-texto-secundario); font-size: 16px; font-weight: 500; border-radius: var(--raio-borda); position: relative; transition: var(--transicao); }
+    .nav-links a i { width: 20px; text-align: center; }
+    .nav-links a:hover { background: var(--cor-acento-healthone-claro); color: var(--cor-acento-healthone); }
+    .nav-links a.active { background-color: var(--cor-acento-healthone-claro); color: var(--cor-acento-healthone); font-weight: 600; }
+    .nav-links a.active::before { content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%); height: 60%; width: 4px; background-color: var(--cor-acento-healthone); border-radius: 0 4px 4px 0; }
+    .sidebar-footer { padding: 10px 0; border-top: 1px solid var(--cor-borda); }
 
-    /* ===== AJUSTE DO CONTEÚDO PRINCIPAL (ABORDAGEM FINAL) ===== */
-    .topbar, header, main.container {
-      /* Anima a margem E a largura para um ajuste suave */
-      transition: margin-left 0.3s ease-in-out, width 0.3s ease-in-out;
-      
-      /* Estado inicial (sidebar aberta) */
-      margin-left: 240px;
-      width: calc(100% - 240px); /* Ocupa o espaço restante */
+    /* ===== CONTEÚDO PRINCIPAL E LAYOUT CORRIGIDO ===== */
+    .main-content {
+      margin-left: 260px; /* Espaço para a sidebar aberta */
+      padding: 20px;
+      transition: var(--transicao);
     }
-    
-    /* ===== BOTÃO DE TOGGLE (sem alterações) ===== */
+
+    /* ===== BOTÃO DE TOGGLE ===== */
     #toggle-sidebar-btn {
-      background: none; border: none; color: #3fbbc0;
-      font-size: 20px; cursor: pointer; padding: 0 15px;
+      position: fixed;
+      top: 20px;
+      left: 275px;
+      z-index: 1001;
+      background: var(--cor-sidebar-vidro);
+      backdrop-filter: blur(var(--blur-fundo));
+      border: 1px solid var(--cor-borda);
+      color: var(--cor-acento-healthone);
+      width: 40px; height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      font-size: 18px;
+      transition: var(--transicao);
+      box-shadow: var(--sombra);
     }
-    
-    /* ===== ESTADO FECHADO (A MÁGICA) ===== */
-    body.sidebar-fechada .sidebar {
-      left: -240px; /* Esconde a sidebar */
-    }
+    #toggle-sidebar-btn:hover { transform: scale(1.1); color: #fff; background-color: var(--cor-acento-healthone); }
 
-    body.sidebar-fechada .topbar,
-    body.sidebar-fechada header,
-    body.sidebar-fechada main.container {
-      margin-left: 0;
-      width: 100%; /* Expande para ocupar a tela toda */
-    }
+    /* ===== ESTADO FECHADO ===== */
+    body.sidebar-fechada .sidebar { left: -260px; }
+    body.sidebar-fechada .main-content { margin-left: 0; }
+    body.sidebar-fechada #toggle-sidebar-btn { left: 20px; }
+    
+    /* ===== ESTILOS DO SEU CONTEÚDO ORIGINAL (para evitar conflitos) ===== */
+    .topbar { background: var(--brand); color: #fff; font-size: .9rem; border-radius: var(--raio-borda); margin-bottom: 20px; }
+    .topbar .wrap { padding: .5rem 1rem; display: flex; align-items: center; justify-content: space-between; }
+    header { background: #ffffff; box-shadow: var(--sombra); display: flex; align-items: center; justify-content: space-between; padding: 1rem 2rem; border-radius: var(--raio-borda); }
+    .brand { display: flex; align-items: center; gap: .6rem; font-weight: 800; }
+    .navbar a { color: var(--cor-texto-secundario); text-decoration: none; font-weight: 600; }
+    .navbar a.active { color: var(--cor-acento-healthone); }
+    main.container { margin-top: 20px; }
+    .card { background: #fff; border-radius: var(--raio-borda); box-shadow: var(--sombra); }
+    .table-footer { display: flex; justify-content: space-between; align-items: center; padding: 1rem; }
+    
   </style>
 </head>
 <body>
-  <!-- HTML DA SIDEBAR (sem alterações) -->
-  <div class="sidebar">
-    <div class="logo">
-      <i class="fa-solid fa-building"></i> HealthOne
+
+  <!-- ======================== HTML DA SIDEBAR ======================== -->
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <i class="fa-solid fa-building"></i>
+      <span>Medconnect</span>
     </div>
-    <a href="dash-secretaria.html"><i class="fa-solid fa-house"></i> Início</a>
-    <a href="gerenciar-medicos.html"><i class="fa-solid fa-user-doctor"></i> Gerenciar Médicos</a>
-    <a href="pacientes.html" class="active"><i class="fa-solid fa-users"></i> Gerenciar Pacientes</a>
-    <a href="secretaria.html"><i class="fa-solid fa-calendar-check"></i> Gerenciar Consultas</a>
-    <a href="relatorios.html"><i class="fa-solid fa-file-lines"></i> Relatórios</a>
-    <a href="configuracoes.html"><i class="fa-solid fa-gear"></i> Configurações</a>
-    <div class="logout">
+    <div class="nav-links">
+      <a href="dash-secretaria.html"><i class="fa-solid fa-house"></i> Início</a>
+      <a href="medicos.html"><i class="fa-solid fa-user-doctor"></i> Gerenciar Médicos</a>
+      <a href="pacientes.html" class="active"><i class="fa-solid fa-users"></i> Gerenciar Pacientes</a>
+      <a href="secretaria.html"><i class="fa-solid fa-calendar-check"></i> Gerenciar Consultas</a>
+      <a href="laudo/Laudo.html"><i class="fa-solid fa-file-lines"></i> Relatórios</a>
+      <a href="configuracoes.html"><i class="fa-solid fa-gear"></i> Configurações</a>
+    </div>
+    <div class="sidebar-footer">
       <a href="../../index.html"><i class="fa-solid fa-right-from-bracket"></i> Sair</a>
     </div>
-  </div>
-  
-  <!-- O SEU CONTEÚDO, SEM O "ENVELOPE" .main-content -->
-  
-  <!-- Barra superior -->
-  <div class="topbar">
-    <div class="wrap">
-      <small>Segunda a Sábado, 8h às 22h</small>
-      <small>📞 (55) 11 5589-5544</small>
-    </div>
-  </div>
+  </nav>
 
-  <!-- Header -->
-  <header>
-    <button id="toggle-sidebar-btn" title="Abrir/Fechar Menu">
-      <i class="fa-solid fa-bars"></i>
-    </button>
-    <div class="brand">
-      <a href="../../index.html" class="logo-link">
-        <img src="../../assets/img/Logo do HealthOne.png" alt="Logo HealthOne - Página Principal" style="height: 50px;">
-      </a>
-      <span>Secretaria</span>
-    </div>
-    <div class="navbar">
-      <a class="active" href="#">Gerenciamento de Paciente</a>
-    </div>
-  </header>
+  <!-- ================== BOTÃO E CONTEÚDO PRINCIPAL ================== -->
+  <button id="toggle-sidebar-btn" title="Abrir/Fechar Menu">
+    <i class="fa-solid fa-bars"></i>
+  </button>
 
-  <!-- Conteúdo principal da página -->
-  <main class="container">
-    <section class="card">
-      <div class="head">
-        <div class="title"><h1>Pacientes</h1><span class="badge">CRUD</span></div>
-        <div class="toolbar">
-          <div class="search">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M21 21l-4.3-4.3" stroke="#6b7a88" stroke-width="2" stroke-linecap="round"/><circle cx="11" cy="11" r="7" stroke="#6b7a88" stroke-width="2"/></svg>
-            <input id="q" placeholder="Buscar por nome, CPF, telefone..." />
-          </div>
-          <a class="btn primary" id="btnNew" href="../medico/tabela-pacientes/cadastro.html">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>
-            Novo paciente
-          </a>
+  <div class="main-content">
+    <!-- Barra superior -->
+    <div class="topbar">
+      <div class="wrap">
+        <small>Segunda a Sábado, 8h às 22h</small>
+        <small>📞 (55) 11 5589-5544</small>
+      </div>
+    </div>
+
+    <!-- Header -->
+    <header>
+      <div class="brand">
+        <a href="../../index.html" class="logo-link">
+          <img src="../../assets/img/Logo do HealthOne.png" alt="Logo HealthOne - Página Principal" style="height:50px">
+        </a>
+        <span>Dr(a). Camilla Millene</span>
+      </div>
+      <div class="navbar">
+        <a class="active" href="#">Gerenciamento de Paciente</a>
+      </div>
+    </header>
+
+    <!-- Conteúdo da Tabela -->
+    <main class="container">
+      <section class="card">
+        <div class="head">
+          <!-- ... seu conteúdo do head do card ... -->
         </div>
-      </div>
-      <div class="table-wrap">
-        <table class="table">
-          <thead>
-            <tr>
-              <th>#</th><th>Nome</th><th>CPF</th><th>E-mail</th><th>Telefone</th><th>Cidade/UF</th><th style="text-align:right;">Ações</th>
-            </tr>
-          </thead>
-          <tbody id="tbody"></tbody>
-        </table>
-      </div>
-      <div class="table-footer">
-        <small class="muted" id="countLabel">Mostrando 0 paciente(s)</small>
-        <nav class="pagination" id="pager"></nav>
-      </div>
-    </section>
-  </main>
-
-  <!-- Modal de Carteirinha -->
-  <div id="carteirinha-overlay" class="overlay" aria-hidden="true">
-      <!-- ... conteúdo do modal ... -->
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>#</th><th>Nome</th><th>CPF</th><th>E-mail</th><th>Telefone</th><th>Cidade/UF</th><th style="text-align:right;">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+        <div class="table-footer">
+          <!-- CONTEÚDO RESTAURADO AQUI -->
+          <small class="muted" id="countLabel">Mostrando 0 paciente(s)</small>
+          <nav class="pagination" id="pager"></nav>
+        </div>
+      </section>
+    </main>
   </div>
 
+<!-- Modal de Carteirinha COMPLETO -->
+<div id="carteirinha-overlay" class="overlay" aria-hidden="true">
+  <div class="carteirinha-wrap" role="dialog" aria-modal="true" aria-labelledby="carteirinha-title">
+    <button class="close-btn" aria-label="Fechar">&times;</button>
+
+    <div class="carteirinha" id="carteirinha">
+      <header class="cart-header">
+        <div class="logo-dot"></div>
+        <h3 id="carteirinha-title">Carteirinha do Paciente</h3>
+        <span class="tag">HealthOne</span>
+      </header>
+
+      <section class="cart-body">
+        <div class="avatar">
+          <div class="avatar-ring"></div>
+          <span class="avatar-iniciais" id="c-iniciais">PT</span>
+        </div>
+
+        <div class="grid">
+          <div class="field">
+            <label>Nome</label>
+            <p id="c-nome">—</p>
+          </div>
+          <div class="field">
+            <label>Idade</label>
+            <p id="c-idade">—</p>
+          </div>
+          <div class="field">
+            <label>Gênero</label>
+            <p id="c-genero">—</p>
+          </div>
+          <div class="field">
+            <label>CPF</label>
+            <p id="c-cpf">—</p>
+          </div>
+          <div class="field">
+            <label>Última consulta</label>
+            <p id="c-ultima">—</p>
+          </div>
+          <div class="field">
+            <label>Próxima consulta</label>
+            <p id="c-proxima">—</p>
+          </div>
+        </div>
+
+        <div class="obs">
+          <label>Observações</label>
+          <p id="c-observacoes">—</p>
+        </div>
+      </section>
+
+      <footer class="cart-footer">
+        <div class="chips">
+          <span class="chip" id="chip-status">Paciente ativo</span>
+          <span class="chip outline" id="chip-prox">—</span>
+        </div>
+        <div class="actions">
+          <button class="ghost" id="btn-copiar">Copiar dados</button>
+          <button class="primary" id="btn-imprimir">Imprimir</button>
+        </div>
+      </footer>
+    </div>
+  </div>
+</div>
+
+  <!-- ======================== JAVASCRIPT ======================== -->
   <script type="module" src="../../assets/js/crud-pacientes.js"></script>
-  <script src="../../assets/js/main.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const toggleBtn = document.getElementById('toggle-sidebar-btn');
+      const body = document.body;
+      const icon = toggleBtn.querySelector('i');
+
+      if (toggleBtn && body && icon) {
+        toggleBtn.addEventListener('click', () => {
+          body.classList.toggle('sidebar-fechada');
+          
+          if (body.classList.contains('sidebar-fechada')) {
+            icon.classList.remove('fa-bars');
+            icon.classList.add('fa-xmark');
+          } else {
+            icon.classList.remove('fa-xmark');
+            icon.classList.add('fa-bars');
+          }
+        });
+      }
+    });
+  </script>
+
 </body>
 </html>
+
