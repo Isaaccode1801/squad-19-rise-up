@@ -322,3 +322,89 @@ button.ghost:hover{ border-color: var(--brand-600); color: var(--brand-600); }
     text-align: center; /* Centraliza o texto dos links */
   }
 }
+ /* ======================== SIDEBAR ======================== */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 240px;
+  height: 100%;
+  background-color: #3fbbc0;
+  color: #fff;
+  z-index: 100;
+  display: flex; /* Adicionado para alinhar o logout no final */
+  flex-direction: column; /* Adicionado para alinhar o logout no final */
+}
+
+.sidebar .logo {
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 30px;
+}
+
+.sidebar a {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px;
+  text-decoration: none;
+  color: #fff;
+  font-size: 15px;
+  transition: background 0.3s ease;
+}
+
+.sidebar a:hover {
+  background: rgba(255,255,255,0.15);
+}
+
+.sidebar a.active {
+  background: rgba(255,255,255,0.25);
+  font-weight: 600;
+}
+
+.sidebar .logout {
+  margin-top: auto;
+  border-top: 1px solid rgba(255,255,255,0.2);
+}
+
+/* Ajustar topo e conteúdo para não ficarem em cima da sidebar */
+.topbar, header {
+  margin-left: 240px;
+  width: calc(100% - 240px);
+}
+main.container {
+  margin-left: 240px;
+}
+/* Estilo para o novo botão de toggle */
+/* Estilo para o novo botão de toggle */
+#toggle-sidebar-btn {
+  /* Posicionamento e Aparência */
+  background: transparent;
+  border: none;
+  color: #3fbbc0;      /* Cor do seu tema, garanta que seja visível no fundo do header */
+  font-size: 24px;    /* Tamanho do ícone */
+  cursor: pointer;
+  padding: 10px 15px;
+
+  /* Garantias de Visibilidade */
+  z-index: 1050;       /* Um z-index alto para garantir que ele fique na frente de tudo */
+  display: block;      /* Garante que ele não está com display: none */
+  opacity: 1;
+  visibility: visible;
+  
+  /* Posição (opcional, mas ajuda a alinhar) */
+  position: absolute; /* Ou 'relative', dependendo do seu header */
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Ajuste no header para dar espaço ao botão */
+header .brand {
+  margin-left: 50px; /* Empurra o logo para a direita para não ficar em cima do botão */
+}
