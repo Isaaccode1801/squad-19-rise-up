@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard Moderno - HealthOne</title>
+  <!-- Fontes e Ícones -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <style>
+    /* ===== VARIÁVEIS DE DESIGN ===== */
+    :root {
+      --cor-fundo: #F7F8FC;
+      --cor-sidebar: #111827;
+      --cor-sidebar-texto: #9CA3AF;
+      --cor-sidebar-texto-hover: #FFFFFF;
+      --cor-principal: #3B82F6;
+      --cor-principal-claro: #EFF6FF;
+      --cor-texto-titulo: #1F2937;
+      --cor-texto-corpo: #6B7280;
+      --cor-borda: #E5E7EB;
+      --sombra: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+      --raio-borda: 0.75rem;
+      --transicao: all 0.3s ease-in-out;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: var(--cor-fundo);
+      color: var(--cor-texto-corpo);
+    }
+
+    /* ===== ESTRUTURA PRINCIPAL ===== */
+    .dashboard-container {
+      display: flex;
+    }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      width: 260px;
+      background: var(--cor-sidebar);
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      display: flex;
+      flex-direction: column;
+      padding: 1.5rem 0;
+      transition: width 0.3s ease;
+      overflow-x: hidden;
+    }
+    .sidebar-header {
+      padding: 0 1.5rem;
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .sidebar-header .logo-icon {
+      color: var(--cor-principal);
+      font-size: 1.75rem;
+    }
+    .sidebar-header .logo-text {
+      color: var(--cor-sidebar-texto-hover);
+      font-size: 1.25rem;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .nav-links {
+      flex-grow: 1;
+    }
+    .nav-links ul {
+      list-style: none;
+    }
+    .nav-links a {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.9rem 1.5rem;
+      margin: 0.25rem 1rem;
+      border-radius: var(--raio-borda);
+      color: var(--cor-sidebar-texto);
+      text-decoration: none;
+      font-weight: 500;
+      transition: var(--transicao);
+      white-space: nowrap;
+    }
+    .nav-links a i {
+      width: 20px;
+      font-size: 1.1rem;
+    }
+    .nav-links a:hover {
+      background: #374151;
+      color: var(--cor-sidebar-texto-hover);
+    }
+    .nav-links a.active {
+      background: var(--cor-principal);
+      color: var(--cor-sidebar-texto-hover);
+    }
+    .sidebar-footer {
+      padding: 1rem;
+      border-top: 1px solid #374151;
+    }
+    
+    /* SIDEBAR COLAPSADA */
+    body.sidebar-collapsed .sidebar {
+        width: 88px;
+    }
+    body.sidebar-collapsed .sidebar .logo-text,
+    body.sidebar-collapsed .sidebar .nav-links span {
+        display: none;
+    }
+    body.sidebar-collapsed .main-content {
+        margin-left: 88px;
+    }
+
+    /* ===== CONTEÚDO PRINCIPAL ===== */
+    .main-content {
+      margin-left: 260px;
+      width: calc(100% - 260px);
+      padding: 1.5rem;
+      transition: margin-left 0.3s ease;
+    }
+
+    /* --- HEADER DO CONTEÚDO --- */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+    .header-left { display: flex; align-items: center; gap: 1rem; }
+    #toggle-sidebar-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--cor-texto-titulo); }
+    .search-bar { position: relative; }
+    .search-bar i { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--cor-sidebar-texto); }
+    .search-bar input { background: #fff; border: 1px solid var(--cor-borda); border-radius: var(--raio-borda); padding: 0.75rem 1rem 0.75rem 2.5rem; width: 300px; }
+    .header-right { display: flex; align-items: center; gap: 1.5rem; }
+    .header-right i { font-size: 1.25rem; cursor: pointer; }
+    .profile { display: flex; align-items: center; gap: 0.75rem; }
+    .profile img { width: 40px; height: 40px; border-radius: 50%; }
+
+    /* --- DASHBOARD WIDGETS --- */
+    .stats-cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: #fff;
+      padding: 1.5rem;
+      border-radius: var(--raio-borda);
+      box-shadow: var(--sombra);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .stat-card .icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 1.5rem;
+      color: var(--cor-principal);
+      background: var(--cor-principal-claro);
+    }
+    .stat-card .info .value { font-size: 1.75rem; font-weight: 700; color: var(--cor-texto-titulo); }
+    .stat-card .info .label { font-size: 0.9rem; }
+    
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1.5rem;
+    }
+    .card {
+      background: #fff;
+      padding: 1.5rem;
+      border-radius: var(--raio-borda);
+      box-shadow: var(--sombra);
+    }
+    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .card-title { font-size: 1.1rem; font-weight: 600; color: var(--cor-texto-titulo); }
+    
+    .appointments-table { width: 100%; border-collapse: collapse; }
+    .appointments-table th, .appointments-table td { padding: 0.9rem 0.5rem; text-align: left; border-bottom: 1px solid var(--cor-borda); }
+    .appointments-table th { font-size: 0.8rem; text-transform: uppercase; color: var(--cor-texto-corpo); }
+    .status-badge { padding: 0.25rem 0.75rem; border-radius: 999px; font-weight: 500; font-size: 0.8rem; }
+    .status-confirmed { background: var(--cor-principal-claro); color: var(--cor-principal); }
+    .status-pending { background: #FEF3C7; color: #92400E; }
+    .status-cancelled { background: #FEE2E2; color: #991B1B; }
+  </style>
+</head>
+<body class="sidebar-collapsed">
+
+  <!-- ======================== SIDEBAR ======================== -->
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <i class="fa-solid fa-heart-pulse logo-icon"></i>
+      <span class="logo-text">HealthOne</span>
+    </div>
+
+    <div class="nav-links">
+      <ul>
+        <li><a href="#" class="active"><i class="fa-solid fa-table-columns"></i> <span>Dashboard</span></a></li>
+        <li><a href="#"><i class="fa-solid fa-calendar-check"></i> <span>Agendamentos</span></a></li>
+        <li><a href="#"><i class="fa-solid fa-users"></i> <span>Criar novo usuario</span></a></li>
+        <li><a href="#"><i class="fa-solid fa-user-doctor"></i> <span>Médicos</span></a></li>
+        <li><a href="#"><i class="fa-solid fa-file-invoice"></i> <span>Laudos</span></a></li>
+        <li><a href="#"><i class="fa-solid fa-gear"></i> <span>Configurações</span></a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ======================== CONTEÚDO PRINCIPAL ======================== -->
+  <div class="main-content">
+    <header class="header">
+      <div class="header-left">
+        <button id="toggle-sidebar-btn" title="Abrir/Fechar Menu">
+          <i class="fa-solid fa-bars"></i>
+        </button>
+        <div class="search-bar">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input type="text" placeholder="Buscar...">
+        </div>
+      </div>
+      <div class="header-right">
+        <i class="fa-regular fa-bell"></i>
+        <div class="profile">
+          <img src="https://placehold.co/40x40/3B82F6/FFFFFF?text=A" alt="Admin">
+          <div>
+            <div style="font-weight: 600;">Admin</div>
+            <div style="font-size: 0.8rem;">gestao@healthone.com</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <!-- Cards de Estatísticas -->
+      <div class="stats-cards">
+        <div class="stat-card">
+          <div class="icon"><i class="fa-solid fa-users"></i></div>
+          <div class="info">
+            <div class="value">1,254</div>
+            <div class="label">Total de Pacientes</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="icon" style="background-color: #E0F2FE; color: #0284C7;"><i class="fa-solid fa-user-doctor"></i></div>
+          <div class="info">
+            <div class="value">75</div>
+            <div class="label">Corpo Clínico</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="icon" style="background-color: #D1FAE5; color: #059669;"><i class="fa-solid fa-calendar-check"></i></div>
+          <div class="info">
+            <div class="value">42</div>
+            <div class="label">Consultas Hoje</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="icon" style="background-color: #FEF3C7; color: #D97706;"><i class="fa-solid fa-dollar-sign"></i></div>
+          <div class="info">
+            <div class="value">R$ 12.5k</div>
+            <div class="label">Faturamento (Dia)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Grid do Dashboard -->
+      <div class="dashboard-grid">
+        <!-- Gráfico de Pacientes -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Estatísticas de Pacientes (Últimos 6 meses)</h3>
+          </div>
+          <canvas id="patientChart"></canvas>
+        </div>
+        <!-- Próximos Agendamentos -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Próximos Agendamentos</h3>
+          </div>
+          <table class="appointments-table">
+            <thead>
+              <tr><th>Paciente</th><th>Médico</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Isaac Kauã</td>
+                <td>Dr(a). Camilla</td>
+                <td><span class="status-badge status-confirmed">Confirmado</span></td>
+              </tr>
+              <tr>
+                <td>Maria Souza</td>
+                <td>Dr. João</td>
+                <td><span class="status-badge status-pending">Pendente</span></td>
+              </tr>
+              <tr>
+                <td>Pedro Lima</td>
+                <td>Dra. Ana</td>
+                <td><span class="status-badge status-confirmed">Confirmado</span></td>
+              </tr>
+               <tr>
+                <td>Fernandinho</td>
+                <td>Dr(a). Camilla</td>
+                <td><span class="status-badge status-cancelled">Cancelado</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- ======================== JAVASCRIPT ======================== -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Lógica da Sidebar
+      const toggleBtn = document.getElementById('toggle-sidebar-btn');
+      const body = document.body;
+      if (toggleBtn && body) {
+        toggleBtn.addEventListener('click', () => {
+          body.classList.toggle('sidebar-collapsed');
+        });
+      }
+
+      // Lógica do Gráfico
+      const patientCtx = document.getElementById('patientChart')?.getContext('2d');
+      if (patientCtx) {
+        new Chart(patientCtx, {
+          type: 'bar',
+          data: {
+            labels: ['Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set'],
+            datasets: [{
+              label: 'Novos Pacientes',
+              data: [65, 59, 80, 81, 56, 55],
+              backgroundColor: 'rgba(59, 130, 246, 0.5)',
+              borderColor: 'rgba(59, 130, 246, 1)',
+              borderWidth: 1,
+              borderRadius: 5
+            }]
+          },
+          options: {
+            scales: { y: { beginAtZero: true } }
+          }
+        });
+      }
+    });
+  </script>
+
+</body>
+</html>
