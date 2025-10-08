@@ -1,1 +1,0 @@
-const GEMINI_API_KEY = "AIzaSyDbAWp63AALvz6geMTi1wZJvE6c1POdhOU";
