@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Novo Laudo</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <link rel="stylesheet" href="../../assets/css/novo-laudo.css">
+
+</head>
+<body>
+
+ <h1>Novo Laudo</h1>
+
+  <form id="form-novo-laudo">
+
+<div class="editor-toolbar">
+  <button onclick="execCmd('bold')"><i class="fa fa-bold"></i></button>
+  <button onclick="execCmd('italic')"><i class="fa fa-italic"></i></button>
+  <button onclick="execCmd('insertUnorderedList')"><i class="fa fa-list-ul"></i></button>
+  <button onclick="execCmd('justifyLeft')"><i class="fa fa-align-left"></i></button>
+  <button onclick="execCmd('justifyCenter')"><i class="fa fa-align-center"></i></button>
+  <button onclick="execCmd('justifyRight')"><i class="fa fa-align-right"></i></button>
+  <button onclick="insertCampo('[[NOME]]')">Nome</button>
+  <button onclick="insertCampo('[[IDADE]]')">Idade</button>
+  <button onclick="insertCampo('[[CID]]')">CID</button>
+</div>
+
+    <div id="laudo-conteudo" contenteditable="true"></div>
+
+    <div class="opcoes">
+<label>Paciente:
+    <select id="paciente-id" required>
+        <option value="">Carregando pacientes...</option>
+    </select>
+</label>
+  <label>Solicitante: <input type="text" id="solicitante" placeholder="Médico solicitante"></label>
+  <label>Exame:
+    <select id="exame">
+      <optgroup label="Sangue">
+        <option>Hemograma completo</option>
+        <option>Glicemia de jejum</option>
+        <option>Colesterol e triglicerídeos</option>
+        <option>Ureia e creatinina</option>
+        <option>TGO/AST</option>
+        <option>TGP/ALT</option>
+        <option>TSH</option>
+        <option>T4 livre</option>
+        <option>Dosagem hormonal</option>
+      </optgroup>
+      <optgroup label="Urina">
+        <option>Exame de urina tipo 1</option>
+        <option>Urocultura</option>
+        <option>Exame de urina de 24 horas</option>
+      </optgroup>
+    </select>
+  </label>
+  <label>Data do exame:
+    <input type="date" id="prazo">
+  </label>
+  <label>Hora:
+    <select id="hora"></select>
+  </label>
+  <label>Status:
+  <select id="laudo-status">
+    <option value="draft">Rascunho</option>
+    <option value="published">Publicado</option>
+    <option value="archived">Arquivado</option>
+  </select>
+</label>
+
+  <label>Assinatura digital: <input type="checkbox" id="assinatura"></label><br>
+      <button type="submit" class="btn-salvar">Salvar</button>
+      <button type="button" class="btn-cancelar">Cancelar</button>
+    </div>
+
+
+
+ </form>
+   <!-- ======================== BOTÃO FLUTUANTE DE IA ======================== -->
+  <div class="ai-fab-container">
+    <button id="btn-gravar-ia" class="ai-record-btn">
+      <i class="fa-solid fa-microphone"></i>
+      <span>Iniciar Gravação</span>
+    </button>
+    <button id="btn-toggle-ia" class="ai-fab" title="Assistente de IA">
+      <i class="fa-solid fa-wand-magic-sparkles"></i>
+    </button>
+  </div>
+
+<script type="module" src="../../assets/js/novo-laudo.js"></script>
+
+
+
+</body>
+</html>

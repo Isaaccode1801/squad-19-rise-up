@@ -2,83 +2,440 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <title>Novo Laudo</title>
+  <title>Novo Laudo com Assistente de IA</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  <link rel="stylesheet" href="../../assets/css/novo-laudo.css">
+  
+  <style>
+    /* ===== ESTILOS GERAIS E DA PÁGINA ===== */
+    :root {
+      --cor-fundo: #F8F9FA;
+      --cor-borda: #E5E7EB;
+      --cor-texto-principal: #1F2937;
+      --cor-acento-healthone: #3fbbc0;
+      --cor-primaria: #3B82F6;
+      --cor-perigo: #EF4444;
+    }
+    body { font-family: system-ui, -apple-system, sans-serif; background-color: var(--cor-fundo); margin: 0; padding: 20px; }
+    h1 { text-align: center; margin-bottom: 20px; color: var(--cor-texto-principal); }
+    form { max-width: 900px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.07); border: 1px solid var(--cor-borda); }
+    .editor-toolbar { margin-bottom: 10px; }
+    .editor-toolbar button { background: #f3f4f6; border: 1px solid var(--cor-borda); padding: 8px; margin-right: 5px; cursor: pointer; border-radius: 6px; }
+    #laudo-conteudo { border: 1px solid var(--cor-borda); min-height: 250px; padding: 15px; border-radius: 8px; overflow-y: auto; }
+    .opcoes { margin-top: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
+    label { font-weight: 500; display: flex; flex-direction: column; gap: 5px; }
+    input, select { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--cor-borda); }
+    .opcoes > div { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 10px; } /* Alinha botões à direita */
+    .btn-salvar, .btn-cancelar { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
+    .btn-salvar { background-color: var(--cor-acento-healthone); color: white; }
+    .btn-cancelar { background-color: #f3f4f6; }
 
+    /* ===== ESTILOS PARA O BOTÃO FLUTUANTE DE IA ===== */
+    .ai-fab-container { position: fixed; bottom: 30px; right: 30px; display: flex; flex-direction: column; align-items: flex-end; gap: 15px; z-index: 999; }
+    .ai-fab { width: 60px; height: 60px; border-radius: 50%; background-color: var(--cor-acento-healthone); color: white; border: none; font-size: 24px; display: grid; place-items: center; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: all 0.3s ease; }
+    .ai-fab:hover { transform: scale(1.1); }
+    .ai-fab i.fa-xmark { font-size: 20px; }
+    .ai-record-btn { padding: 10px 20px; border: none; border-radius: 30px; font-size: 1rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: all 0.2s ease, opacity 0.3s ease, transform 0.3s ease; background-color: var(--cor-primaria); color: white; opacity: 0; transform: translateY(10px); visibility: hidden; }
+    .ai-record-btn.visible { opacity: 1; transform: translateY(0); visibility: visible; }
+    .ai-record-btn.gravando { background-color: var(--cor-perigo); animation: pulse 1.5s infinite; }
+    @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+    .spinner { border: 3px solid #f3f3f3; border-top: 3px solid var(--cor-primaria); border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; margin-left: 10px; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  </style>
 </head>
 <body>
 
- <h1>Novo Laudo</h1>
+  <h1>Novo Laudo</h1>
 
   <form id="form-novo-laudo">
-
-<div class="editor-toolbar">
-  <button onclick="execCmd('bold')"><i class="fa fa-bold"></i></button>
-  <button onclick="execCmd('italic')"><i class="fa fa-italic"></i></button>
-  <button onclick="execCmd('insertUnorderedList')"><i class="fa fa-list-ul"></i></button>
-  <button onclick="execCmd('justifyLeft')"><i class="fa fa-align-left"></i></button>
-  <button onclick="execCmd('justifyCenter')"><i class="fa fa-align-center"></i></button>
-  <button onclick="execCmd('justifyRight')"><i class="fa fa-align-right"></i></button>
-  <button onclick="insertCampo('[[NOME]]')">Nome</button>
-  <button onclick="insertCampo('[[IDADE]]')">Idade</button>
-  <button onclick="insertCampo('[[CID]]')">CID</button>
-</div>
-
-    <div id="laudo-conteudo" contenteditable="true"></div>
+    <div class="editor-toolbar">
+      <button type="button" onclick="execCmd('bold')"><i class="fa fa-bold"></i></button>
+      <button type="button" onclick="execCmd('italic')"><i class="fa fa-italic"></i></button>
+      <button type="button" onclick="execCmd('insertUnorderedList')"><i class="fa fa-list-ul"></i></button>
+      <button type="button" onclick="execCmd('justifyLeft')"><i class="fa fa-align-left"></i></button>
+      <button type="button" onclick="execCmd('justifyCenter')"><i class="fa fa-align-center"></i></button>
+      <button type="button" onclick="execCmd('justifyRight')"><i class="fa fa-align-right"></i></button>
+      <button type="button" onclick="insertCampo('[[NOME]]')">Nome</button>
+      <button type="button" onclick="insertCampo('[[IDADE]]')">Idade</button>
+      <button type="button" onclick="insertCampo('[[CID]]')">CID</button>
+    </div>
+    
+    <div id="laudo-conteudo" contenteditable="true" placeholder="O resumo da IA aparecerá aqui após a gravação..."></div>
 
     <div class="opcoes">
-<label>Paciente:
-    <select id="paciente-id" required>
-        <option value="">Carregando pacientes...</option>
-    </select>
-</label>
-  <label>Solicitante: <input type="text" id="solicitante" placeholder="Médico solicitante"></label>
-  <label>Exame:
-    <select id="exame">
-      <optgroup label="Sangue">
-        <option>Hemograma completo</option>
-        <option>Glicemia de jejum</option>
-        <option>Colesterol e triglicerídeos</option>
-        <option>Ureia e creatinina</option>
-        <option>TGO/AST</option>
-        <option>TGP/ALT</option>
-        <option>TSH</option>
-        <option>T4 livre</option>
-        <option>Dosagem hormonal</option>
-      </optgroup>
-      <optgroup label="Urina">
-        <option>Exame de urina tipo 1</option>
-        <option>Urocultura</option>
-        <option>Exame de urina de 24 horas</option>
-      </optgroup>
-    </select>
-  </label>
-  <label>Data do exame:
-    <input type="date" id="prazo">
-  </label>
-  <label>Hora:
-    <select id="hora"></select>
-  </label>
-  <label>Status:
-  <select id="laudo-status">
-    <option value="draft">Rascunho</option>
-    <option value="published">Publicado</option>
-    <option value="archived">Arquivado</option>
-  </select>
-</label>
+      <label>Paciente:
+        <select id="paciente-id" required>
+            <option value="">Carregando pacientes...</option>
+        </select>
+      </label>
+      
+      <!-- ✅ CORREÇÃO 1: 'solicitante' alterado para <select> -->
+      <label>Solicitante: 
+        <select id="solicitante" required>
+            <option value="">Carregando médicos...</option>
+        </select>
+      </label>
 
-  <label>Assinatura digital: <input type="checkbox" id="assinatura"></label><br>
-      <button type="submit" class="btn-salvar">Salvar</button>
-      <button type="button" class="btn-cancelar">Cancelar</button>
+      <label>Exame:
+        <select id="exame">
+          <optgroup label="Sangue">
+            <option>Hemograma completo</option>
+            <option>Glicemia de jejum</option>
+            <option>Colesterol e triglicerídeos</option>
+            <option>Ureia e creatinina</option>
+            <option>TGO/AST</option>
+            <option>TGP/ALT</option>
+            <option>TSH</option>
+            <option>T4 livre</option>
+            <option>Dosagem hormonal</option>
+          </optgroup>
+          <optgroup label="Urina">
+            <option>Exame de urina tipo 1</option>
+            <option>Urocultura</option>
+            <option>Exame de urina de 24 horas</option>
+          </optgroup>
+        </select>
+      </label>
+      <label>Data do exame: <input type="date" id="prazo"></label>
+      <label>Hora: <select id="hora"></select></label>
+      <label>Status:
+        <select id="laudo-status">
+          <option value="draft">Rascunho</option>
+          <option value="published">Publicado</option>
+          <option value="archived">Arquivado</option>
+        </select>
+      </label>
+      <label>Assinatura digital: <input type="checkbox" id="assinatura"></label>
+      
+      <div>
+        <button type="button" class="btn-cancelar">Cancelar</button>
+        <button type="submit" class="btn-salvar">Salvar Laudo</button>
+      </div>
     </div>
+  </form>
+
+  <!-- ======================== BOTÃO FLUTUANTE DE IA ======================== -->
+  <div class="ai-fab-container">
+    <button id="btn-gravar-ia" class="ai-record-btn">
+      <i class="fa-solid fa-microphone"></i>
+      <span>Iniciar Gravação</span>
+    </button>
+    <button id="btn-toggle-ia" class="ai-fab" title="Assistente de IA">
+      <i class="fa-solid fa-wand-magic-sparkles"></i>
+    </button>
+  </div>
+
+<script type="module">
+  // ======================================================================
+  //              LÓGICA DO FORMULÁRIO E DO ASSISTENTE DE IA
+  // ======================================================================
+
+  // ✅ CORREÇÃO 2: 'listarMedicos' adicionado ao import
+  import { createLaudo, listPacientes, listarMedicos } from '../../assets/js/pacientesService.js';
+
+  // --- Funções Auxiliares ---
+  function execCmd(command) { document.execCommand(command, false, null); }
+  window.execCmd = execCmd;
+  function insertCampo(texto) { /* Sua função */ }
+  window.insertCampo = insertCampo;
+
+  function preencherHoras() {
+    const selectHora = document.getElementById("hora");
+    if (!selectHora) return;
+    for (let h = 8; h <= 22; h++) {
+      ["00","30"].forEach(min => {
+        if(h === 22 && min === "30") return;
+        const o = new Option(`${String(h).padStart(2,"0")}:${min}`, `${String(h).padStart(2,"0")}:${min}`);
+        selectHora.add(o);
+      });
+    }
+  }
+  function combinarDataEHora(data, hora) { return data && hora ? `${data}T${hora}:00Z` : null; }
+
+  // --- LÓGICA DO FORMULÁRIO ---
+  const form = document.getElementById('form-novo-laudo');
+  const selectPaciente = document.getElementById('paciente-id');
+  const selectMedico = document.getElementById('solicitante');
+
+  async function popularMedico() {
+    try {
+      const medicos = await listarMedicos(); // Note que mudei 'medico' para 'medicos' (plural)
+
+      selectMedico.innerHTML = '<option value="">Selecione um médico</option>';
+      medicos.forEach(med => {
+        const option = new Option(med.full_name, med.id);
+        selectMedico.add(option);
+      });
+    } catch (error) {
+      console.error("Falha ao carregar lista de médicos:", error);
+      selectMedico.innerHTML = '<option value="">Erro ao carregar médicos</option>';
+    }
+  }
+
+  async function popularPacientes() {
+    try {
+      const pacientes = await listPacientes();
+      
+      selectPaciente.innerHTML = '<option value="">Selecione um paciente</option>'; 
+      pacientes.forEach(paciente => {
+        const option = new Option(paciente.full_name, paciente.id);
+        selectPaciente.add(option);
+      });
+
+    } catch (error) {
+      console.error("Falha ao carregar lista de pacientes:", error);
+      selectPaciente.innerHTML = '<option value="">Erro ao carregar pacientes</option>';
+    }
+  }
+
+  async function salvarLaudo(event) {
+    event.preventDefault();
+    const btnSalvar = document.querySelector('.btn-salvar');
+    const dadosDoLaudo = {
+      patient_id: document.getElementById('paciente-id').value,
+      exam: document.getElementById('exame').value,
+      requested_by: document.getElementById('solicitante')?.value || null,
+      content_html: document.getElementById('laudo-conteudo').innerHTML,
+      status: document.getElementById('laudo-status').value,
+      hide_signature: !document.getElementById('assinatura').checked,
+      due_at: combinarDataEHora(document.getElementById('prazo').value, document.getElementById('hora').value),
+      order_number: `REL-${new Date().getFullYear()}-${Math.floor(Math.random() * 10000)}`,
+    };
+
+    if (!dadosDoLaudo.patient_id || !dadosDoLaudo.exam) {
+      alert("Paciente e Exame são obrigatórios!");
+      return;
+    }
+
+    btnSalvar.disabled = true;
+    btnSalvar.textContent = 'Salvando...';
+
+    try {
+      await createLaudo(dadosDoLaudo);
+      alert("Laudo salvo com sucesso!");
+      window.location.href = 'Laudo.html';
+    } catch (error) {
+      console.error("Erro ao salvar o laudo:", error);
+      alert(`Falha ao criar o laudo: ${error.message}`);
+      btnSalvar.disabled = false;
+      btnSalvar.textContent = 'Salvar Laudo';
+    }
+  }
+  
+  form.addEventListener('submit', salvarLaudo);
+  preencherHoras();
+  popularPacientes();
+  popularMedico(); // ✅ CORREÇÃO 3: Chamada da nova função
+
+// --- LÓGICA DO ASSISTENTE DE IA ---
+
+const btnToggleIA = document.getElementById('btn-toggle-ia');
+
+const btnGravarIA = document.getElementById('btn-gravar-ia');
+
+const laudoConteudoEditor = document.getElementById('laudo-conteudo');
+
+const toggleIcon = btnToggleIA.querySelector('i');
 
 
 
- </form>
-<script type="module" src="../../assets/js/novo-laudo.js"></script>
+const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=AIzaSyAr04pXS9XQlAR80gyBa1wwRVvbonTEXIY`;
 
 
+
+let isMenuIAVisible = false;
+
+let isRecording = false;
+
+let recognition;
+
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+
+
+if (SpeechRecognition) {
+
+recognition = new SpeechRecognition();
+
+recognition.lang = 'pt-BR';
+
+recognition.continuous = true;
+
+recognition.interimResults = false;
+
+
+
+recognition.onstart = () => {
+
+isRecording = true;
+
+btnGravarIA.innerHTML = '<i class="fa-solid fa-stop"></i> <span>Parar Gravação</span>';
+
+btnGravarIA.classList.add('gravando');
+
+};
+
+
+
+recognition.onend = () => {
+
+isRecording = false;
+
+btnGravarIA.innerHTML = '<i class="fa-solid fa-microphone"></i> <span>Iniciar Gravação</span>';
+
+btnGravarIA.classList.remove('gravando');
+
+if (laudoConteudoEditor.textContent.length > 20) {
+
+gerarResumoComIA();
+
+}
+
+};
+
+
+
+recognition.onresult = (event) => {
+
+let transcript = '';
+
+for (let i = event.resultIndex; i < event.results.length; i++) {
+
+transcript += event.results[i][0].transcript + ' ';
+
+}
+
+laudoConteudoEditor.innerHTML += transcript;
+
+};
+
+} else {
+
+alert("Seu navegador não suporta o reconhecimento de voz. Tente usar o Google Chrome.");
+
+}
+
+
+
+async function gerarResumoComIA() {
+
+const transcricao = laudoConteudoEditor.textContent;
+
+if (!transcricao || transcricao.length < 20) return;
+
+
+
+btnGravarIA.innerHTML = '<div class="spinner"></div> <span>Resumindo...</span>';
+
+btnGravarIA.disabled = true;
+
+
+
+const systemPrompt = `Você é um assistente médico. Analise a transcrição de uma consulta e estruture-a em formato de prontuário (anamnese) com os seguintes tópicos em negrito: **Queixa Principal (QP)**, **História da Doença Atual (HDA)**, **Histórico Médico Pregresso (HMP)**, **Histórico Familiar (HF)** e **Hábitos de Vida (HV)**.Após a anamnese, adicione uma nova secção em negrito chamada **Plano Sugerido**. Nesta secção, com base nas informações recolhidas, sugira de forma concisa possíveis próximos passos, exames complementares ou linhas de tratamento para a consideração do profissional de saúde. Inicie esta secção com o aviso: *(Sugestão gerada por IA para avaliação do profissional. Não é um diagnóstico final.)*.
+ A transcrição a ser analisada é a seguinte:`
+
+
+const payload = {
+
+systemInstruction: { parts: [{ text: systemPrompt }] },
+
+contents: [{ parts: [{ text: transcricao }] }],
+
+};
+
+
+
+try {
+
+const response = await fetch(GEMINI_API_URL, {
+
+method: 'POST',
+
+headers: { 'Content-Type': 'application/json' },
+
+body: JSON.stringify(payload)
+
+});
+
+if (!response.ok) throw new Error(`API respondeu com status: ${response.status}`);
+
+
+const result = await response.json();
+
+const textoResumido = result.candidates?.[0]?.content?.parts?.[0]?.text;
+
+
+if (textoResumido) {
+
+laudoConteudoEditor.innerHTML = textoResumido.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br>');
+
+} else {
+
+throw new Error("Resposta da IA inválida.");
+
+}
+
+} catch (error) {
+
+console.error("Erro ao chamar a API do Gemini:", error);
+
+laudoConteudoEditor.innerHTML += `<br><p style='color:red;'>Erro ao gerar resumo: ${error.message}</p>`;
+
+} finally {
+
+btnGravarIA.disabled = false;
+
+btnGravarIA.innerHTML = '<i class="fa-solid fa-microphone"></i> <span>Iniciar Gravação</span>';
+
+}
+
+}
+
+
+
+btnToggleIA.addEventListener('click', () => {
+
+isMenuIAVisible = !isMenuIAVisible;
+
+btnGravarIA.classList.toggle('visible', isMenuIAVisible);
+
+
+if (isMenuIAVisible) {
+
+toggleIcon.classList.remove('fa-wand-magic-sparkles');
+
+toggleIcon.classList.add('fa-xmark');
+
+} else {
+
+toggleIcon.classList.remove('fa-xmark');
+
+toggleIcon.classList.add('fa-wand-magic-sparkles');
+
+}
+
+});
+
+
+
+btnGravarIA.addEventListener('click', () => {
+
+if (!SpeechRecognition) return;
+
+if (isRecording) {
+
+recognition.stop();
+
+} else {
+
+laudoConteudoEditor.innerHTML = '';
+
+recognition.start();
+
+}
+
+});
+</script>
 
 </body>
 </html>
+
