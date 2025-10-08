@@ -1,0 +1,5 @@
+{
+  "build": {
+    "command": "mkdir -p HealthOneProject/assets/js && echo \"const GEMINI_API_KEY = '${GEMINI_API_KEY}';\" > HealthOneProject/assets/js/config.js"
+  }
+}
