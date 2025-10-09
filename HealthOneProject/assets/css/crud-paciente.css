@@ -322,3 +322,291 @@ button.ghost:hover{ border-color: var(--brand-600); color: var(--brand-600); }
     text-align: center; /* Centraliza o texto dos links */
   }
 }
+
+/* Botão flutuante */
+ .acessibilidade-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: #008b8b; /* verde-azulado */
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 65px;
+  height: 65px;
+  font-size: 28px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s, background-color 0.3s;
+  z-index: 1000;
+}
+
+.acessibilidade-btn:hover {
+  background-color: #006666;
+  transform: scale(1.1);
+}
+
+/* Menu flutuante */
+.menu-acessibilidade {
+  position: fixed;
+  bottom: 95px; /* aparece acima do botão */
+  right: 20px;
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  padding: 15px;
+  width: 220px;
+  display: none; /* começa escondido */
+  flex-direction: column;
+  gap: 8px;
+  z-index: 999;
+}
+
+.menu-acessibilidade h4 {
+  margin: 0 0 10px 0;
+  font-size: 16px;
+  text-align: center;
+  color: #333;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 5px;
+}
+
+.menu-item {
+  background-color: #f5f5f5;
+  border: none;
+  border-radius: 8px;
+  padding: 8px;
+  font-size: 15px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.menu-item:hover {
+  background-color: #e5e5e5;
+}
+
+/* ======= MODOS DE ACESSIBILIDADE ======= */
+
+/* ======== MODO ESCURO ======== */
+/* 1. Evita que o botão flutuante e o menu percam o 'position: fixed' no modo daltônico */
+/* 2. Impede que o filtro do modo daltônico afete o botão e menu */
+
+
+/* ======== MODO ESCURO (Dark Mode) ======== */
+body.modo-escuro {
+    background-color: #121212 !important;
+    color: #e0e0e0 !important;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Cabeçalho e barra superior */
+body.modo-escuro header,
+body.modo-escuro .topbar,
+body.modo-escuro .branding {
+    background-color: #1c1c1c !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* Card, Container (Fundo), e Cabeçalho do Card (Regra Consolidada) */
+body.modo-escuro .card,
+body.modo-escuro .container,
+body.modo-escuro .card .head {
+    background: #1e1e1e !important; 
+    border-color: #333 !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4) !important;
+}
+
+/* Campo de busca/toolbar */
+body.modo-escuro .search {
+    background: #2a2a2a !important;
+    border-color: #3a3a3a !important;
+}
+
+body.modo-escuro .search input {
+    color: #e0e0e0 !important; 
+}
+
+/* Fundos e cores de texto da tabela */
+body.modo-escuro .table,
+body.modo-escuro .table tbody td {
+    background-color: #1e1e1e !important;
+    color: #e0e0e0 !important;
+    border-bottom: 1px solid #333 !important; /* Linhas separadoras */
+}
+
+/* Cabeçalho da tabela (thead) */
+body.modo-escuro .table thead th {
+    background: #1a1a1a !important; 
+    color: #888 !important; 
+    border-bottom: 1px solid #333 !important;
+}
+
+/* Efeito hover nas linhas da tabela */
+body.modo-escuro .table tbody tr:hover {
+    background: #282828 !important;
+}
+
+/* Rodapé da tabela (onde fica a contagem e paginação) - CORREÇÃO DA BARRA BRANCA */
+body.modo-escuro .table-footer {
+    background: #1a1a1a !important; 
+    border-top: 1px solid #333 !important; 
+}
+
+/* Paginação e Botões de Ação na Tabela */
+body.modo-escuro .page-btn,
+body.modo-escuro .page {
+    background: #2a2a2a !important; 
+    border-color: #333 !important;
+    color: #e0e0e0 !important;
+}
+
+/* Botão de paginação/ação (primário/ativo) */
+body.modo-escuro .page-btn.active,
+body.modo-escuro .page.is-active {
+    background: var(--brand) !important; /* Mantém a cor de destaque (verde) */
+    color: #fff !important;
+    border-color: transparent !important;
+}
+body.modo-escuro .page-btn:hover {
+    background: #3a3a3a !important;
+}
+
+/* O badge (onde tem o texto "CRM") */
+body.modo-escuro .badge {
+    background: #3a3a3a !important;
+    color: #90ee90 !important; 
+}
+
+/* Links e botões gerais (navegação) */
+body.modo-escuro a,
+body.modo-escuro .navmenu a {
+    color: #4fc3f7 !important;
+}
+
+body.modo-escuro a:hover,
+body.modo-escuro .navmenu a:hover {
+    color: #80d8ff !important;
+}
+
+/* Botão "Marcar Consulta" (.cta ou similar) */
+body.modo-escuro .cta,
+body.modo-escuro .cta-btn {
+    background-color: #009688 !important;
+    color: #fff !important;
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.6);
+    border: none !important;
+}
+
+/* Botões principais (outras variações) */
+body.modo-escuro .btn,
+body.modo-escuro .btn-med,
+body.modo-escuro .btn-paciente,
+body.modo-escuro .btn-secretaria {
+    color: #fff !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+/* Breadcrumbs e rodapé (footer) */
+body.modo-escuro footer,
+body.modo-escuro .breadcrumbs {
+    background-color: #1a1a1a !important;
+    color: #ccc !important;
+}
+
+/* ===============================
+   🧩 MENU DE ACESSIBILIDADE ESCURO
+=============================== */
+body.modo-escuro .menu-acessibilidade {
+    background-color: #1e1e1e !important;
+    color: #fff !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+body.modo-escuro .menu-acessibilidade h4 {
+    color: #f1f1f1 !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.modo-escuro .menu-acessibilidade button {
+    background-color: #2a2a2a !important;
+    color: #f5f5f5 !important;
+    border: none !important;
+}
+
+body.modo-escuro .menu-acessibilidade button:hover {
+    background-color: #3a3a3a !important;
+    transform: scale(1.03);
+    transition: all 0.2s ease;
+}
+
+/* Ícone flutuante e controles de fonte */
+body.modo-escuro #btnAcessibilidade {
+    background-color: #00bfa5 !important;
+    color: #fff !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+body.modo-escuro #aumentarFonteContainer {
+    background-color: #2a2a2a !important;
+    color: #f5f5f5 !important;
+    border: none !important;
+}
+
+body.modo-escuro #aumentarFonteContainer:hover {
+    background-color: #3a3a3a !important;
+}
+
+/* ===============================
+   TRANSICÕES E OUTROS MODOS
+=============================== */
+
+/* Transições suaves */
+body, 
+body * {
+    transition: background-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* Aumentar fonte */
+.aumentar-fonte * {
+  font-size: 1.2em !important;
+}
+
+.controles-fonte {
+  display: none;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.controle-fonte {
+  flex: 1;
+  background-color: #e0e0e0;
+  border: none;
+  border-radius: 6px;
+  font-size: 18px;
+  margin: 0 5px;
+  padding: 6px 0;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.controle-fonte:hover {
+  background-color: #ccc;
+}
+
+/* Quando visível */
+.controles-fonte.visivel {
+  display: flex;
+}
+
+
+/* Modo daltônico (usa paleta amigável) */
+.modo-daltonico {
+    filter: hue-rotate(45deg) saturate(120%) !important;
+}
+
+

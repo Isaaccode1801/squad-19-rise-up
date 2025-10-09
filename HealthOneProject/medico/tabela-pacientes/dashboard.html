@@ -21,6 +21,7 @@
           <a href="../laudo/Laudo.html">Laudos</a>
           <a href="crud-pacientes.html">Gerenciamento de Pacientes</a>
         </nav>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     </header>
 
 
@@ -127,6 +128,26 @@
     </main>
   </div>
 
+  <button id="btnAcessibilidade" class="acessibilidade-btn" aria-label="Menu de acessibilidade">
+    <i class="fa-solid fa-wheelchair"></i>
+  </button>
+   <!-- Menu flutuante de acessibilidade -->
+  <div id="menuAcessibilidade" class="menu-acessibilidade">
+  <h4>Opções de Acessibilidade</h4>
+  <button class="menu-item" id="modoEscuro">🌓 Fundo Preto</button>
+   <div class="menu-item" id="aumentarFonteContainer">
+    🔠 Aumentar Fonte
+    <div id="controlesFonte" class="controles-fonte">
+      <button id="diminuirFonte" class="controle-fonte">➖</button>
+      <span id="tamanhoFonteValor">100%</span>
+      <button id="aumentarFonte" class="controle-fonte">➕</button>
+    </div>
+  </div>
+  <button class="menu-item" id="leitorTexto">🔊 Leitor de Texto</button>
+   <button class="menu-item" id="modoDaltonico">🎨 Modo Daltônico</button>
+</div>
+
+
 <script>
   // ======= Mini calendário estático (placeholder) =======
   (function renderCalendar(){
@@ -148,6 +169,132 @@
       if([10,11,18].includes(d)) el.classList.add('m');
       cal.appendChild(el);
     }
+  
+  const btn = document.getElementById("btnAcessibilidade");
+  const menu = document.getElementById("menuAcessibilidade");
+
+  // Alternar visibilidade do menu
+  btn.addEventListener("click", () => {
+    menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+  });
+
+  // Fechar se clicar fora
+  document.addEventListener("click", (e) => {
+    if (!menu.contains(e.target) && !btn.contains(e.target)) {
+      menu.style.display = "none";
+    }
+  });
+
+  // Funções de acessibilidade
+  const corpo = document.body;
+
+// Função para salvar estado no localStorage
+function salvarPreferencia(chave, valor) {
+  localStorage.setItem(chave, JSON.stringify(valor));
+}
+
+// Função para carregar estado salvo
+function carregarPreferencia(chave) {
+  const valor = localStorage.getItem(chave);
+  return valor ? JSON.parse(valor) : false;
+}
+
+// ======== MODO ESCURO ========
+const modoEscuroBtn = document.getElementById("modoEscuro");
+let modoEscuroAtivo = carregarPreferencia("modoEscuro");
+
+if (modoEscuroAtivo) document.body.classList.add("modo-escuro");
+
+modoEscuroBtn.addEventListener("click", () => {
+  modoEscuroAtivo = !modoEscuroAtivo;
+  document.body.classList.toggle("modo-escuro", modoEscuroAtivo);
+  salvarPreferencia("modoEscuro", modoEscuroAtivo);
+});
+
+// ======== MODO DALTÔNICO ========
+const modoDaltonicoBtn = document.getElementById("modoDaltonico");
+let modoDaltonicoAtivo = carregarPreferencia("modoDaltonico");
+
+if (modoDaltonicoAtivo) document.body.classList.add("modo-daltonico");
+
+modoDaltonicoBtn.addEventListener("click", () => {
+  modoDaltonicoAtivo = !modoDaltonicoAtivo;
+  document.body.classList.toggle("modo-daltonico", modoDaltonicoAtivo);
+  salvarPreferencia("modoDaltonico", modoDaltonicoAtivo);
+});
+
+// ======== CONTROLE DE FONTE (ZOOM) ========
+
+// Elementos
+const aumentarFonteContainer = document.getElementById("aumentarFonteContainer");
+const controlesFonte = document.getElementById("controlesFonte");
+const btnMais = document.getElementById("aumentarFonte");
+const btnMenos = document.getElementById("diminuirFonte");
+const valorFonte = document.getElementById("tamanhoFonteValor");
+
+// Estado inicial (carrega o último valor salvo)
+let zoomPagina = carregarPreferencia("zoomPagina") || 100;
+
+// Aplica o zoom salvo ao carregar
+document.body.style.zoom = zoomPagina + "%";
+if (valorFonte) valorFonte.textContent = `${zoomPagina}%`;
+
+// Mostra/oculta os controles ao clicar no container
+if (aumentarFonteContainer && controlesFonte) {
+  aumentarFonteContainer.addEventListener("click", (e) => {
+    e.stopPropagation();
+    controlesFonte.classList.toggle("visivel");
+  });
+}
+
+// Função para aplicar o zoom e salvar
+function aplicarZoom() {
+  document.body.style.zoom = zoomPagina + "%";
+  if (valorFonte) valorFonte.textContent = `${zoomPagina}%`;
+  salvarPreferencia("zoomPagina", zoomPagina);
+}
+
+// Botão ➕
+if (btnMais) {
+  btnMais.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (zoomPagina < 180) {
+      zoomPagina += 10;
+      aplicarZoom();
+    }
+  });
+}
+
+// Botão ➖
+if (btnMenos) {
+  btnMenos.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (zoomPagina > 80) {
+      zoomPagina -= 10;
+      aplicarZoom();
+    }
+  });
+}
+
+// ======== LEITOR DE TEXTO ========
+let leitorAtivo = carregarPreferencia("leitorTexto");
+
+document.getElementById("leitorTexto").addEventListener("click", () => {
+  leitorAtivo = !leitorAtivo;
+  salvarPreferencia("leitorTexto", leitorAtivo);
+  alert(leitorAtivo ? "Leitor de texto ativado." : "Leitor de texto desativado.");
+});
+
+document.addEventListener("mouseover", (e) => {
+  if (leitorAtivo && e.target.textContent.trim().length > 0) {
+    const texto = e.target.textContent.trim();
+    const fala = new SpeechSynthesisUtterance(texto);
+    fala.lang = "pt-BR";
+    speechSynthesis.cancel();
+    speechSynthesis.speak(fala);
+  }
+});  
+
   })();
 </script>
 </body>

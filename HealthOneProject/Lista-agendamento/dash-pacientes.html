@@ -114,6 +114,219 @@
     width: auto; /* Mantém a proporção da imagem */
     display: block; /* Remove espaços extras abaixo da imagem */
   }
+
+ /* Botão flutuante */
+.acessibilidade-btn {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background-color: var(--brand-600);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 65px;
+  height: 65px;
+  font-size: 28px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow);
+  transition: transform 0.2s, background-color 0.3s;
+  z-index: 1000;
+}
+
+.acessibilidade-btn:hover {
+  background-color: var(--brand);
+  transform: scale(1.1);
+}
+
+/* Menu flutuante */
+.menu-acessibilidade {
+  position: fixed;
+  bottom: 95px;
+  right: 20px;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  padding: 15px;
+  width: 230px;
+  display: none;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 999;
+  border: 1px solid var(--line);
+}
+
+.menu-acessibilidade h4 {
+  margin: 0 0 10px 0;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+  color: var(--ink);
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 6px;
+}
+
+/* Itens */
+.menu-item {
+  background-color: #f7f9fb;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.15s;
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.menu-item:hover {
+  background-color: #eef3f7;
+  transform: scale(1.03);
+}
+
+/* Controle de fonte */
+#controlesFonte {
+  display: none;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+#controlesFonte.visivel {
+  display: flex;
+}
+
+.controle-fonte {
+  background-color: #e6eaef;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  padding: 5px 10px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.controle-fonte:hover {
+  background-color: #d4dae1;
+}
+
+/* ===============================
+   🌙 MODO ESCURO
+=============================== */
+
+body.modo-escuro {
+  background-color: #111827;
+  color: #e5e7eb;
+}
+
+body.modo-escuro .card {
+  background-color: #1e293b;
+  border-color: #2d3b4f;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
+}
+
+body.modo-escuro .topnav {
+  background-color: #1f2937;
+  border-bottom-color: #2d3b4f;
+}
+
+body.modo-escuro .cell {
+  background-color: #1e293b;
+  border-color: #334155;
+  color: #f3f4f6;
+}
+
+body.modo-escuro .tabs a {
+  color: #cbd5e1;
+}
+
+body.modo-escuro .tabs a.active {
+  background-color: var(--brand-600);
+  color: #fff;
+}
+
+/* ====== Menu no modo escuro ====== */
+body.modo-escuro .menu-acessibilidade {
+  background-color: #1e293b !important;
+  color: #f5f5f5 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.6);
+}
+
+body.modo-escuro .menu-acessibilidade h4 {
+  color: #f1f5f9 !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+body.modo-escuro .menu-item {
+  background-color: #273549 !important;
+  color: #f8fafc !important;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+body.modo-escuro .menu-item:hover {
+  background-color: #334155 !important;
+}
+
+body.modo-escuro .controle-fonte {
+  background-color: #374151;
+  color: #fff;
+}
+
+body.modo-escuro .controle-fonte:hover {
+  background-color: #475569;
+}
+
+/* Ícone flutuante no modo escuro */
+body.modo-escuro #btnAcessibilidade {
+  background-color: var(--brand);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+/* Suaviza transições */
+body, body * {
+  transition: background-color 0.25s ease, color 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* ===============================
+   🎨 Modo Daltônico
+=============================== */
+.modo-daltonico {
+  filter: hue-rotate(45deg) saturate(120%) !important;
+}
+
+body.modo-escuro .kv div,
+body.modo-escuro .appt,
+body.modo-escuro .cell:not(.h),
+body.modo-escuro .bar {
+  background-color: #1e293b !important;
+  border-color: #334155 !important;
+  color: #f3f4f6 !important;
+}
+
+/* Ícones das consultas */
+body.modo-escuro .appt .ic {
+  box-shadow: none;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+/* Linhas e eixos */
+body.modo-escuro .axis {
+  stroke: #475569;
+}
+
+body.modo-escuro .stroke-brand {
+  stroke: #60a5fa;
+}
+
+/* Barras rosadas adaptadas ao tema escuro */
+body.modo-escuro .bar {
+  background: linear-gradient(180deg,#fb7185,#f9a8d4);
+}
+
 </style>
 </head>
 <body>
@@ -137,6 +350,9 @@
     <a href="#" class="active">Início</a>
     <a href="agendamento.html" >Marcar Consulta</a>
   </nav>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
 </header>
 <div class="ola">
   <div class="greet">Olá, <span style="color:var(--brand-600)">Isaac Kauã</span> 👋</div>
@@ -248,6 +464,26 @@
   </div>
 </div>
 
+<button id="btnAcessibilidade" class="acessibilidade-btn" aria-label="Menu de acessibilidade">
+  <i class="fa-solid fa-wheelchair"></i>
+</button>
+ <!-- Menu flutuante de acessibilidade -->
+  <div id="menuAcessibilidade" class="menu-acessibilidade">
+  <h4>Opções de Acessibilidade</h4>
+  <button class="menu-item" id="modoEscuro">🌓 Fundo Preto</button>
+   <div class="menu-item" id="aumentarFonteContainer">
+    🔠 Aumentar Fonte
+    <div id="controlesFonte" class="controles-fonte">
+      <button id="diminuirFonte" class="controle-fonte">➖</button>
+      <span id="tamanhoFonteValor">100%</span>
+      <button id="aumentarFonte" class="controle-fonte">➕</button>
+    </div>
+  </div>
+  <button class="menu-item" id="leitorTexto">🔊 Leitor de Texto</button>
+   <button class="menu-item" id="modoDaltonico">🎨 Modo Daltônico</button>
+</div>
+
+
 <script>
   // mini calendário (exemplo: março com marcações)
   (function(){
@@ -265,6 +501,132 @@
       el.appendChild(c);
     }
   })();
+
+ const btn = document.getElementById("btnAcessibilidade");
+  const menu = document.getElementById("menuAcessibilidade");
+
+  // Alternar visibilidade do menu
+  btn.addEventListener("click", () => {
+    menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+  });
+
+  // Fechar se clicar fora
+  document.addEventListener("click", (e) => {
+    if (!menu.contains(e.target) && !btn.contains(e.target)) {
+      menu.style.display = "none";
+    }
+  });
+
+  // Funções de acessibilidade
+  const corpo = document.body;
+
+// Função para salvar estado no localStorage
+function salvarPreferencia(chave, valor) {
+  localStorage.setItem(chave, JSON.stringify(valor));
+}
+
+// Função para carregar estado salvo
+function carregarPreferencia(chave) {
+  const valor = localStorage.getItem(chave);
+  return valor ? JSON.parse(valor) : false;
+}
+
+// ======== MODO ESCURO ========
+const modoEscuroBtn = document.getElementById("modoEscuro");
+let modoEscuroAtivo = carregarPreferencia("modoEscuro");
+
+if (modoEscuroAtivo) document.body.classList.add("modo-escuro");
+
+modoEscuroBtn.addEventListener("click", () => {
+  modoEscuroAtivo = !modoEscuroAtivo;
+  document.body.classList.toggle("modo-escuro", modoEscuroAtivo);
+  salvarPreferencia("modoEscuro", modoEscuroAtivo);
+});
+
+// ======== MODO DALTÔNICO ========
+const modoDaltonicoBtn = document.getElementById("modoDaltonico");
+let modoDaltonicoAtivo = carregarPreferencia("modoDaltonico");
+
+if (modoDaltonicoAtivo) document.body.classList.add("modo-daltonico");
+
+modoDaltonicoBtn.addEventListener("click", () => {
+  modoDaltonicoAtivo = !modoDaltonicoAtivo;
+  document.body.classList.toggle("modo-daltonico", modoDaltonicoAtivo);
+  salvarPreferencia("modoDaltonico", modoDaltonicoAtivo);
+});
+
+// ======== CONTROLE DE FONTE (ZOOM) ========
+
+// Elementos
+const aumentarFonteContainer = document.getElementById("aumentarFonteContainer");
+const controlesFonte = document.getElementById("controlesFonte");
+const btnMais = document.getElementById("aumentarFonte");
+const btnMenos = document.getElementById("diminuirFonte");
+const valorFonte = document.getElementById("tamanhoFonteValor");
+
+// Estado inicial (carrega o último valor salvo)
+let zoomPagina = carregarPreferencia("zoomPagina") || 100;
+
+// Aplica o zoom salvo ao carregar
+document.body.style.zoom = zoomPagina + "%";
+if (valorFonte) valorFonte.textContent = `${zoomPagina}%`;
+
+// Mostra/oculta os controles ao clicar no container
+if (aumentarFonteContainer && controlesFonte) {
+  aumentarFonteContainer.addEventListener("click", (e) => {
+    e.stopPropagation();
+    controlesFonte.classList.toggle("visivel");
+  });
+}
+
+// Função para aplicar o zoom e salvar
+function aplicarZoom() {
+  document.body.style.zoom = zoomPagina + "%";
+  if (valorFonte) valorFonte.textContent = `${zoomPagina}%`;
+  salvarPreferencia("zoomPagina", zoomPagina);
+}
+
+// Botão ➕
+if (btnMais) {
+  btnMais.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (zoomPagina < 180) {
+      zoomPagina += 10;
+      aplicarZoom();
+    }
+  });
+}
+
+// Botão ➖
+if (btnMenos) {
+  btnMenos.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (zoomPagina > 80) {
+      zoomPagina -= 10;
+      aplicarZoom();
+    }
+  });
+}
+
+// ======== LEITOR DE TEXTO ========
+let leitorAtivo = carregarPreferencia("leitorTexto");
+
+document.getElementById("leitorTexto").addEventListener("click", () => {
+  leitorAtivo = !leitorAtivo;
+  salvarPreferencia("leitorTexto", leitorAtivo);
+  alert(leitorAtivo ? "Leitor de texto ativado." : "Leitor de texto desativado.");
+});
+
+document.addEventListener("mouseover", (e) => {
+  if (leitorAtivo && e.target.textContent.trim().length > 0) {
+    const texto = e.target.textContent.trim();
+    const fala = new SpeechSynthesisUtterance(texto);
+    fala.lang = "pt-BR";
+    speechSynthesis.cancel();
+    speechSynthesis.speak(fala);
+  }
+});
+
 </script>
 </body>
 </html>
