@@ -13,50 +13,53 @@
       --cor-texto-principal: #1F2937;
       --cor-acento-healthone: #3fbbc0;
       --cor-primaria: #3B82F6;
+      --cor-secundaria: #8B5CF6; /* Roxo para o botão de resumir */
       --cor-perigo: #EF4444;
+      --raio-borda: 8px;
+      --sombra: 0 4px 12px rgba(0,0,0,0.07);
     }
     body { font-family: system-ui, -apple-system, sans-serif; background-color: var(--cor-fundo); margin: 0; padding: 20px; }
     h1 { text-align: center; margin-bottom: 20px; color: var(--cor-texto-principal); }
-    form { max-width: 900px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.07); border: 1px solid var(--cor-borda); }
-    .editor-toolbar { margin-bottom: 10px; }
+    form { max-width: 900px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 12px; box-shadow: var(--sombra); border: 1px solid var(--cor-borda); }
+    .editor-toolbar { margin-bottom: 10px; border-bottom: 1px solid var(--cor-borda); padding-bottom: 10px; }
     .editor-toolbar button { background: #f3f4f6; border: 1px solid var(--cor-borda); padding: 8px; margin-right: 5px; cursor: pointer; border-radius: 6px; }
-    #laudo-conteudo { border: 1px solid var(--cor-borda); min-height: 250px; padding: 15px; border-radius: 8px; overflow-y: auto; }
+    #laudo-conteudo { border: 1px solid var(--cor-borda); min-height: 250px; padding: 15px; border-radius: var(--raio-borda); overflow-y: auto; outline: none; }
     .opcoes { margin-top: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 15px; }
-    label { font-weight: 500; display: flex; flex-direction: column; gap: 5px; }
-    input, select { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--cor-borda); }
-    .opcoes > div { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 10px; } /* Alinha botões à direita */
+    label { font-weight: 500; display: flex; flex-direction: column; gap: 5px; font-size: 0.9rem; color: var(--cor-texto-secundario); }
+    input, select { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--cor-borda); font-size: 1rem; }
+    .form-actions { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; }
     .btn-salvar, .btn-cancelar { padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
     .btn-salvar { background-color: var(--cor-acento-healthone); color: white; }
     .btn-cancelar { background-color: #f3f4f6; }
 
     /* ===== ESTILOS PARA O BOTÃO FLUTUANTE DE IA ===== */
-    .ai-fab-container { position: fixed; bottom: 30px; right: 30px; display: flex; flex-direction: column; align-items: flex-end; gap: 15px; z-index: 999; }
+    .ai-fab-container { position: fixed; bottom: 30px; right: 30px; display: flex; flex-direction: column; align-items: flex-end; gap: 10px; z-index: 999; }
     .ai-fab { width: 60px; height: 60px; border-radius: 50%; background-color: var(--cor-acento-healthone); color: white; border: none; font-size: 24px; display: grid; place-items: center; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transition: all 0.3s ease; }
     .ai-fab:hover { transform: scale(1.1); }
     .ai-fab i.fa-xmark { font-size: 20px; }
-    .ai-record-btn { padding: 10px 20px; border: none; border-radius: 30px; font-size: 1rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: all 0.2s ease, opacity 0.3s ease, transform 0.3s ease; background-color: var(--cor-primaria); color: white; opacity: 0; transform: translateY(10px); visibility: hidden; }
-    .ai-record-btn.visible { opacity: 1; transform: translateY(0); visibility: visible; }
-    .ai-record-btn.gravando { background-color: var(--cor-perigo); animation: pulse 1.5s infinite; }
+    .ai-action-btn { padding: 10px 20px; border: none; border-radius: 30px; font-size: 1rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); transition: all 0.2s ease, opacity 0.3s ease, transform 0.3s ease; color: white; opacity: 0; transform: translateY(10px); visibility: hidden; }
+    .ai-action-btn.visible { opacity: 1; transform: translateY(0); visibility: visible; }
+    #btn-gravar-ia { background-color: var(--cor-primaria); }
+    #btn-gravar-ia.gravando { background-color: var(--cor-perigo); animation: pulse 1.5s infinite; }
+    #btn-resumir-ia { background-color: var(--cor-secundaria); }
+    #btn-resumir-ia:disabled { background-color: #D1D5DB; cursor: not-allowed; }
     @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
-    .spinner { border: 3px solid #f3f3f3; border-top: 3px solid var(--cor-primaria); border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; margin-left: 10px; }
+    .spinner { border: 3px solid #f3f3f3; border-top: 3px solid #fff; border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
 
-  <h1>Novo Laudo</h1>
+  <h1>Laudo com anamnese</h1>
 
   <form id="form-novo-laudo">
     <div class="editor-toolbar">
-      <button type="button" onclick="execCmd('bold')"><i class="fa fa-bold"></i></button>
-      <button type="button" onclick="execCmd('italic')"><i class="fa fa-italic"></i></button>
-      <button type="button" onclick="execCmd('insertUnorderedList')"><i class="fa fa-list-ul"></i></button>
-      <button type="button" onclick="execCmd('justifyLeft')"><i class="fa fa-align-left"></i></button>
-      <button type="button" onclick="execCmd('justifyCenter')"><i class="fa fa-align-center"></i></button>
-      <button type="button" onclick="execCmd('justifyRight')"><i class="fa fa-align-right"></i></button>
-      <button type="button" onclick="insertCampo('[[NOME]]')">Nome</button>
-      <button type="button" onclick="insertCampo('[[IDADE]]')">Idade</button>
-      <button type="button" onclick="insertCampo('[[CID]]')">CID</button>
+      <button type="button" data-command="bold"><i class="fa fa-bold"></i></button>
+      <button type="button" data-command="italic"><i class="fa fa-italic"></i></button>
+      <button type="button" data-command="insertUnorderedList"><i class="fa fa-list-ul"></i></button>
+      <button type="button" data-command="justifyLeft"><i class="fa fa-align-left"></i></button>
+      <button type="button" data-command="justifyCenter"><i class="fa fa-align-center"></i></button>
+      <button type="button" data-command="justifyRight"><i class="fa fa-align-right"></i></button>
     </div>
     
     <div id="laudo-conteudo" contenteditable="true" placeholder="O resumo da IA aparecerá aqui após a gravação..."></div>
@@ -116,12 +119,16 @@
 
   <!-- ======================== BOTÃO FLUTUANTE DE IA ======================== -->
   <div class="ai-fab-container">
-    <button id="btn-gravar-ia" class="ai-record-btn">
+    <button id="btn-resumir-ia" class="ai-action-btn" title="Gerar Resumo a partir do texto" disabled>
+      <i class="fa-solid fa-wand-magic-sparkles"></i>
+      <span>Gerar Resumo</span>
+    </button>
+    <button id="btn-gravar-ia" class="ai-action-btn" title="Gravar e transcrever consulta">
       <i class="fa-solid fa-microphone"></i>
       <span>Iniciar Gravação</span>
     </button>
     <button id="btn-toggle-ia" class="ai-fab" title="Assistente de IA">
-      <i class="fa-solid fa-wand-magic-sparkles"></i>
+      <i class="fa-solid fa-robot"></i>
     </button>
   </div>
 

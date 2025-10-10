@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Medconnect - Dashboard Financeiro</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f8f9fa;
+      display: flex;
+    }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar {
+      width: 250px;
+      background-color: #fff;
+      height: 100vh;
+      position: fixed;
+      border-right: 1px solid #e5e7eb;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-start;
+      padding: 20px 0;
+    }
+
+    .sidebar .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 20px;
+      margin-bottom: 30px;
+    }
+
+    .sidebar .logo h2 {
+      font-size: 20px;
+      color: #3cbcc4;
+      margin: 0;
+    }
+
+    .menu {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      padding: 0 10px;
+    }
+
+    .menu a {
+      text-decoration: none;
+      color: #555;
+      font-size: 15px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 15px;
+      border-radius: 8px;
+      transition: background 0.3s, color 0.3s;
+    }
+
+    .menu a:hover {
+      background-color: #e6f8f9;
+      color: #3cbcc4;
+    }
+
+    .menu a.active {
+      background-color: #e6f8f9;
+      color: #3cbcc4;
+    }
+
+    /* ===== BOTÃO SAIR ===== */
+    .logout {
+      text-align: left;
+      padding: 10px 20px;
+      margin-top: 60px; /* Subiu o botão mais para cima */
+    }
+
+    .logout a {
+      color: #3cbcc4;
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .logout a:hover {
+      text-decoration: underline;
+    }
+
+    /* ===== MAIN CONTENT ===== */
+    .main-content {
+      margin-left: 250px;
+      padding: 30px;
+      width: calc(100% - 250px);
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: white;
+      padding: 15px 25px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+    }
+
+    .header h1 {
+      color: #3cbcc4;
+      font-size: 26px;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .card {
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      padding: 20px;
+      text-align: center;
+    }
+
+    .card h3 {
+      color: #3cbcc4;
+      margin-bottom: 10px;
+    }
+
+    .charts {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 25px;
+    }
+
+    canvas {
+      background: white;
+      border-radius: 12px;
+      padding: 15px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== SIDEBAR ===== -->
+  <div class="sidebar">
+    <div>
+      <div class="logo">
+        <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" fill="#3cbcc4" viewBox="0 0 24 24">
+          <path d="M3 3h18v18H3V3zm2 2v14h14V5H5zm5 2h4v4h-4V7zm0 6h4v4h-4v-4z"/>
+        </svg>
+        <h2>Medconnect</h2>
+      </div>
+
+      <div class="menu">
+        <a href="#" class="active">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="#3cbcc4" viewBox="0 0 24 24"><path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8v-10h-8v10zm0-18v6h8V3h-8z"/></svg>
+          Painel Financeiro
+        </a>
+        <a href="#">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="#555" viewBox="0 0 24 24"><path d="M12 3C7 3 3 7 3 12s4 9 9 9 9-4 9-9-4-9-9-9zm1 16.93V19h-2v.93A7.001 7.001 0 015.07 13H7v-2H5.07A7.001 7.001 0 0111 5.07V7h2V5.07A7.001 7.001 0 0118.93 11H17v2h1.93A7.001 7.001 0 0113 19.93z"/></svg>
+          Módulo Financeiro
+        </a>
+        <a href="#">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="#555" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4S14.21 4 12 4s-4 1.79-4 4 1.79 4 4 4zm0 2c-3.31 0-6 2.69-6 6v1h12v-1c0-3.31-2.69-6-6-6z"/></svg>
+          Faturamento
+        </a>
+        <a href="#">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="#555" viewBox="0 0 24 24"><path d="M12 22C6.486 22 2 17.514 2 12S6.486 2 12 2s10 4.486 10 10-4.486 10-10 10zM7.707 9.707l4.586 4.586 4.586-4.586L18 11.121l-6 6-6-6 1.707-1.414z"/></svg>
+          Controle de Pagamentos
+        </a>
+        <a href="#">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="#555" viewBox="0 0 24 24"><path d="M4 4h16v2H4zm0 4h16v2H4zm0 4h10v2H4zm0 4h10v2H4z"/></svg>
+          Relatórios Financeiros
+        </a>
+        <a href="#">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="#555" viewBox="0 0 24 24"><path d="M20 3H4v18h16V3zM6 19V5h12v14H6z"/></svg>
+          Dados dos Pacientes
+        </a>
+      </div>
+    </div>
+
+    <div class="logout">
+      <a href="#">⮐ Sair</a>
+    </div>
+  </div>
+
+  <!-- ===== MAIN CONTENT ===== -->
+  <div class="main-content">
+    <div class="header">
+      <h1>Dashboard Financeiro</h1>
+      <span>Perfil: Administrador Financeiro</span>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <h3>Faturamento Mensal</h3>
+        <p><strong>R$ 185.230,00</strong></p>
+      </div>
+      <div class="card">
+        <h3>Pagamentos Pendentes</h3>
+        <p><strong>R$ 23.450,00</strong></p>
+      </div>
+      <div class="card">
+        <h3>Relatórios Emitidos</h3>
+        <p><strong>48</strong> relatórios</p>
+      </div>
+      <div class="card">
+        <h3>Pacientes com Débitos</h3>
+        <p><strong>12</strong> pacientes</p>
+      </div>
+    </div>
+
+    <div class="charts">
+      <div>
+        <h3>Faturamento Anual</h3>
+        <canvas id="faturamentoChart"></canvas>
+      </div>
+      <div>
+        <h3>Controle de Pagamentos</h3>
+        <canvas id="pagamentosChart"></canvas>
+      </div>
+      <div>
+        <h3>Distribuição Financeira por Paciente</h3>
+        <canvas id="pacientesChart"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    const ctx1 = document.getElementById('faturamentoChart');
+    new Chart(ctx1, {
+      type: 'line',
+      data: {
+        labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out'],
+        datasets: [{
+          label: 'Faturamento (R$)',
+          data: [18000, 22000, 25000, 27000, 30000, 32000, 35000, 38000, 41000, 44000],
+          borderColor: '#3cbcc4',
+          backgroundColor: 'rgba(64,188,196,0.2)',
+          tension: 0.4,
+          fill: true
+        }]
+      },
+      options: { responsive: true, plugins: { legend: { display: false } } }
+    });
+
+    const ctx2 = document.getElementById('pagamentosChart');
+    new Chart(ctx2, {
+      type: 'bar',
+      data: {
+        labels: ['Concluídos', 'Pendentes', 'Atrasados'],
+        datasets: [{
+          label: 'Pagamentos (R$)',
+          data: [150000, 23450, 6500],
+          backgroundColor: ['#3cbcc4', '#40bcc4', '#98e3e7']
+        }]
+      },
+      options: { responsive: true, plugins: { legend: { display: false } } }
+    });
+
+    const ctx3 = document.getElementById('pacientesChart');
+    new Chart(ctx3, {
+      type: 'doughnut',
+      data: {
+        labels: ['Planos de Saúde', 'Particulares', 'Pendentes'],
+        datasets: [{
+          data: [65, 25, 10],
+          backgroundColor: ['#3cbcc4', '#40bcc4', '#c1eff2']
+        }]
+      },
+      options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+    });
+  </script>
+</body>
+</html>

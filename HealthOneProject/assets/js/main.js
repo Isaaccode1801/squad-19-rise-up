@@ -197,5 +197,132 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('scroll', navmenuScrollspy);
   }
 
+//Botão de Acessibilidade  
+const btn = document.getElementById("btnAcessibilidade");
+  const menu = document.getElementById("menuAcessibilidade");
+
+  // Alternar visibilidade do menu
+  btn.addEventListener("click", () => {
+    menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+  });
+
+  // Fechar se clicar fora
+  document.addEventListener("click", (e) => {
+    if (!menu.contains(e.target) && !btn.contains(e.target)) {
+      menu.style.display = "none";
+    }
+  });
+
+  // Funções de acessibilidade
+  const corpo = document.body;
+
+// Função para salvar estado no localStorage
+function salvarPreferencia(chave, valor) {
+  localStorage.setItem(chave, JSON.stringify(valor));
+}
+
+// Função para carregar estado salvo
+function carregarPreferencia(chave) {
+  const valor = localStorage.getItem(chave);
+  return valor ? JSON.parse(valor) : false;
+}
+
+// ======== MODO ESCURO ========
+const modoEscuroBtn = document.getElementById("modoEscuro");
+let modoEscuroAtivo = carregarPreferencia("modoEscuro");
+
+if (modoEscuroAtivo) document.body.classList.add("modo-escuro");
+
+modoEscuroBtn.addEventListener("click", () => {
+  modoEscuroAtivo = !modoEscuroAtivo;
+  document.body.classList.toggle("modo-escuro", modoEscuroAtivo);
+  salvarPreferencia("modoEscuro", modoEscuroAtivo);
+});
+
+// ======== MODO DALTÔNICO ========
+const modoDaltonicoBtn = document.getElementById("modoDaltonico");
+let modoDaltonicoAtivo = carregarPreferencia("modoDaltonico");
+
+if (modoDaltonicoAtivo) document.body.classList.add("modo-daltonico");
+
+modoDaltonicoBtn.addEventListener("click", () => {
+  modoDaltonicoAtivo = !modoDaltonicoAtivo;
+  document.body.classList.toggle("modo-daltonico", modoDaltonicoAtivo);
+  salvarPreferencia("modoDaltonico", modoDaltonicoAtivo);
+});
+
+// ======== CONTROLE DE FONTE (ZOOM) ========
+
+// Elementos
+const aumentarFonteContainer = document.getElementById("aumentarFonteContainer");
+const controlesFonte = document.getElementById("controlesFonte");
+const btnMais = document.getElementById("aumentarFonte");
+const btnMenos = document.getElementById("diminuirFonte");
+const valorFonte = document.getElementById("tamanhoFonteValor");
+
+// Estado inicial (carrega o último valor salvo)
+let zoomPagina = carregarPreferencia("zoomPagina") || 100;
+
+// Aplica o zoom salvo ao carregar
+document.body.style.zoom = zoomPagina + "%";
+if (valorFonte) valorFonte.textContent = `${zoomPagina}%`;
+
+// Mostra/oculta os controles ao clicar no container
+if (aumentarFonteContainer && controlesFonte) {
+  aumentarFonteContainer.addEventListener("click", (e) => {
+    e.stopPropagation();
+    controlesFonte.classList.toggle("visivel");
+  });
+}
+
+// Função para aplicar o zoom e salvar
+function aplicarZoom() {
+  document.body.style.zoom = zoomPagina + "%";
+  if (valorFonte) valorFonte.textContent = `${zoomPagina}%`;
+  salvarPreferencia("zoomPagina", zoomPagina);
+}
+
+// Botão ➕
+if (btnMais) {
+  btnMais.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (zoomPagina < 180) {
+      zoomPagina += 10;
+      aplicarZoom();
+    }
+  });
+}
+
+// Botão ➖
+if (btnMenos) {
+  btnMenos.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (zoomPagina > 80) {
+      zoomPagina -= 10;
+      aplicarZoom();
+    }
+  });
+}
+
+// ======== LEITOR DE TEXTO ========
+let leitorAtivo = carregarPreferencia("leitorTexto");
+
+document.getElementById("leitorTexto").addEventListener("click", () => {
+  leitorAtivo = !leitorAtivo;
+  salvarPreferencia("leitorTexto", leitorAtivo);
+  alert(leitorAtivo ? "Leitor de texto ativado." : "Leitor de texto desativado.");
+});
+
+document.addEventListener("mouseover", (e) => {
+  if (leitorAtivo && e.target.textContent.trim().length > 0) {
+    const texto = e.target.textContent.trim();
+    const fala = new SpeechSynthesisUtterance(texto);
+    fala.lang = "pt-BR";
+    speechSynthesis.cancel();
+    speechSynthesis.speak(fala);
+  }
+});
+
+
 }); // FIM do único document.addEventListener('DOMContentLoaded')
 

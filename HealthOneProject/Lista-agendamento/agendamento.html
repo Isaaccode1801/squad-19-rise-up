@@ -6,6 +6,9 @@
   <title>HealthOne • Marcar Consulta</title>
   
   <link rel="stylesheet" href="../../assets/css/agendamento.css">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
 </head>
 <body>
   <div class="appbar">
@@ -112,5 +115,25 @@
   </div>
 
   <script type="module" src="../../assets/js/agendamento.js"></script>
+
+<button id="btnAcessibilidade" class="acessibilidade-btn" aria-label="Menu de acessibilidade">
+  <i class="fa-solid fa-wheelchair"></i>
+</button>
+ <!-- Menu flutuante de acessibilidade -->
+  <div id="menuAcessibilidade" class="menu-acessibilidade">
+  <h4>Opções de Acessibilidade</h4>
+  <button class="menu-item" id="modoEscuro">🌓 Fundo Preto</button>
+   <div class="menu-item" id="aumentarFonteContainer">
+    🔠 Aumentar Fonte
+    <div id="controlesFonte" class="controles-fonte">
+      <button id="diminuirFonte" class="controle-fonte">➖</button>
+      <span id="tamanhoFonteValor">100%</span>
+      <button id="aumentarFonte" class="controle-fonte">➕</button>
+    </div>
+  </div>
+  <button class="menu-item" id="leitorTexto">🔊 Leitor de Texto</button>
+   <button class="menu-item" id="modoDaltonico">🎨 Modo Daltônico</button>
+</div>
+
 </body>
 </html>
