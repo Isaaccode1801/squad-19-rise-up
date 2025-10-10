@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Revisão de Laudo - HealthOne</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root {
+      --cor-fundo: #F8F9FA;
+      --cor-borda: #E5E7EB;
+      --cor-texto-principal: #1F2937;
+      --cor-texto-secundario: #6C757D;
+      --cor-acento-healthone: #3fbbc0;
+      --sombra: 0 8px 24px rgba(0, 0, 0, 0.07);
+    }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background-color: var(--cor-fundo);
+      margin: 0;
+      padding: 20px;
+      color: var(--cor-texto-principal);
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: var(--sombra);
+      border: 1px solid var(--cor-borda);
+    }
+    .header {
+      padding: 20px;
+      border-bottom: 1px solid var(--cor-borda);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header h1 { margin: 0; font-size: 1.5rem; }
+    .header .status {
+      font-weight: bold;
+      padding: 5px 10px;
+      border-radius: 20px;
+      font-size: 0.9rem;
+    }
+    .status-draft { background-color: #FEF3C7; color: #92400E; }
+    .status-published { background-color: #D1FAE5; color: #065F46; }
+
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      padding: 20px;
+      border-bottom: 1px solid var(--cor-borda);
+    }
+    .info-item label {
+      font-size: 0.8rem;
+      color: var(--cor-texto-secundario);
+      display: block;
+      margin-bottom: 4px;
+    }
+    .info-item span {
+      font-weight: 500;
+    }
+
+    .laudo-content {
+      padding: 20px;
+      line-height: 1.6;
+    }
+    .laudo-content h3 {
+      font-size: 1.1rem;
+      margin-top: 15px;
+      margin-bottom: 10px;
+      border-bottom: 1px dashed var(--cor-borda);
+      padding-bottom: 5px;
+    }
+
+    .actions {
+      padding: 20px;
+      border-top: 1px solid var(--cor-borda);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+    .btn { padding: 10px 20px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    .btn-primary { background-color: var(--cor-acento-healthone); color: white; }
+    .btn-secondary { background-color: #f3f4f6; color: var(--cor-texto-principal); }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div id="loading-state">
+      <p style="text-align:center; padding: 40px;">Carregando dados do laudo...</p>
+    </div>
+
+    <div id="content-state" style="display: none;">
+      <div class="header">
+        <h1>Revisão de Laudo</h1>
+        <span id="laudo-status" class="status"></span>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-item">
+          <label>Paciente</label>
+          <span id="paciente-nome"></span>
+        </div>
+        <div class="info-item">
+          <label>Exame</label>
+          <span id="laudo-exame"></span>
+        </div>
+        <div class="info-item">
+          <label>Médico Solicitante</label>
+          <span id="medico-solicitante"></span>
+        </div>
+        <div class="info-item">
+          <label>Data do Exame</label>
+          <span id="data-exame"></span>
+        </div>
+      </div>
+
+      <div id="laudo-conteudo" class="laudo-content">
+        <!-- O conteúdo HTML do laudo será inserido aqui -->
+      </div>
+      
+      <div class="actions">
+        <button class="btn btn-secondary" onclick="window.location.href='Laudo.html'">Voltar</button>
+        <button class="btn btn-secondary" onclick="window.print()">Imprimir</button>
+        <button class="btn btn-primary" onclick="window.location.href = `editar-laudo.html?id=${new URLSearchParams(window.location.search).get('id')}`">Editar Laudo</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module">
+    // 1. Importa a ferramenta para buscar um laudo específico
+    import { getLaudo } from '../../assets/js/pacientesService.js'; // ❗️ Verifique se o caminho está correto
+
+    // --- Seletores do HTML ---
+    const loadingState = document.getElementById('loading-state');
+    const contentState = document.getElementById('content-state');
+
+    /**
+     * Formata a data para o padrão brasileiro (dd/mm/aaaa).
+     */
+    function formatarData(isoString) {
+      if (!isoString) return "-";
+      const data = new Date(isoString);
+      return new Intl.DateTimeFormat('pt-BR', { timeZone: 'UTC' }).format(data);
+    }
+    
+    /**
+     * Função principal que é executada quando a página carrega.
+     */
+    async function carregarLaudoParaRevisao() {
+      // 2. Pega o ID do laudo da URL
+      const params = new URLSearchParams(window.location.search);
+      const laudoId = params.get('id');
+
+      if (!laudoId) {
+        loadingState.innerHTML = '<p style="color:red; text-align:center; padding: 40px;">Erro: ID do laudo não encontrado na URL.</p>';
+        return;
+      }
+
+      try {
+        // 3. Usa o ID para buscar os dados do laudo na API
+        const laudo = await getLaudo(laudoId);
+
+        // DEBUG: Adicionado console.log para ver o que a API retorna
+        console.log("Dados do laudo recebidos da API:", laudo);
+
+        if (!laudo) {
+          throw new Error("Laudo não encontrado na base de dados.");
+        }
+
+        // 4. Preenche os campos do HTML com os dados recebidos
+        document.getElementById('paciente-nome').textContent = laudo.patients.full_name || 'Não informado';
+        document.getElementById('laudo-exame').textContent = laudo.exam || 'Não informado';
+        document.getElementById('medico-solicitante').textContent = laudo.requested_by || 'Não informado';
+        document.getElementById('data-exame').textContent = formatarData(laudo.due_at);
+        document.getElementById('laudo-conteudo').innerHTML = laudo.content_html || '<p><i>Nenhum conteúdo para este laudo.</i></p>';
+        
+        const statusEl = document.getElementById('laudo-status');
+        statusEl.textContent = laudo.status || 'desconhecido';
+        statusEl.classList.add(laudo.status === 'published' ? 'status-published' : 'status-draft');
+
+        // 5. Mostra o conteúdo e esconde a mensagem de "Carregando"
+        loadingState.style.display = 'none';
+        contentState.style.display = 'block';
+
+      } catch (error) {
+        console.error("Falha ao carregar laudo:", error);
+        loadingState.innerHTML = `<p style="color:red; text-align:center; padding: 40px;">Falha ao carregar o laudo: ${error.message}</p>`;
+      }
+    }
+
+    // 6. Inicia todo o processo
+    carregarLaudoParaRevisao();
+  </script>
+
+</body>
+</html>
+
