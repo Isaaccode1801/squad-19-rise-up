@@ -2179,3 +2179,38 @@ body * {
 .modo-daltonico {
   filter: hue-rotate(45deg) saturate(120%) !important;
 }
+/* --- Botões novos: Administrador e Financeiro --- */
+
+/* Botão Administrador (cinza) */
+.btn-admin {
+  background-color: #6c757d;
+  color: white;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: 0.3s;
+  box-shadow: 0px 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+.btn-admin:hover {
+  background-color: #5a6268;
+  color: #fff;
+}
+
+/* Botão Financeiro (laranja) */
+.btn-financeiro {
+  background-color: #ff8c00;
+  color: white;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: 0.3s;
+  box-shadow: 0px 3px 10px rgba(255, 140, 0, 0.3);
+}
+
+.btn-financeiro:hover {
+  background-color: #e67e00;
+  color: #fff;
+}
