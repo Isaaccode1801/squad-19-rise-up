@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard Admin - Clínica (Médicos)</title>
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+     <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root{
+      --bg:#ffffff; /* fundo branco */
+      --card:#f9fafb; /* cinza claro para cards */
+      --primary:#06b6d4; /* azul turquesa principal */
+      --muted:#64748b; /* cinza texto secundário */
+      --accent:#16a34a; /* verde (médico) */
+      --danger:#ef4444; /* vermelho */
+      --secretaria:#7c3aed; /* roxo (secretária) */
+      --paciente:#2563eb; /* azul (paciente) */
+      --glass: rgba(0,0,0,0.03);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      background:var(--bg);
+      color:#0f172a;
+      min-height:100vh
+    }
+    .app{max-width:1100px;margin:32px auto;padding:24px}
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+    header h1{font-size:20px;margin:0;color:#0f172a}
+    .top-cards{display:flex;gap:12px;flex-wrap:wrap}
+    .card{
+      background:var(--card);
+      padding:14px;
+      border-radius:12px;
+      box-shadow:0 6px 18px rgba(0,0,0,0.08);
+      min-width:160px;
+    }
+    .card small{display:block;color:var(--muted);font-size:12px}
+    .card .value{font-size:22px;margin-top:6px;color:#0f172a}
+
+    .controls{display:flex;gap:8px;align-items:center}
+    button.btn{
+      background:var(--primary);
+      color:#fff;
+      border:none;
+      padding:8px 12px;
+      border-radius:10px;
+      cursor:pointer;
+      font-weight:600
+    }
+    button.ghost{
+      background:transparent;
+      border:1px solid var(--muted);
+      color:var(--muted);
+      padding:6px 10px;
+      border-radius:8px;
+      cursor:pointer;
+      font-size:13px;
+    }
+
+    .layout{display:grid;grid-template-columns:1fr 380px;gap:16px;margin-top:18px}
+
+    /* Lista de médicos */
+    .panel{background:var(--glass);padding:16px;border-radius:12px}
+    .panel h2{margin:0 0 12px 0;color:#0f172a}
+    .search{display:flex;gap:8px;margin-bottom:10px}
+    .search input{
+      flex:1;
+      padding:8px;
+      border-radius:8px;
+      border:1px solid #e2e8f0;
+      background:transparent;
+      color:inherit
+    }
+
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:10px;text-align:left;font-size:14px}
+    thead th{border-bottom:1px solid #e2e8f0;font-weight:600;color:var(--muted)}
+    tbody tr{border-bottom:1px dashed #e5e7eb}
+    .badge{display:inline-block;padding:6px 8px;border-radius:999px;font-size:12px}
+    .present{background:rgba(16,185,129,0.12);color:var(--accent);border:1px solid rgba(16,185,129,0.16)}
+    .absent{background:rgba(239,68,68,0.08);color:var(--danger);border:1px solid rgba(239,68,68,0.12)}
+
+    .actions button{margin-right:6px}
+
+    /* Painel direito */
+    .panel-stats{display:flex;flex-direction:column;gap:10px}
+    .list-compact{
+      background:linear-gradient(180deg, rgba(0,0,0,0.02), transparent);
+      padding:10px;
+      border-radius:10px
+    }
+    .list-compact li{display:flex;justify-content:space-between;padding:8px 6px}
+
+    /* Modal */
+    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.4);display:none;align-items:center;justify-content:center}
+    .modal{background:var(--card);padding:24px;border-radius:12px;min-width:600px}
+    .modal h3{margin-top:0;color:#0f172a}
+    .field{display:flex;flex-direction:column;margin-bottom:10px;}
+    .field label{font-size:13px;color:var(--muted);margin-bottom:6px}
+    .field input, .field select{
+      padding:8px;
+      border-radius:8px;
+      border:1px solid #e2e8f0;
+      background:transparent;
+      color:inherit
+    }
+
+    .field-uf-container {
+    width: 120px; /* Largura pequena desejada */
+    /* Garante que este container não tenha margem indesejada do .field */
+    margin-bottom: 0 !important; }
+
+    
+    
+
+    .footer-notes{margin-top:18px;color:var(--muted);font-size:13px}
+
+    @media (max-width:900px){
+      .layout{grid-template-columns:1fr}
+      .app{padding:16px}
+    }
+    /* ===== VARIÁVEIS DE DESIGN FUTURISTA ===== */
+    :root {
+      --cor-fundo: #0D1117;
+      --cor-sidebar: rgba(22, 27, 34, 0.7); /* Fundo semi-transparente para o efeito de vidro */
+      --cor-borda: rgba(137, 147, 158, 0.2);
+      --cor-texto: #c9d1d9;
+      --cor-texto-hover: #ffffff;
+      --cor-acento-neon: #30C5FF; /* Azul neon/ciano */
+      --cor-acento-neon-sombra: rgba(48, 197, 255, 0.3);
+      --raio-borda: 12px;
+      --blur-fundo: 10px;
+      --transicao: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--cor-fundo);
+      color: var(--cor-texto);
+      /* Fundo com gradiente sutil para dar profundidade */
+      background-image: radial-gradient(circle at 10% 20%, rgba(48, 197, 255, 0.1), transparent 30%),
+                        radial-gradient(circle at 90% 80%, rgba(48, 197, 255, 0.08), transparent 40%);
+    }
+
+  /* ===== VARIÁVEIS DE DESIGN - TEMA CLARO COM EFEITO DE VIDRO ===== */
+    :root {
+      --cor-fundo: #F8F9FA;
+      --cor-sidebar-vidro: rgba(255, 255, 255, 0.7); /* Fundo branco semi-transparente */
+      --cor-borda: rgba(0, 0, 0, 0.1);
+      --cor-texto-principal: #212529;
+      --cor-texto-secundario: #6C757D;
+      --cor-acento-healthone: #3fbbc0;
+      --cor-acento-healthone-claro: #e5f7f8;
+      --raio-borda: 10px;
+      --sombra: 0 4px 12px rgba(0, 0, 0, 0.05);
+      --blur-fundo: 10px; /* Intensidade do desfoque */
+      --transicao: all 0.3s ease-in-out;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--cor-fundo);
+      color: var(--cor-texto-principal);
+      /* Fundo com gradiente sutil para o efeito de vidro ser visível */
+      background-image: radial-gradient(circle at 5% 15%, rgba(63, 187, 192, 0.15), transparent 40%),
+                        radial-gradient(circle at 95% 85%, rgba(63, 187, 192, 0.1), transparent 40%);
+      min-height: 100vh;
+    }
+
+    /* ===== ESTILO DA SIDEBAR - EFEITO DE VIDRO ===== */
+    .sidebar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 260px;
+      height: 100%;
+      background-color: var(--cor-sidebar-vidro);
+      backdrop-filter: blur(var(--blur-fundo)); /* A MÁGICA DO EFEITO DE VIDRO */
+      border-right: 1px solid var(--cor-borda);
+      box-shadow: var(--sombra);
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      padding: 20px 0;
+      transition: var(--transicao);
+    }
+
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 25px 20px 25px;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--cor-texto-principal);
+      border-bottom: 1px solid var(--cor-borda);
+    }
+    .sidebar-header i {
+      color: var(--cor-acento-healthone);
+    }
+
+    .nav-links {
+      flex-grow: 1;
+      margin-top: 20px;
+    }
+
+    .nav-links a {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 15px 25px;
+      margin: 5px 15px;
+      text-decoration: none;
+      color: var(--cor-texto-secundario);
+      font-size: 16px;
+      font-weight: 500;
+      border-radius: var(--raio-borda);
+      position: relative;
+      transition: var(--transicao);
+    }
+    .nav-links a i { width: 20px; text-align: center; }
+
+    .nav-links a:hover {
+      background: var(--cor-acento-healthone-claro);
+      color: var(--cor-acento-healthone);
+    }
+
+    .nav-links a.active {
+      background-color: var(--cor-acento-healthone-claro);
+      color: var(--cor-acento-healthone);
+      font-weight: 600;
+    }
+    .nav-links a.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      height: 60%;
+      width: 4px;
+      background-color: var(--cor-acento-healthone);
+      border-radius: 0 4px 4px 0;
+    }
+
+    .sidebar-footer {
+      padding: 10px 0;
+      border-top: 1px solid var(--cor-borda);
+    }
+
+    /* ===== CONTEÚDO PRINCIPAL ===== */
+    .main-content {
+      margin-left: 260px;
+      padding: 30px;
+      transition: var(--transicao);
+    }
+    .main-content h1 { font-size: 2.5rem; }
+    .main-content p { font-size: 1.1rem; max-width: 700px; color: var(--cor-texto-secundario); }
+
+    /* ===== BOTÃO DE TOGGLE - EFEITO DE VIDRO ===== */
+    #toggle-sidebar-btn {
+      position: fixed;
+      top: 20px;
+      left: 275px;
+      z-index: 1001;
+      background: var(--cor-sidebar-vidro);
+      backdrop-filter: blur(var(--blur-fundo));
+      border: 1px solid var(--cor-borda);
+      color: var(--cor-acento-healthone);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      cursor: pointer;
+      display: grid;
+      place-items: center;
+      font-size: 18px;
+      transition: var(--transicao);
+      box-shadow: var(--sombra);
+    }
+     #toggle-sidebar-btn:hover {
+        transform: scale(1.1);
+        color: #fff;
+        background-color: var(--cor-acento-healthone);
+     }
+
+    /* ===== ESTADO FECHADO ===== */
+    body.sidebar-fechada .sidebar { left: -260px; }
+    body.sidebar-fechada .main-content { margin-left: 0; }
+    body.sidebar-fechada #toggle-sidebar-btn { left: 20px; }
+  </style>
+</head>
+<body>
+  <!-- Bloco de código da Sidebar -->
+
+  <!-- ======================== HTML DA SIDEBAR ======================== -->
+  <nav class="sidebar">
+    <div class="sidebar-header">
+      <i class="fa-solid fa-building"></i>
+      <span>Medconnect</span>
+    </div>
+
+    <div class="nav-links">
+      <a href="dash-secretaria.html"><i class="fa-solid fa-house"></i> Início</a>
+      <a href="#" class="active"><i class="fa-solid fa-user-doctor"></i> Gerenciar Médicos</a>
+      <a href="pacientes.html" ><i class="fa-solid fa-users"></i> Gerenciar Pacientes</a>
+      <a href="secretaria.html"><i class="fa-solid fa-calendar-check"></i> Gerenciar Consultas</a>
+      <a href="laudo/Laudo.html"><i class="fa-solid fa-file-lines"></i> Relatórios</a>
+      <a href="#"><i class="fa-solid fa-gear"></i> Configurações</a>
+    </div>
+
+    <div class="sidebar-footer">
+      <a href="#"><i class="fa-solid fa-right-from-bracket"></i> Sair</a>
+    </div>
+  </nav>
+
+  <!-- ======================== BOTÃO E CONTEÚDO ======================== -->
+  <button id="toggle-sidebar-btn" title="Abrir/Fechar Menu">
+    <i class="fa-solid fa-bars"></i>
+  </button>
+
+  <main class="main-content">
+    <h1>Gerenciamento de Medicos</h1>
+
+
+
+  <div class="app">
+    <header>
+
+      <div>
+              <!-- Botão para abrir/fechar a sidebar -->
+<button id="toggle-sidebar-btn" title="Abrir/Fechar Menu">
+  <i class="fa-solid fa-bars"></i>
+</button>
+     
+        <div style="color:var(--muted);font-size:13px">Gerencie médicos: adicionar, remover e marcar presença</div>
+      </div>
+      <div class="controls">
+        <button id="btnNovo" class="btn">Adicionar Médico</button>
+        <button id="btnLimpar" class="ghost">Limpar dados (local)</button>
+      </div>
+    </header>
+
+    <div class="top-cards">
+      <div class="card">
+        <small>Total de médicos cadastrados</small>
+        <div id="totalMedicos" class="value">0</div>
+      </div>
+      <div class="card">
+        <small>Médicos presentes agora</small>
+        <div id="medicosPresentes" class="value">0</div>
+      </div>
+      <div class="card">
+        <small>Médicos ausentes</small>
+        <div id="medicosAusentes" class="value">0</div>
+      </div>
+    </div>
+
+    <div class="layout">
+      <div>
+        <div class="panel">
+          <h2>Lista de médicos</h2>
+          <div class="search">
+            <input id="pesquisa" placeholder="Pesquisar por nome ou especialidade..." />
+            <select id="filtroEspecialidade">
+              <option value="">Todas as especialidades</option>
+            </select>
+          </div>
+
+          <table>
+            <thead>
+              <tr><th>Nome</th><th>Especialidade</th><th>Presença</th><th>Ações</th></tr>
+            </thead>
+            <tbody id="tabelaMedicos"></tbody>
+          </table>
+
+        </div>
+
+        <div class="footer-notes">Dica: os dados são salvos no seu navegador (localStorage). Para uso real, conecte a um backend.</div>
+      </div>
+
+      <aside>
+        <div class="panel panel-stats">
+          <div class="card">
+            <small>Indicadores rápidos</small>
+            <div style="display:flex;justify-content:space-between;margin-top:8px">
+              <div>
+                <div style="font-size:12px;color:var(--muted)">Total</div>
+                <div id="miniTotal" style="font-weight:700">0</div>
+              </div>
+              <div>
+                <div style="font-size:12px;color:var(--muted)">Presentes</div>
+                <div id="miniPresentes" style="font-weight:700">0</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3 style="margin:0 0 8px 0">Médicos presentes</h3>
+            <ul id="listaPresentes" class="list-compact" style="list-style:none;padding:0;margin:0"></ul>
+          </div>
+
+          <div class="card">
+            <h3 style="margin:0 0 8px 0">Médicos ausentes</h3>
+            <ul id="listaAusentes" class="list-compact" style="list-style:none;padding:0;margin:0"></ul>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- Modal: Formulário de cadastro/edição -->
+  <div id="modal" class="modal-backdrop">
+    <div class="modal">
+      <h3 id="modalTitle">Adicionar médico</h3>
+      <div class="field">
+        <label>Nome completo</label>
+        <input id="nome" />
+      </div>
+      <div class="field">
+        <label>CPF</label>
+        <input id="cpf" placeholder="Apenas números" />
+      </div>
+        <div class="field">
+        <label>E-mail</label>
+        <input id="email" type="email" placeholder="email@exemplo.com" />
+      </div>
+      <div class="field">
+        <label>Especialidade</label>
+        <input id="especialidade" />
+      </div>
+      <div class="field">
+        <label>CRM</label>
+        <input id="crm" />
+      </div>
+       <div class="modal-footer-flex">
+        <div class="field field-uf-container">
+            <label>UF do CRM</label>
+            <input id="crm_uf" maxlength="2" placeholder="Ex: SP" />
+        </div>
+        </div>
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:8px">
+        <button id="cancelar" class="ghost">Cancelar</button>
+        <button id="salvar" class="btn">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  // ====== CONFIG ======
+  const SUPABASE_BASE = "https://yuanqfswhberkoevtmfr.supabase.co"; // base (sem /rest/v1)
+  const API_BASE = `${SUPABASE_BASE}/rest/v1`; // endpoint REST
+  const API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ"; // troque pela sua
+  const LOCAL_KEY = 'healthone_medicos'; // mesma chave do outro arquivo (sincroniza)
+
+  let medicos = [];
+  let editingId = null;
+
+  // ====== UTIL ======
+  function escapeHTML(s){ if(s==null) return ''; return String(s).replace(/[&<>"]+/g, e => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[e])); }
+
+  function getHeaders(extra = {}){
+    const token = sessionStorage.getItem('token');
+    return Object.assign({
+      'Content-Type':'application/json',
+      'apikey': API_KEY,
+      'Authorization': token ? `Bearer ${token}` : ''
+    }, extra);
+  }
+
+  async function login(){
+    // Se já tiver token em sessão, reusa
+    const existing = sessionStorage.getItem('token');
+    if(existing) return existing;
+
+    try{
+      const res = await fetch(`${SUPABASE_BASE}/auth/v1/token?grant_type=password`, {
+        method: 'POST',
+        headers: { 'Content-Type':'application/json', 'apikey': API_KEY },
+        body: JSON.stringify({ email: 'riseup@popcode.com.br', password: 'riseup' })
+      });
+      if(!res.ok){ console.warn('Login falhou (supabase). Continuando sem token.'); return null; }
+      const data = await res.json();
+      sessionStorage.setItem('token', data.access_token);
+      return data.access_token;
+    }catch(err){
+      console.warn('Erro no login', err);
+      return null;
+    }
+  }
+
+  // ====== CRUD ======
+  async function listarMedicos(options = { forceRemote: false }){
+    // 1) Se houver dados locais (da parte de agendamento) e não for obrigatório forçar o remoto, carrega do localStorage.
+    if(!options.forceRemote){
+      const raw = localStorage.getItem(LOCAL_KEY);
+      if(raw){
+        try{
+          medicos = JSON.parse(raw) || [];
+          // Garantias mínimas de formato
+          medicos = medicos.map(m=>({
+            id: m.id ?? (m.crm ? m.crm : crypto ? crypto.randomUUID() : Math.random().toString(36).slice(2)),
+            nome: m.nome || m.full_name || m.name || 'Sem Nome',
+            especialidade: m.especialidade || m.specialty || 'Geral',
+            crm: m.crm || m.crm || '-',
+            presente: (m.presente ?? m.presente ?? m.active ?? m.disponivel) ?? true,
+            disponivel: (m.disponivel ?? m.active ?? m.presente) ?? true,
+            telefone: m.telefone || m.phone || m.phone_mobile || '',
+            email: m.email || '',
+            preco: m.preco ?? m.price ?? 0,
+            proxDisponivel: m.proxDisponivel || m.next_available || null,
+            atendePor: m.atendePor || m.atende_por || 'Particular'
+          }));
+
+          atualizarInterface();
+          return medicos;
+        }catch(e){
+          console.warn('Falha ao ler localStorage, recarregando do remoto', e);
+        }
+      }
+    }
+
+    // 2) Se não houver local (ou for forçado), busca do Supabase
+    try{
+      await login(); // tenta obter token (se falhar continua com apikey)
+      const res = await fetch(`${API_BASE}/doctors`, { method: 'GET', headers: getHeaders() });
+      if(!res.ok){ throw new Error(`Status ${res.status}`); }
+      const apiData = await res.json();
+
+      medicos = apiData.map(m => ({
+        id: m.id,
+        nome: m.full_name || m.nome || m.name || 'Sem Nome',
+        crm: m.crm || '-',
+        crm_uf: m.crm_uf || 'XX', // <-- NOVO
+        cpf: m.cpf || '', // <-- NOVO
+        especialidade: m.specialty || m.especialidade || 'Geral',
+        presente: (m.present ?? m.presente ?? m.active ?? m.disponivel) ?? true,
+        disponivel: (m.disponivel ?? m.active ?? m.present ?? m.presente) ?? true,
+        telefone: m.phone_mobile || m.telefone || m.phone || '',
+        email: m.email || '',
+        preco: m.price || m.preco || 0,
+        proxDisponivel: m.next_available || m.proxDisponivel || null,
+        atendePor: m.atendePor || m.atende_por || 'Particular'
+      }));
+
+      // salva também local para sincronizar com a página de agendamento
+      try{ localStorage.setItem(LOCAL_KEY, JSON.stringify(medicos)); }catch(e){ console.warn('Erro ao gravar localStorage', e); }
+
+      atualizarInterface();
+      return medicos;
+    }catch(err){
+      console.error('Falha na listagem de médicos:', err);
+      alert('Falha ao carregar a lista de médicos (remoto). Verifique a conexão/API. Tentando usar dados locais se houver...');
+
+      // tenta usar local se disponível (caso API falhe)
+      const raw = localStorage.getItem(LOCAL_KEY);
+      if(raw){ medicos = JSON.parse(raw); atualizarInterface(); return medicos; }
+      medicos = [];
+      atualizarInterface();
+      return [];
+    }
+  }
+
+  async function adicionarMedicoAPI(medico){
+    try{
+      await login();
+      const res = await fetch(`${API_BASE}/doctors`, {
+        method: 'POST',
+        headers: getHeaders({ 'Prefer': 'return=representation' }),
+        body: JSON.stringify(medico)
+      });
+      if(!res.ok){
+        const body = await res.text();
+        throw new Error(`Status ${res.status} - ${body}`);
+      }
+      const novo = await res.json();
+      // Atualiza localStorage
+      medicos = medicos.concat(novo.map(n=>({
+        id: n.id,
+        nome: n.full_name || n.nome || n.name,
+        especialidade: n.specialty || n.especialidade,
+        crm: n.crm || '-',
+        presente: n.active ?? true
+      })));
+      localStorage.setItem(LOCAL_KEY, JSON.stringify(medicos));
+      atualizarInterface();
+      return novo;
+    }catch(err){
+      console.error('Falha ao adicionar médico:', err);
+      alert('Falha ao adicionar médico. Veja console.');
+      throw err;
+    }
+  }
+
+  async function atualizarMedicoAPI(id, medico){
+    try{
+      await login();
+      const res = await fetch(`${API_BASE}/doctors?id=eq.${id}`, {
+        method: 'PATCH',
+        headers: getHeaders({ 'Prefer': 'return=representation' }),
+        body: JSON.stringify(medico)
+      });
+      if(!res.ok){ const body = await res.text(); throw new Error(`Status ${res.status} - ${body}`); }
+      const updated = await res.json();
+
+      // Atualiza local em memória e storage
+      medicos = medicos.map(m => m.id === id ? ({ ...m, ...mapServerToLocal(updated[0]) }) : m);
+      localStorage.setItem(LOCAL_KEY, JSON.stringify(medicos));
+      atualizarInterface();
+      return updated;
+    }catch(err){ console.error(err); alert('Falha ao atualizar médico. Veja console.'); throw err; }
+  }
+
+  async function removerMedicoAPI(id){
+    try{
+      if(!confirm('Tem certeza que deseja remover este médico?')) return false;
+      await login();
+      const res = await fetch(`${API_BASE}/doctors?id=eq.${id}`, { method: 'DELETE', headers: getHeaders() });
+      if(!res.ok){ const body = await res.text(); throw new Error(`Status ${res.status} - ${body}`); }
+      // remove local
+      medicos = medicos.filter(m => m.id !== id);
+      localStorage.setItem(LOCAL_KEY, JSON.stringify(medicos));
+      atualizarInterface();
+      return true;
+    }catch(err){ console.error(err); alert('Falha ao remover médico. Veja console.'); return false; }
+  }
+
+  function mapServerToLocal(serverObj){
+    if(!serverObj) return {};
+    return {
+      id: serverObj.id,
+      nome: serverObj.full_name || serverObj.nome || serverObj.name,
+       cpf: serverObj.cpf || '', // <-- NOVO
+      especialidade: serverObj.specialty || serverObj.especialidade,
+      crm: serverObj.crm || '-',
+      crm_uf: serverObj.crm_uf || 'XX', // <-- NOVO
+      presente: serverObj.active ?? true,
+      disponivel: serverObj.active ?? true,
+      telefone: serverObj.phone_mobile || serverObj.telefone || '',
+      email: serverObj.email || ''
+    };
+  }
+
+  // ====== UI ======
+  function abrirModalParaAdicionar(){
+    editingId = null;
+    document.getElementById('modalTitle').textContent = 'Adicionar médico';
+    document.getElementById('nome').value = '';
+     document.getElementById('cpf').value = ''; // <-- Limpar o novo campo
+     document.getElementById('email').value = ''; // <-- Limpar o novo campo
+    document.getElementById('especialidade').value = '';
+    document.getElementById('crm').value = '';
+     document.getElementById('crm_uf').value = ''; // <-- Limpar o novo campo
+    document.getElementById('modal').style.display = 'flex';
+  }
+  function abrirModalParaEditar(m){
+    editingId = m.id;
+    document.getElementById('modalTitle').textContent = 'Editar médico';
+    document.getElementById('nome').value = m.nome || '';
+    document.getElementById('cpf').value = m.cpf || ''; // <-- Preencher o novo campo
+    document.getElementById('email').value = m.email || ''; // <-- Preencher o novo campo
+    document.getElementById('especialidade').value = m.especialidade || '';
+    document.getElementById('crm').value = m.crm || '';
+    document.getElementById('crm_uf').value = m.crm_uf || ''; // <-- Preencher o novo campo
+    document.getElementById('modal').style.display = 'flex';
+  }
+  function fecharModal(){ document.getElementById('modal').style.display = 'none'; }
+
+  async function handleSalvar(){
+    const nome = document.getElementById('nome').value.trim();
+    const especialidade = document.getElementById('especialidade').value.trim();
+    const crm = document.getElementById('crm').value.trim();
+    const crm_uf = document.getElementById('crm_uf').value.trim().toUpperCase(); // Convertendo para maiúsculas
+    const cpf = document.getElementById('cpf').value.trim(); 
+    const email = document.getElementById('email').value.trim();
+    if(!nome || !especialidade){ alert('Preencha nome e especialidade'); return; }
+    
+
+    const payload = {
+      full_name: nome,
+      specialty: especialidade,
+      crm: crm,
+      crm_uf: crm_uf,
+      cpf: cpf,
+      email: email 
+    };
+
+    try{
+      if(editingId){
+        // atualizar
+        await atualizarMedicoAPI(editingId, payload);
+      }else{
+        await adicionarMedicoAPI(payload);
+      }
+      fecharModal();
+      // garante que a lista local e remota estejam sincronizadas: força recarga remota
+      await listarMedicos({ forceRemote: true });
+    }catch(e){ console.warn(e); }
+  }
+
+  function preencherFiltroEspecialidades(){
+    const sel = document.getElementById('filtroEspecialidade');
+    const atuais = new Set(Array.from(sel.options).map(o=>o.value));
+    const especiais = Array.from(new Set(medicos.map(m=>m.especialidade).filter(Boolean))).sort();
+    // limpa e reaplica primeiro option
+    sel.innerHTML = '<option value="">Todas as especialidades</option>';
+    especiais.forEach(e => {
+      const opt = document.createElement('option'); opt.value = e; opt.textContent = e; sel.appendChild(opt);
+    });
+  }
+
+  function atualizarInterface(){
+    const tabela = document.getElementById('tabelaMedicos'); tabela.innerHTML = '';
+    const pesquisa = document.getElementById('pesquisa').value.trim().toLowerCase();
+    const filtroEsp = document.getElementById('filtroEspecialidade').value;
+
+    const medicosFiltrados = medicos.filter(m => {
+      if(filtroEsp && m.especialidade !== filtroEsp) return false;
+      if(!pesquisa) return true;
+      const hay = `${m.nome} ${m.especialidade} ${m.crm || ''} ${m.telefone || ''}`.toLowerCase();
+      return hay.includes(pesquisa);
+    });
+
+    // atualizar os cards
+    const total = medicos.length;
+    const present = medicos.filter(m => Boolean(m.presente)).length;
+    const absent = total - present;
+    document.getElementById('totalMedicos').textContent = total;
+    document.getElementById('medicosPresentes').textContent = present;
+    document.getElementById('medicosAusentes').textContent = absent;
+
+    // tabela
+    medicosFiltrados.forEach(m => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${escapeHTML(m.nome)}</td>
+        <td>${escapeHTML(m.especialidade)}</td>
+        <td>${m.presente ? '<span class="badge present">Presente</span>' : '<span class="badge absent">Ausente</span>'}</td>
+      `;
+      const tdActions = document.createElement('td'); tdActions.className = 'actions';
+
+      const btnEditar = document.createElement('button'); btnEditar.textContent = '✏️'; btnEditar.title = 'Editar'; btnEditar.className = 'ghost';
+      btnEditar.onclick = ()=> abrirModalParaEditar(m);
+      const btnRemover = document.createElement('button'); btnRemover.textContent = '🗑️'; btnRemover.title = 'Remover'; btnRemover.className = 'ghost';
+      btnRemover.onclick = ()=> removerMedicoAPI(m.id);
+
+      tdActions.appendChild(btnEditar); tdActions.appendChild(btnRemover);
+      row.appendChild(tdActions);
+      tabela.appendChild(row);
+    });
+
+    preencherFiltroEspecialidades();
+    atualizarPainelLateral();
+  }
+
+  function atualizarPainelLateral(){
+    document.getElementById('miniTotal').textContent = medicos.length;
+    document.getElementById('miniPresentes').textContent = medicos.filter(m=>m.presente).length;
+
+    const listaPres = document.getElementById('listaPresentes');
+    const listaAus = document.getElementById('listaAusentes');
+    listaPres.innerHTML = '';
+    listaAus.innerHTML = '';
+
+    medicos.forEach(m => {
+      const li = document.createElement('li');
+      const left = document.createElement('span'); left.textContent = m.nome;
+      const right = document.createElement('span'); right.textContent = m.especialidade;
+      li.appendChild(left); li.appendChild(right);
+      if(m.presente) listaPres.appendChild(li); else listaAus.appendChild(li);
+    });
+  }
+
+  // ====== Eventos UI ======
+  document.getElementById('btnNovo').addEventListener('click', abrirModalParaAdicionar);
+  document.getElementById('cancelar').addEventListener('click', (e)=>{ e.preventDefault(); fecharModal(); });
+  document.getElementById('salvar').addEventListener('click', handleSalvar);
+  document.getElementById('btnLimpar').addEventListener('click', ()=>{
+    if(confirm('Limpar dados locais (healthone_medicos)? Isso NÃO exclui no Supabase).')){
+      localStorage.removeItem(LOCAL_KEY);
+      listarMedicos({ forceRemote: true });
+    }
+  });
+
+  document.getElementById('pesquisa').addEventListener('input', ()=> atualizarInterface());
+  document.getElementById('filtroEspecialidade').addEventListener('change', ()=> atualizarInterface());
+
+  // Inicializa
+  (async function init(){
+    await listarMedicos();
+  })();
+// ===== SCRIPT DA SIDEBAR =====
+document.addEventListener('DOMContentLoaded', () => {
+  const toggleBtn = document.getElementById('toggle-sidebar-btn');
+  const body = document.body;
+  if (toggleBtn && body) {
+    toggleBtn.addEventListener('click', () => {
+      body.classList.toggle('sidebar-fechada');
+    });
+  }
+});
+  </script>
+
+</body>
+</html>

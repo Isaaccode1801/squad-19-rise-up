@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HealthOne • Agendar Consulta</title>
+  <style>
+    :root{
+      --medicio-teal: #3fbbc0;
+      --medicio-teal-600: #34a3a8;
+      --medicio-dark: #2a2d34;
+      --medicio-muted: #6b7280;
+      --medicio-border: #e5e7eb;
+      --medicio-white: #ffffff;
+      --shadow: 0 8px 24px rgba(0,0,0,.06);
+      --radius: 12px;
+    }
+    body{
+      margin:0; font-family: Inter, sans-serif;
+      background: var(--medicio-white); color: var(--medicio-dark);
+    }
+    .appbar{
+      background:#ffffff; border-bottom:1px solid var(--medicio-border);
+      padding:18px 20px; display:flex; align-items:center; gap:12px;
+    }
+    .logo {
+    width: 80px;
+    height: auto;
+    border-radius: 50%; /* deixa redondo */
+    box-shadow: 0 0 20px rgba(63, 187, 188, 0.7), 0 0 40px rgba(63, 187, 188, 0.4);
+    }
+
+    main.wrap{
+      max-width:600px; margin:24px auto; padding:0 20px 80px;
+    }
+    .btn{
+      appearance:none; border:none; background: var(--medicio-teal); color:white;
+      padding:10px 16px; border-radius:12px; cursor:pointer; font-weight:600;
+      box-shadow:0 6px 16px rgba(63,187,192,.25); margin-right:8px;
+    }
+    .btn.secondary{ background:#ffffff; color:var(--medicio-dark); border:1px solid var(--medicio-border); box-shadow:none; }
+    #consultaMarcada{ margin-bottom:20px; }
+    ul{ padding-left:20px; margin-top:8px; }
+    li{ margin-bottom:4px; }
+
+    /* Calendário */
+    .calendar{ width:100%; border-collapse:collapse; margin-bottom:12px; }
+    .calendar th, .calendar td{ width:14.28%; text-align:center; padding:6px; cursor:pointer; border-radius:6px; }
+    .calendar th{ color:var(--medicio-muted); font-weight:500; }
+    .calendar td:hover{ background: var(--medicio-teal-100); }
+    .calendar .selected{ background: var(--medicio-teal); color:white; }
+    .calendar-nav{ display:flex; justify-content:space-between; margin-bottom:8px; }
+  </style>
+</head>
+<body>
+  <!-- Topbar -->
+  <div class="appbar">
+    <img src="logo_HealthOne.jpeg" alt="HealthOne" class="logo">
+    <div>
+      
+      <small>Agendamento de Consulta</small>
+    </div>
+  </div>
+
+  <main class="wrap">
+    <!-- Médico selecionado e consultas -->
+    <div id="consultaMarcada"></div>
+
+    <!-- Calendário -->
+    <div class="calendar-nav">
+      <button id="prevMonth" class="btn secondary">◀</button>
+      <div id="mesAno"></div>
+      <button id="nextMonth" class="btn secondary">▶</button>
+    </div>
+    <table class="calendar" id="calendar">
+      <thead>
+        <tr>
+          <th>Dom</th><th>Seg</th><th>Ter</th><th>Qua</th><th>Qui</th><th>Sex</th><th>Sáb</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
+    <!-- Hora -->
+    <div>
+      <label for="horaConsulta">Escolha a hora:</label>
+      
+      <select id="horaConsulta">
+        <option value="07:00">07:00</option>
+        <option value="07:30">07:00</option>
+        <option value="08:00">08:00</option>
+        <option value="08:30">08:30</option>
+        <option value="09:00">09:00</option>
+        <option value="09:30">09:30</option>
+        <option value="10:00">10:00</option>
+        <option value="10:30">10:30</option>
+        <option value="11:00">11:00</option>
+        <option value="11:30">11:30</option>
+        <option value="12:00">12:00</option>
+        <option value="12:30">12:30</option>
+        <option value="13:00">13:00</option>
+        <option value="13:30">13:30</option>
+        <option value="14:00">14:00</option>
+        <option value="14:30">14:30</option>
+        <option value="15:00">15:00</option>
+        <option value="15:30">15:30</option>
+        <option value="16:00">16:00</option>
+        <option value="16:30">16:30</option>
+        <option value="17:00">17:00</option>
+        <option value="17:30">17:30</option>
+        <option value="18:00">18:00</option>
+        <option value="18:30">18:30</option>
+        <option value="19:00">19:00</option>
+      </select>
+    </div>
+
+    <!-- Botões -->
+    <div>
+      <button id="confirmarConsulta" class="btn">Confirmar Consulta</button>
+      <button id="voltarLista" class="btn secondary" onclick="window.location.href='agendamento.html'" >Voltar para Médicos</button>
+    </div>
+  </main>
+
+  <script>
+    const medico = JSON.parse(localStorage.getItem('healthone_medico_escolhido'));
+    const consultaDiv = document.getElementById('consultaMarcada');
+    if(medico){
+      consultaDiv.innerHTML = `<strong>Médico:</strong> ${medico.nome} (${medico.especialidade})`;
+    }
+
+    document.getElementById('voltarLista').onclick = ()=>{
+      window.location.href = 'agendamento.html';
+    };
+
+    let selectedDate = null;
+    const calendarBody = document.querySelector('#calendar tbody');
+    const mesAno = document.getElementById('mesAno');
+    let currentMonth = new Date().getMonth();
+    let currentYear = new Date().getFullYear();
+
+    function renderCalendar(month, year){
+      calendarBody.innerHTML = '';
+      const firstDay = new Date(year, month,1).getDay();
+      const daysInMonth = new Date(year, month+1,0).getDate();
+      mesAno.textContent = `${new Date(year, month).toLocaleString('pt-BR',{month:'long'})} ${year}`;
+      let row = document.createElement('tr');
+      for(let i=0;i<firstDay;i++){ row.appendChild(document.createElement('td')); }
+      for(let d=1; d<=daysInMonth; d++){
+        if(row.children.length===7){ calendarBody.appendChild(row); row=document.createElement('tr'); }
+        const td = document.createElement('td');
+        td.textContent = d;
+        td.onclick = ()=>{ 
+          selectedDate = new Date(year, month, d);
+          document.querySelectorAll('#calendar td').forEach(cell=>cell.classList.remove('selected'));
+          td.classList.add('selected');
+
+          // 🔥 verificar horários ocupados neste dia
+          marcarHorariosOcupados();
+        };
+        row.appendChild(td);
+      }
+      while(row.children.length<7){ row.appendChild(document.createElement('td')); }
+      calendarBody.appendChild(row);
+    }
+
+    document.getElementById('prevMonth').onclick = ()=>{
+      currentMonth--;
+      if(currentMonth<0){ currentMonth=11; currentYear--; }
+      renderCalendar(currentMonth,currentYear);
+    };
+    document.getElementById('nextMonth').onclick = ()=>{
+      currentMonth++;
+      if(currentMonth>11){ currentMonth=0; currentYear++; }
+      renderCalendar(currentMonth,currentYear);
+    };
+
+    renderCalendar(currentMonth,currentYear);
+
+    function marcarHorariosOcupados(){
+      if (!selectedDate) return;
+      const dataStr = selectedDate.toISOString().slice(0,10);
+      const consultas = JSON.parse(localStorage.getItem('healthone_consultas') || '[]');
+
+      // pega horários já usados neste dia para este médico
+      const ocupados = consultas
+        .filter(c => c.medicoId === medico.id && c.dataHora.startsWith(dataStr))
+        .map(c => c.dataHora.split(' ')[1]);
+
+      const horaInput = document.getElementById('horaConsulta');
+      
+      // se o input estiver num horário ocupado, limpa e avisa
+      if (ocupados.includes(horaInput.value)) {
+        horaInput.value = '';
+        alert('Alguns horários deste dia já estão ocupados. Escolha outro.');
+      }
+    }
+
+    document.getElementById('confirmarConsulta').onclick = ()=>{
+      const hora = document.getElementById('horaConsulta').value;
+      if(!selectedDate || !hora){ alert('Escolha data e hora'); return; }
+      const dataStr = selectedDate.toISOString().slice(0,10);
+      const novaConsulta = {
+        medicoId: medico.id,
+        medicoNome: medico.nome,
+        especialidade: medico.especialidade,
+        dataHora: `${dataStr} ${hora}`
+      };
+      let consultas = JSON.parse(localStorage.getItem('healthone_consultas') || '[]');
+
+      // verificar se já existe consulta para o mesmo médico, data e hora
+      const ocupado = consultas.some(c => 
+        c.medicoId === medico.id && c.dataHora === `${dataStr} ${hora}`
+      );
+
+      if (ocupado) {
+        alert('Esse horário já está ocupado para este médico!');
+        return;
+      }
+
+      consultas.push(novaConsulta);
+      localStorage.setItem('healthone_consultas', JSON.stringify(consultas));
+      alert('Consulta marcada com sucesso!');
+      renderConsultas();
+    };
+
+    function renderConsultas(){
+      // Mantém apenas o nome do médico e sua especialidade
+      consultaDiv.innerHTML = `<strong>Médico:</strong> ${medico.nome} (${medico.especialidade})`;
+    }
+
+    renderConsultas();
+  </script>
+</body>
+</html>

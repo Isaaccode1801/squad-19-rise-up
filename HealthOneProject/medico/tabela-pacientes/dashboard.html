@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HealthOne — Dashboard do Médico</title>
+<link rel="stylesheet" href="../../assets/css/dash-med.css">
+</head>
+<body>
+    <header class="header">
+        <a href="../../index.html" class="logo-link">
+          <img src="../../assets/img/Medconnect.logo.png" alt="Logo HealthOne - Página Principal">
+        </a>
+        <div class="greet">Olá, Dr(a). <span style="color:var(--brand-600)">Camilla Millene</span> 👋</div>
+        <div class="search">
+          <input type="search" placeholder="Buscar paciente, exame, laudo…">
+          <span class="avatar" title="Perfil"></span>
+        </div>
+        <nav class="navbar">
+          <a href="#" class="active">Início</a>
+          <a href="../laudo/Laudo.html">Laudos</a>
+          <a href="crud-pacientes.html">Gerenciamento de Pacientes</a>
+        </nav>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    </header>
+
+
+    <!-- =================== MAIN =================== -->
+    <main class="main">
+      
+      <!-- Coluna conteúdo -->
+      <section class="content">
+        <!-- Hero -->
+        <div class="hero">
+          <div>
+            <h2>Já olhou sua tabela de pacientes hoje?</h2>
+            <p>Organize sua semana em poucos cliques</p>
+            <div class="cta">
+              <a href=""></a>
+              <a class="btn btn-primary" href="crud-pacientes.html">Olhar a Tabela</a>
+              <a class="btn btn-ghost" href="../laudo/Laudo.html">Ver laudos</a>
+            </div>
+          </div>
+          <div class="doctor">
+            <img src="WhatsApp Image 2025-09-14 at 20.25.38.jpeg" alt="" class="img">
+          </div>
+        </div>
+
+        <!-- KPIs -->
+        <div class="kpis">
+          <div class="card kpi">
+            <div class="label">Pacientes <span class="badge">agora</span></div>
+            <div class="value">320 pessoas</div>
+          </div>
+          <div class="card kpi">
+            <div class="label">Laudos Emitidos</div>
+            <div class="value">450</div>
+          </div>
+          <div class="card kpi">
+            <div class="label">Consultas Realizadas</div>
+            <div class="value">920</div>
+          </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="charts">
+          <div class="card chart">
+            <h4>Desempenho no Trabalho <span class="badge">+3.5%</span></h4>
+            <div class="bars" aria-label="placeholder de barras">
+              <div class="bar" style="height:70%"></div>
+              <div class="bar" style="height:85%"></div>
+              <div class="bar" style="height:50%"></div>
+              <div class="bar" style="height:65%"></div>
+              <div class="bar" style="height:40%"></div>
+            </div>
+            <div class="legend">
+              <span><span class="dotc" style="background:var(--brand)"></span>Desempenho Exaustivo</span>
+              <span><span class="dotc" style="background:#8fe8e2"></span>Desempenho Normal</span>
+              <span><span class="dotc" style="background:#d9f5f3"></span>Desempenho Pouco Exaustivo</span>
+            </div>
+          </div>
+          <div class="card chart">
+            <h4>Status Semanais</h4>
+            <div class="ring" aria-label="gráfico de rosca placeholder"></div>
+            <div class="legend" style="justify-content:center">
+              <span><span class="dotc" style="background:var(--brand)"></span>Pacientes</span>
+              <span><span class="dotc" style="background:#8fe8e2"></span>Consultas semanais</span>
+              <span><span class="dotc" style="background:#d9f5f3"></span>Laudos</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Coluna direita -->
+      <aside class="aside">
+        <div class="card calendar">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <strong>Próximas consultas</strong>
+            <span class="muted">Jan 2022</span>
+          </div>
+          <div class="grid" id="cal"></div>
+        </div>
+
+        <div class="card">
+          <strong>Últimas Consultas</strong>
+          <div class="list" style="margin-top:10px">
+            <div class="item">
+              <div class="ic">🦷</div>
+              <div><div>Paciente: João Silva</div><div class="muted">Set 10, 2025</div></div>
+            </div>
+            <div class="item">
+              <div class="ic">🧠</div>
+              <div><div>Paciente: Isaac Kauã</div><div class="muted">Set 9, 2025</div></div>
+            </div>
+            <div class="item">
+              <div class="ic">🩺</div>
+              <div><div>Paciente: Alves Diamante</div><div class="muted">Ago 25, 2025</div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <strong>Horas Trabalhadas</strong>
+          <div class="muted" style="margin:6px 0 10px"></div>
+          <div class="money">2.000 Horas</div>
+        </div>
+      </aside>
+    </main>
+  </div>
+
+  <button id="btnAcessibilidade" class="acessibilidade-btn" aria-label="Menu de acessibilidade">
+    <i class="fa-solid fa-wheelchair"></i>
+  </button>
+   <!-- Menu flutuante de acessibilidade -->
+  <div id="menuAcessibilidade" class="menu-acessibilidade">
+  <h4>Opções de Acessibilidade</h4>
+  <button class="menu-item" id="modoEscuro">🌓 Fundo Preto</button>
+   <div class="menu-item" id="aumentarFonteContainer">
+    🔠 Aumentar Fonte
+    <div id="controlesFonte" class="controles-fonte">
+      <button id="diminuirFonte" class="controle-fonte">➖</button>
+      <span id="tamanhoFonteValor">100%</span>
+      <button id="aumentarFonte" class="controle-fonte">➕</button>
+    </div>
+  </div>
+  <button class="menu-item" id="leitorTexto">🔊 Leitor de Texto</button>
+   <button class="menu-item" id="modoDaltonico">🎨 Modo Daltônico</button>
+</div>
+
+
+<script>
+  // ======= Mini calendário estático (placeholder) =======
+  (function renderCalendar(){
+    const cal = document.getElementById('cal');
+    const days = ['S','T','Q','Q','S','S','D']; // cabeçalho
+    days.forEach(d=>{
+      const h = document.createElement('div');
+      h.textContent = d; h.style.fontWeight='700'; h.style.color = 'var(--muted)';
+      h.style.background='transparent'; h.style.border='0'; cal.appendChild(h);
+    });
+    // 5 linhas x 7 colunas (Jan 2022 começa em Sábado — offset 5 se segunda for 0)
+    const blanks = 5;
+    for(let i=0;i<blanks;i++){ const b=document.createElement('div'); b.className='day'; b.style.visibility='hidden'; cal.appendChild(b); }
+    for(let d=1; d<=31; d++){
+      const el = document.createElement('div');
+      el.className = 'day';
+      el.textContent = d;
+      // marcar alguns dias
+      if([10,11,18].includes(d)) el.classList.add('m');
+      cal.appendChild(el);
+    }
+  
+  const btn = document.getElementById("btnAcessibilidade");
+  const menu = document.getElementById("menuAcessibilidade");
+
+  // Alternar visibilidade do menu
+  btn.addEventListener("click", () => {
+    menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+  });
+
+  // Fechar se clicar fora
+  document.addEventListener("click", (e) => {
+    if (!menu.contains(e.target) && !btn.contains(e.target)) {
+      menu.style.display = "none";
+    }
+  });
+
+  // Funções de acessibilidade
+  const corpo = document.body;
+
+// Função para salvar estado no localStorage
+function salvarPreferencia(chave, valor) {
+  localStorage.setItem(chave, JSON.stringify(valor));
+}
+
+// Função para carregar estado salvo
+function carregarPreferencia(chave) {
+  const valor = localStorage.getItem(chave);
+  return valor ? JSON.parse(valor) : false;
+}
+
+// ======== MODO ESCURO ========
+const modoEscuroBtn = document.getElementById("modoEscuro");
+let modoEscuroAtivo = carregarPreferencia("modoEscuro");
+
+if (modoEscuroAtivo) document.body.classList.add("modo-escuro");
+
+modoEscuroBtn.addEventListener("click", () => {
+  modoEscuroAtivo = !modoEscuroAtivo;
+  document.body.classList.toggle("modo-escuro", modoEscuroAtivo);
+  salvarPreferencia("modoEscuro", modoEscuroAtivo);
+});
+
+// ======== MODO DALTÔNICO ========
+const modoDaltonicoBtn = document.getElementById("modoDaltonico");
+let modoDaltonicoAtivo = carregarPreferencia("modoDaltonico");
+
+if (modoDaltonicoAtivo) document.body.classList.add("modo-daltonico");
+
+modoDaltonicoBtn.addEventListener("click", () => {
+  modoDaltonicoAtivo = !modoDaltonicoAtivo;
+  document.body.classList.toggle("modo-daltonico", modoDaltonicoAtivo);
+  salvarPreferencia("modoDaltonico", modoDaltonicoAtivo);
+});
+
+// ======== CONTROLE DE FONTE (ZOOM) ========
+
+// Elementos
+const aumentarFonteContainer = document.getElementById("aumentarFonteContainer");
+const controlesFonte = document.getElementById("controlesFonte");
+const btnMais = document.getElementById("aumentarFonte");
+const btnMenos = document.getElementById("diminuirFonte");
+const valorFonte = document.getElementById("tamanhoFonteValor");
+
+// Estado inicial (carrega o último valor salvo)
+let zoomPagina = carregarPreferencia("zoomPagina") || 100;
+
+// Aplica o zoom salvo ao carregar
+document.body.style.zoom = zoomPagina + "%";
+if (valorFonte) valorFonte.textContent = `${zoomPagina}%`;
+
+// Mostra/oculta os controles ao clicar no container
+if (aumentarFonteContainer && controlesFonte) {
+  aumentarFonteContainer.addEventListener("click", (e) => {
+    e.stopPropagation();
+    controlesFonte.classList.toggle("visivel");
+  });
+}
+
+// Função para aplicar o zoom e salvar
+function aplicarZoom() {
+  document.body.style.zoom = zoomPagina + "%";
+  if (valorFonte) valorFonte.textContent = `${zoomPagina}%`;
+  salvarPreferencia("zoomPagina", zoomPagina);
+}
+
+// Botão ➕
+if (btnMais) {
+  btnMais.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (zoomPagina < 180) {
+      zoomPagina += 10;
+      aplicarZoom();
+    }
+  });
+}
+
+// Botão ➖
+if (btnMenos) {
+  btnMenos.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (zoomPagina > 80) {
+      zoomPagina -= 10;
+      aplicarZoom();
+    }
+  });
+}
+
+// ======== LEITOR DE TEXTO ========
+let leitorAtivo = carregarPreferencia("leitorTexto");
+
+document.getElementById("leitorTexto").addEventListener("click", () => {
+  leitorAtivo = !leitorAtivo;
+  salvarPreferencia("leitorTexto", leitorAtivo);
+  alert(leitorAtivo ? "Leitor de texto ativado." : "Leitor de texto desativado.");
+});
+
+document.addEventListener("mouseover", (e) => {
+  if (leitorAtivo && e.target.textContent.trim().length > 0) {
+    const texto = e.target.textContent.trim();
+    const fala = new SpeechSynthesisUtterance(texto);
+    fala.lang = "pt-BR";
+    speechSynthesis.cancel();
+    speechSynthesis.speak(fala);
+  }
+});  
+
+  })();
+</script>
+</body>
+</html>

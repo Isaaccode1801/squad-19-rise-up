@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <meta charset="UTF-8" />
+  <title>Gestão de Laudos</title>
+  <link rel="stylesheet" href="../../assets/css/laudo.css" />
+
+</head>
+<body>
+
+  <div class="top-bar">
+    Segunda a Sábado, 8h às 22h
+    <span class="phone"><i class="fa fa-phone"></i> (55) 11 5589-5544</span>
+  </div>
+
+<div class="header">
+  <div class="brand">
+        <a href="../../index.html" class="logo-link">
+          <img src="../../assets/img/Medconnect.logo.png" alt="Logo HealthOne - Página Principal">
+        </a>
+        <div class="logo">M</div>
+        <span class="user">Dr(a). Camilla Millene</span>
+      </div>
+    <div class="nav-links">
+      <a href="../tabela-pacientes/dashboard.html">Início</a>
+      <a href="#" class="active">Laudo</a>
+    </div>
+    <button class="btn-header" onclick="window.location.href='../tabela-pacientes/crud-pacientes.html'">Gerenciamento de Paciente</button>
+  </div>
+
+  <div class="novo-laudo">
+    <button onclick="window.location.href='novo-laudo.html'">
+      <i class="fa fa-plus"></i> Novo Laudo
+    </button>
+  </div>
+  
+  <div style="width:95%; margin: 20px auto;">
+      <input type="text" id="pesquisa" placeholder="Pesquisar por paciente ou exame..." 
+         style="width:100%; padding:10px; border-radius:6px; border:1px solid #ccc;">
+  </div>
+  <div class="table-container" >
+    <table>
+      <thead>
+        <tr>
+          <th>Paciente</th>
+          <th>Exame</th>
+          <th>Prazo</th>
+          <th>Hora</th>
+          <th>Status</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="lista-laudos"></tbody>
+    </table>
+</div>
+<script type="module">
+  // 1. Importa as funções necessárias do nosso arquivo de serviço
+  import { listarLaudos, excluirLaudo as excluirLaudoDaApi } from '../../assets/js/pacientesService.js'; // ❗️ Verifique se o caminho do arquivo está correto
+
+  // --- Seletores do HTML ---
+  const tbody = document.getElementById("lista-laudos");
+  const pesquisaInput = document.getElementById("pesquisa");
+
+  // --- Funções Auxiliares (mantivemos as suas) ---
+  function avaliarStatus(prazo) {
+    if (!prazo) return '<span class="status-rascunho">Rascunho</span>';
+    const hoje = new Date();
+    const dataPrazo = new Date(prazo);
+    hoje.setHours(0, 0, 0, 0); // Zera a hora para comparar apenas o dia
+    dataPrazo.setHours(0, 0, 0, 0);
+
+    if (dataPrazo >= hoje) {
+      return '<span class="status-verde">Dentro do prazo</span>';
+    } else {
+      return '<span class="status-vermelho">Vencido</span>';
+    }
+  }
+
+  function formatarData(dataStr) {
+    if (!dataStr) return "-";
+    const data = new Date(dataStr);
+    return new Intl.DateTimeFormat('pt-BR', { timeZone: 'UTC' }).format(data);
+  }
+
+  // --- Lógica Principal ---
+  
+  /**
+   * Função principal que busca os laudos na API e os exibe na tabela.
+   */
+  async function carregarLaudos() {
+    tbody.innerHTML = `<tr><td colspan="6" class="text-center">Carregando laudos...</td></tr>`;
+
+    try {
+      const laudos = await listarLaudos();
+      tbody.innerHTML = ""; // Limpa a mensagem de "carregando"
+
+      if (laudos.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" class="text-center">Nenhum laudo encontrado.</td></tr>`;
+        return;
+      }
+
+      laudos.forEach((laudo) => {
+        // ❗️ Verifique os nomes dos campos (laudo.patients.full_name, laudo.title, etc.)
+        // para baterem com os nomes das colunas da sua API.
+        const nomePaciente = laudo.patients ? laudo.patients.full_name : 'Paciente não vinculado';
+        
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${nomePaciente}</td>
+          <td>${laudo.title || "-"}</td>
+          <td>${formatarData(laudo.due_date)}</td>
+          <td>${laudo.exam_time || "-"}</td>
+          <td>${avaliarStatus(laudo.due_date)}</td>
+          <td class="acoes">
+            <button class="btn-revisar" data-laudo-id="${laudo.id}"><i class="fa fa-eye"></i> Revisar</button>
+            <button class="btn-editar" data-laudo-id="${laudo.id}"><i class="fa fa-edit"></i> Editar</button>
+            <button class="btn-excluir" data-laudo-id="${laudo.id}"><i class="fa fa-trash"></i> Excluir</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    } catch (error) {
+      console.error("Falha ao carregar laudos:", error);
+      tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger">Erro ao carregar laudos.</td></tr>`;
+    }
+  }
+
+  /**
+   * Função para excluir um laudo, agora usando a API.
+   */
+  async function excluirLaudo(id) {
+    if (!confirm("Tem certeza que deseja excluir este laudo?")) return;
+    
+    try {
+      await excluirLaudoDaApi(id);
+      alert("Laudo excluído com sucesso!");
+      carregarLaudos(); // Recarrega a lista para remover a linha da tabela
+    } catch (error) {
+      alert("Falha ao excluir o laudo.");
+      console.error(error);
+    }
+  }
+
+  // --- Event Listeners ---
+
+  // Filtro de pesquisa
+  pesquisaInput.addEventListener("keyup", () => {
+    const filtro = pesquisaInput.value.toLowerCase();
+    const linhas = document.querySelectorAll("#lista-laudos tr");
+
+    linhas.forEach(linha => {
+      const texto = linha.innerText.toLowerCase();
+      linha.style.display = texto.includes(filtro) ? "" : "none";
+    });
+  });
+  
+  // Delegação de eventos para os botões de ação
+  tbody.addEventListener('click', (event) => {
+    const target = event.target.closest('button');
+    if (!target) return;
+    
+    const laudoId = target.dataset.laudoId;
+
+    if (target.classList.contains('btn-excluir')) {
+      excluirLaudo(laudoId);
+    }
+    if (target.classList.contains('btn-editar')) {
+      window.location.href = `editar-laudo.html?id=${laudoId}`;
+    }
+    if (target.classList.contains('btn-revisar')) {
+      window.location.href = `revisar-laudo.html?id=${laudoId}`;
+    }
+  });
+
+  // Carrega os laudos assim que a página é aberta.
+  carregarLaudos();
+</script>
+
+</body>
+</html>

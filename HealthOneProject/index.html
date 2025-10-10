@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="utf-8">
+  <meta content="width=device-width, initial-scale=1.0" name="viewport">
+  <title>Página Inicial - Medconnect</title>
+  <meta name="description" content="">
+  <meta name="keywords" content="">
+
+  <!-- Favoritos -->
+<link href="assets/img/Medconnect.logo.png" rel="icon">
+
+
+<link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+<link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+<link href="assets/vendor/aos/aos.css" rel="stylesheet">
+<link href="assets/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+<link href="assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+<link href="assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+<link href="assets/css/main.css" rel="stylesheet">
+
+
+</head>
+
+<body class="starter-page-page">
+
+  <header id="header" class="header sticky-top">
+
+    <div class="topbar d-flex align-items-center">
+      <div class="container d-flex justify-content-center justify-content-md-between">
+        <div class="d-none d-md-flex align-items-center">
+          <i class="bi bi-clock me-1"></i> Segunda - Sábado, 8h às 22h
+        </div>
+        <div class="d-flex align-items-center">
+          <i class="bi bi-phone me-1"></i> Número da empresa
+        </div>
+      </div>
+    </div><!-- End Top Bar -->
+
+    <div class="branding d-flex align-items-center">
+
+      <div class="container position-relative d-flex align-items-center justify-content-end">
+        <a href="index.html" class="logo d-flex align-items-center me-auto">
+          <img src="assets/img/Medconnect.logo.png" alt="">
+          <!-- Remova o comentário da linha abaixo se também desejar usar um logotipo de texto -->
+          <!-- <h1 class="sitename">Medicio</h1>  -->
+        </a>
+
+        <nav id="navmenu" class="navmenu">
+          <ul>
+            <li><a href="index.html">Início</a></li>
+            
+            <li class="dropdown"><a href="#"><span>Menu</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+              <ul>
+                <li><a href="#">Menu 1</a></li>
+                <li class="dropdown"><a href="#"><span>Submenu</span> <i class="bi bi-chevron-down toggle-dropdown"></i></a>
+                  <ul>
+            <li><a href="index.html#about">Sobre</a></li>
+            <li><a href="index.html#services">Serviços</a></li>
+            <li><a href="index.html#doctors">Médicos</a></li>
+            <li><a href="index.html#contact">Contato</a></li>
+                  </ul>
+                </li>
+                <li><a href="#">Menu 2</a></li>
+                <li><a href="#">Menu 3</a></li>
+                <li><a href="#">Menu 4</a></li>
+              </ul>
+            </li>
+            <li><a href="#contact">Contato</a></li>
+          </ul>
+          <i class="mobile-nav-toggle d-xl-none bi bi-list"></i>
+        </nav>
+
+        <a class="cta-btn" href="#" data-bs-toggle="modal" data-bs-target="#appointmentModal">Cadastra-se</a>
+
+      </div>
+
+    </div>
+
+  </header>
+  
+   <section id="starter-section" class="starter-section section">
+    <div class="container" data-aos="fade-up">
+      <div class="row justify-content-center">
+        <div class="col-lg-8 text-center">
+          <div class="d-flex flex-column flex-md-row gap-3 justify-content-center">
+            <a href="#" class="btn-med" data-bs-toggle="modal" data-bs-target="#doctorModal" data-role="medico">
+              <i class="bi bi-heart-pulse me-2"></i>Sou Médico
+            </a>
+            <a href="#" class="btn-paciente" data-bs-toggle="modal" data-bs-target="#patientModal" data-role="paciente">
+              <i class="bi bi-heart me-2"></i>Sou Paciente
+            </a>
+            <a href="#" class="btn-secretaria" data-bs-toggle="modal" data-bs-target="#secretariaModal" data-role="secretaria">
+            <i class="fa-solid fa-envelope"></i>
+           <span>Sou Secretaria</span>
+          </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+<!-- Modal para Login Secretaria -->
+<div class="modal fade" id="secretariaModal" tabindex="-1" aria-labelledby="secretariaModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="secretariaModalLabel">
+          <i class="fa-solid fa-user-tie me-2"></i> Login Secretaria
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body">
+        <form id="secretariaLoginForm">
+          <div class="mb-3">
+            <label for="emailSecretaria" class="form-label">E-mail</label>
+            <input type="email" class="form-control" id="emailSecretaria" name="email" placeholder="Digite seu e-mail" required>
+          </div>
+          <div class="mb-3">
+            <label for="senhaSecretaria" class="form-label">Senha</label>
+            <input type="password" class="form-control" id="senhaSecretaria" name="senha" placeholder="Digite sua senha" required>
+          </div>
+          <div id="secretariaError" class="error-message" style="display: none;"></div>
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary btn-lg">
+              <i class="bi bi-box-arrow-in-right me-2"></i>Login
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+  <main class="main">
+
+    <!-- Page Title -->
+    <div class="page-title">
+      <div class="heading">
+        <div class="container">
+          <div class="row d-flex justify-content-center text-center">
+            <div class="col-lg-8">
+              <div class="text-center mb-4">
+                <img src="assets/img/Medconnect.logo.png" class="starter-page-logo">
+              </div>
+              <p class="mb-0 starter-page-welcome-text">
+                Bem-vindo ao Medconnect, onde <span class="text-cuidar">CUIDAR</span> de você <span class="text-prioridade">É NOSSA PRIORIDADE!</span>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <nav class="breadcrumbs">
+        <div class="container">
+          <ol>
+            <li><a href="index.html">Início</a></li>
+            <li class="current">Página Inicial</li>
+          </ol>
+        </div>
+      </nav>
+    </div><!-- End Page Title -->
+
+    <!-- Starter Section Section -->
+
+
+  </main>
+    <!-- Modal para Marcar Consulta -->
+  <div class="modal fade" id="appointmentModal" tabindex="-1" aria-labelledby="appointmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="appointmentModalLabel">
+            <i class="bi bi-calendar-check me-2"></i>Marcar Consulta
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-center">
+          <p class="mb-4">Você já é paciente do Medconnect?</p>
+          <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center">
+            <button type="button" class="btn btn-success btn-lg px-4 py-3" onclick="handlePatientChoice('existing')">
+              <i class="bi bi-check-circle me-2"></i>Sim, já sou paciente
+            </button>
+            <button type="button" class="btn btn-primary btn-lg px-4 py-3" onclick="handlePatientChoice('new')">
+              <i class="bi bi-person-plus me-2"></i>Não, sou novo paciente
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para Opções do Paciente -->
+  <div class="modal fade" id="patientModal" tabindex="-1" aria-labelledby="patientModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="patientModalLabel">
+            <i class="bi bi-heart me-2"></i>Bem-vindo ao <span style="color: #0a89e3;">Health</span><span style="color: #49c1c5;">One</span>!
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+<div class="modal-body text-center">
+    <div class="d-flex flex-column gap-3">
+
+        <button type="button" class="btn btn-primary btn-lg px-4 py-3" onclick="window.location.href='Lista-agendamento/dash-pacientes.html'">
+            <i class="bi bi-box-arrow-in-right me-2"></i>Fazer Login
+        </button>
+
+        <button type="button" class="btn btn-success btn-lg px-4 py-3" onclick="alert('Funcionalidade de cadastro de paciente a ser implementada.')">
+            <i class="bi bi-person-plus me-2"></i>Criar Cadastro
+        </button>
+
+    </div>
+</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para Login Médico -->
+  <div class="modal fade" id="doctorModal" tabindex="-1" aria-labelledby="doctorModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="doctorModalLabel">
+            <i class="bi bi-heart-pulse me-2"></i>Login Médico
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+<div class="modal-body">
+  <form id="doctorLoginForm">
+
+    <div class="mb-3">
+      <label for="crm" class="form-label">CRM</label>
+      <input type="text" class="form-control" id="crm" name="crm" placeholder="Digite seu CRM">
+    </div>
+
+    <div class="mb-3">
+      <label for="emailMedico" class="form-label">E-mail</label>
+      <input type="email" class="form-control" id="emailMedico" name="email" placeholder="Digite seu e-mail" required>
+    </div>
+
+    <div class="mb-3">
+      <label for="senhaMedico" class="form-label">Senha</label>
+      <input type="password" class="form-control" id="senhaMedico" name="senha" placeholder="Digite sua senha" required>
+    </div>
+
+    <div id="medicoError" class="error-message" style="display: none;"></div>
+
+    <div class="d-grid">
+      <button type="submit" class="btn btn-primary btn-lg">
+        <i class="bi bi-box-arrow-in-right me-2"></i>Login
+      </button>
+    </div>
+    
+  </form>
+</div>
+      </div>
+    </div>
+  </div>
+
+
+ 
+
+  <!-- Scroll Top -->
+  <a href="#" id="scroll-top" class="scroll-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+
+  <!-- Preloader -->
+  <div id="preloader"></div>
+
+ <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="assets/vendor/php-email-form/validate.js"></script>
+<script src="assets/vendor/aos/aos.js"></script>
+<script src="assets/vendor/glightbox/js/glightbox.min.js"></script>
+<script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
+<script src="assets/js/main.js"></script>
+
+<!-- Script para o modal de consulta -->
+<script src="assets/js/login.js"></script>
+
+<!-- Botão de acessibilidade -->
+
+
+<button id="btnAcessibilidade" class="acessibilidade-btn" aria-label="Menu de acessibilidade">
+    <i class="fa-solid fa-wheelchair"></i>
+  </button>
+   <!-- Menu flutuante de acessibilidade -->
+  <div id="menuAcessibilidade" class="menu-acessibilidade">
+  <h4>Opções de Acessibilidade</h4>
+  <button class="menu-item" id="modoEscuro">🌓 Fundo Preto</button>
+   <div class="menu-item" id="aumentarFonteContainer">
+    🔠 Aumentar Fonte
+    <div id="controlesFonte" class="controles-fonte">
+      <button id="diminuirFonte" class="controle-fonte">➖</button>
+      <span id="tamanhoFonteValor">100%</span>
+      <button id="aumentarFonte" class="controle-fonte">➕</button>
+    </div>
+  </div>
+  <button class="menu-item" id="leitorTexto">🔊 Leitor de Texto</button>
+   <button class="menu-item" id="modoDaltonico">🎨 Modo Daltônico</button>
+</div>
+
+</body>
+
+</html>

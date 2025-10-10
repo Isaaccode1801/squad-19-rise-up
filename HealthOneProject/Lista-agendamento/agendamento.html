@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>HealthOne • Marcar Consulta</title>
+  
+  <link rel="stylesheet" href="../../assets/css/agendamento.css">
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+</head>
+<body>
+  <div class="appbar">
+    <div class="appbar-inner">
+      <div class="brand">
+        <a href="../../index.html" class="logo-link">
+          <img src="../../assets/img/Medconnect.logo.png" alt="Logo HealthOne - Página Principal" style="height: 50px;">
+        </a>
+      </div>
+      <div>
+        <h1>Diretório de Médicos</h1>
+        <small>Marque sua consulta</small>
+      </div>
+      <nav class="tabs">
+        <a href="dash-pacientes.html">Início</a>
+        <a href="agendamento.html" class="ativo">Marcar Consulta</a>
+      </nav>
+    </div>
+  </div>
+
+  <main class="wrap">
+    <div class="toolbar">
+      <div class="field" title="Pesquise por nome, CRM, cidade, especialidade">
+        <span>🔎</span>
+        <input id="searchInput" type="search" placeholder="Pesquisar (ex.: Neurologista, Dr. Ana...)" />
+      </div>
+      <div class="field">
+        <select id="especialidadeFilter">
+          <option value="">Todas as especialidades</option>
+          <option>Cardiologista</option>
+          <option>Clínico Geral</option>
+          <option>Dermatologista</option>
+          <option>Ginecologista</option>
+          <option>Neurologista</option>
+          <option>Pediatra</option>
+        </select>
+      </div>
+      <div class="switch">
+        <input id="disponiveisToggle" type="checkbox" />
+        <label for="disponiveisToggle">Somente disponíveis</label>
+      </div>
+      <button id="limparFiltros" class="btn secondary">Limpar filtros</button>
+    </div>
+
+    <section class="card" aria-label="Lista de médicos">
+      <div class="card-header">
+        <h2>Médicos</h2>
+      </div>
+      <div class="card-content">
+        <table class="table" aria-describedby="Lista de médicos">
+          <thead class="thead">
+            <tr>
+              <th>Médico</th>
+              <th>Especialidade</th>
+              <th>Cidade</th>
+              <th>Contato</th>
+              <th>Atende por</th>
+              <th>Consulta</th>
+              <th>Próxima janela</th>
+              <th>Status</th>
+              <th style="text-align:right">Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tbody">
+            </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <div id="modal-agendamento" class="modal-backdrop" style="display: none;">
+    <div class="modal-content card">
+      <div class="modal-header card-header">
+        <h3 id="modal-medico-nome">Agendar com [Nome do Médico]</h3>
+        <button id="modal-fechar" class="close-btn">&times;</button>
+      </div>
+      <div class="modal-body card-content">
+        <p>Selecione uma data e um horário para a sua consulta.</p>
+        <div class="agendamento-container">
+          <div class="calendario">
+            <div class="calendario-header">
+              <button id="mes-anterior">◀</button>
+              <h4 id="mes-ano">Outubro 2025</h4>
+              <button id="mes-seguinte">▶</button>
+            </div>
+            <div class="calendario-dias-semana">
+              <div>Dom</div><div>Seg</div><div>Ter</div><div>Qua</div><div>Qui</div><div>Sex</div><div>Sáb</div>
+            </div>
+            <div id="calendario-grid" class="calendario-grid"></div>
+          </div>
+          <div class="horarios-container">
+            <h4>Horários para <span id="data-selecionada-titulo">--/--/----</span></h4>
+            <div id="horarios-grid" class="horarios-grid">
+              <p>Selecione um dia no calendário.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button id="btn-cancelar-modal" class="btn secondary">Cancelar</button>
+        <button id="btn-confirmar-agendamento" class="btn primary">Confirmar Agendamento</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="../../assets/js/agendamento.js"></script>
+
+<button id="btnAcessibilidade" class="acessibilidade-btn" aria-label="Menu de acessibilidade">
+  <i class="fa-solid fa-wheelchair"></i>
+</button>
+ <!-- Menu flutuante de acessibilidade -->
+  <div id="menuAcessibilidade" class="menu-acessibilidade">
+  <h4>Opções de Acessibilidade</h4>
+  <button class="menu-item" id="modoEscuro">🌓 Fundo Preto</button>
+   <div class="menu-item" id="aumentarFonteContainer">
+    🔠 Aumentar Fonte
+    <div id="controlesFonte" class="controles-fonte">
+      <button id="diminuirFonte" class="controle-fonte">➖</button>
+      <span id="tamanhoFonteValor">100%</span>
+      <button id="aumentarFonte" class="controle-fonte">➕</button>
+    </div>
+  </div>
+  <button class="menu-item" id="leitorTexto">🔊 Leitor de Texto</button>
+   <button class="menu-item" id="modoDaltonico">🎨 Modo Daltônico</button>
+</div>
+
+</body>
+</html>
