@@ -100,8 +100,8 @@
             <a href="#" class="btn-admin" data-bs-toggle="modal" data-bs-target="#adminModal">
             <i class="fa-solid fa-user-shield me-2"></i>Administrador
           </a>
-          <a href="Financeiro/perfil-financeiro.html" class="btn-financeiro">
-            <i class="fa-solid fa-coins me-2"></i>Financeiro
+          <a href="#" class="btn-financeiro" data-bs-toggle="modal" data-bs-target="#financeiroModal">
+          <i class="fa-solid fa-coins me-2"></i>Financeiro
           </a>
 
           </div>
@@ -214,8 +214,9 @@
 <div class="modal-body text-center">
     <div class="d-flex flex-column gap-3">
 
-        <button type="button" class="btn btn-primary btn-lg px-4 py-3" onclick="window.location.href='Lista-agendamento/dash-pacientes.html'">
-            <i class="bi bi-box-arrow-in-right me-2"></i>Fazer Login
+        <!-- Botão para abrir o modal de login do paciente -->
+        <button type="button" class="btn btn-primary btn-lg px-4 py-3" data-bs-toggle="modal" data-bs-target="#loginPacienteModal">
+        <i class="bi bi-box-arrow-in-right me-2"></i>Fazer Login
         </button>
 
         <button type="button" class="btn btn-success btn-lg px-4 py-3" onclick="alert('Funcionalidade de cadastro de paciente a ser implementada.')">
@@ -270,6 +271,73 @@
     </div>
   </div>
 
+<!-- Modal de Login do Paciente -->
+<div class="modal fade" id="loginPacienteModal" tabindex="-1" aria-labelledby="loginPacienteModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="loginPacienteModalLabel">
+          <i class="bi bi-person-circle me-2"></i>Login do Paciente
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body">
+        <form id="pacienteLoginForm">
+          <div class="mb-3">
+            <label for="cpfPaciente" class="form-label">CPF</label>
+            <input type="text" class="form-control" id="cpfPaciente" placeholder="Digite seu CPF" maxlength="14" required>
+          </div>
+          <div class="mb-3">
+            <label for="emailPaciente" class="form-label">E-mail</label>
+            <input type="email" class="form-control" id="emailPaciente" placeholder="Digite seu e-mail" required>
+          </div>
+          <div class="mb-3">
+            <label for="senhaPaciente" class="form-label">Senha</label>
+            <input type="password" class="form-control" id="senhaPaciente" placeholder="Digite sua senha" required>
+          </div>
+          <div id="loginError" class="text-danger mb-3" style="display:none;"></div>
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary btn-lg">
+              <i class="bi bi-box-arrow-in-right me-2"></i>Entrar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Login Financeiro -->
+<div class="modal fade" id="financeiroModal" tabindex="-1" aria-labelledby="financeiroModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="financeiroModalLabel">
+          <i class="fa-solid fa-coins me-2"></i>Login Financeiro
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body">
+        <form id="financeiroLoginForm">
+          <div class="mb-3">
+            <label for="emailFinanceiro" class="form-label">E-mail</label>
+            <input type="email" class="form-control" id="emailFinanceiro" placeholder="Digite seu e-mail" required>
+          </div>
+          <div class="mb-3">
+            <label for="senhaFinanceiro" class="form-label">Senha</label>
+            <input type="password" class="form-control" id="senhaFinanceiro" placeholder="Digite sua senha" required>
+          </div>
+          <div id="financeiroError" class="text-danger mb-3" style="display:none;"></div>
+          <div class="d-grid">
+            <button type="submit" class="btn btn-warning btn-lg">
+              <i class="bi bi-box-arrow-in-right me-2"></i>Entrar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
 
  
 
@@ -310,6 +378,60 @@
   <button class="menu-item" id="leitorTexto">🔊 Leitor de Texto</button>
    <button class="menu-item" id="modoDaltonico">🎨 Modo Daltônico</button>
 </div>
+
+// Script para validação do login do paciente
+<script>
+  document.getElementById('pacienteLoginForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    const cpf = document.getElementById('cpfPaciente').value.trim();
+    const email = document.getElementById('emailPaciente').value.trim();
+    const senha = document.getElementById('senhaPaciente').value.trim();
+    const errorDiv = document.getElementById('loginError');
+
+    // Expressão para validar formato básico de CPF (apenas números e 11 dígitos)
+    const cpfValido = /^\d{11}$/;
+
+    if (!cpfValido.test(cpf.replace(/\D/g, ''))) {
+      errorDiv.textContent = "CPF inválido. Digite 11 números.";
+      errorDiv.style.display = "block";
+      return;
+    }
+
+    // Credenciais fixas
+    const emailCorreto = "riseup@popcode.com.br";
+    const senhaCorreta = "riseup";
+
+    if (email === emailCorreto && senha === senhaCorreta) {
+      // Redireciona para a página de paciente
+      window.location.href = "Lista-agendamento/dash-pacientes.html";
+    } else {
+      errorDiv.textContent = "E-mail ou senha incorretos.";
+      errorDiv.style.display = "block";
+    }
+  });
+</script>
+// Script para validação do login do Financeiro
+<script>
+  document.getElementById('financeiroLoginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+    const email = document.getElementById('emailFinanceiro').value.trim();
+    const senha = document.getElementById('senhaFinanceiro').value.trim();
+    const errorDiv = document.getElementById('financeiroError');
+
+    const emailCorreto = "riseup@popcode.com.br";
+    const senhaCorreta = "riseup";
+
+    if (email === emailCorreto && senha === senhaCorreta) {
+      // Redireciona para a página financeira
+      window.location.href = "Financeiro/Perfil-financeiro.html";
+    } else {
+      errorDiv.textContent = "E-mail ou senha incorretos.";
+      errorDiv.style.display = "block";
+    }
+  });
+</script>
 
 </body>
 
