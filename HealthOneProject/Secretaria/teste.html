@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Teste Supabase - Listar Usuários</title>
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background: #f4f6f8;
+      color: #333;
+      padding: 40px;
+    }
+    h1 {
+      color: #2563eb;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+    th, td {
+      padding: 12px 15px;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: left;
+    }
+    th {
+      background: #2563eb;
+      color: white;
+      text-transform: uppercase;
+      font-size: 0.9rem;
+    }
+    tr:hover {
+      background: #f1f5ff;
+    }
+    #status {
+      margin-top: 20px;
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+  <h1>Teste: Listar Usuários do Supabase</h1>
+  <p>Verificando se o token e a policy estão funcionando corretamente.</p>
+
+  <button id="btnLoad">🔄 Carregar Usuários</button>
+  <p id="status"></p>
+
+  <table id="userTable" style="display: none;">
+    <thead>
+      <tr><th>Nome</th><th>Email</th><th>ID</th></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <script>
+    const API_URL = "https://yuanqfswhberkoevtmfr.supabase.co/rest/v1/profiles?select=*";
+    const API_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ";
+
+    // cole aqui o token da secretária:
+    const USER_TOKEN = "eyJhbGciOiJIUzI1NiIsImtpZCI6ImJGVUlxQzNzazNjUms5RlMiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3l1YW5xZnN3aGJlcmtvZXZ0bWZyLnN1cGFiYXNlLmNvL2F1dGgvdjEiLCJzdWIiOiJjN2ZjZDcwMi05YTZlLTRiN2MtYWJkMy05NTZiMjVhZjQwN2QiLCJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzYwNDE1MDMxLCJpYXQiOjE3NjA0MTE0MzEsImVtYWlsIjoicmlzZXVwQHBvcGNvZGUuY29tLmJyIiwicGhvbmUiOiIiLCJhcHBfbWV0YWRhdGEiOnsicHJvdmlkZXIiOiJlbWFpbCIsInByb3ZpZGVycyI6WyJlbWFpbCJdfSwidXNlcl9tZXRhZGF0YSI6eyJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiZnVsbF9uYW1lIjoiUmlzZVVwIFBvcGNvZGUifSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTc2MDQxMTQzMX1dLCJzZXNzaW9uX2lkIjoiNjAzYmYzZTctOTYzOS00ZjBhLWFhOTUtODI2ZWYxMTVjZjBmIiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.wc1YG8ThxiDhiuMKVgS1mbVM7tgeKD4LYwyUUF4-olE";
+
+    document.getElementById("btnLoad").addEventListener("click", async () => {
+      document.getElementById("status").textContent = "Carregando...";
+      try {
+        const res = await fetch(API_URL, {
+          headers: {
+            "apikey": API_KEY,
+            "Authorization": `Bearer ${USER_TOKEN}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        if (!res.ok) {
+          document.getElementById("status").textContent = `❌ Erro ${res.status}: ${res.statusText}`;
+          console.log(await res.text());
+          return;
+        }
+
+        const data = await res.json();
+        console.log("Resposta:", data);
+        document.getElementById("status").textContent = `✅ ${data.length} usuários carregados`;
+        const tbody = document.querySelector("#userTable tbody");
+        tbody.innerHTML = "";
+        data.forEach(u => {
+          tbody.innerHTML += `<tr><td>${u.full_name || '-'}</td><td>${u.email || '-'}</td><td>${u.id || '-'}</td></tr>`;
+        });
+        document.getElementById("userTable").style.display = "table";
+
+      } catch (err) {
+        document.getElementById("status").textContent = `⚠️ Erro de rede: ${err.message}`;
+        console.error(err);
+      }
+    });
+  </script>
+</body>
+</html>

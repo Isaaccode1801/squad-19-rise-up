@@ -97,9 +97,8 @@
             <i class="fa-solid fa-envelope"></i>
            <span>Sou Secretaria</span>
           </a>
-            <a href="#" class="btn-admin" data-bs-toggle="modal" data-bs-target="#adminModal">
-            <i class="fa-solid fa-user-shield me-2"></i>Administrador
-          </a>
+<a href="admin-dashboard/dist/index.html#" class="btn-admin" data-bs-toggle="modal" data-bs-target="#adminModal" data-role="admin"> <i class="fa-solid fa-user-shield"></i><span>Sou Admin</span> </a>
+
           <a href="Financeiro/perfil-financeiro.html" class="btn-financeiro">
             <i class="fa-solid fa-coins me-2"></i>Financeiro
           </a>
@@ -286,8 +285,140 @@
 <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
 <script src="assets/js/main.js"></script>
 
-<!-- Script para o modal de consulta -->
-<script src="assets/js/login.js"></script>
+<script>
+(function(){
+  const API_BASE_URL = 'https://yuanqfswhberkoevtmfr.supabase.co';
+  const API_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ';
+  const LOGIN_API_URL = `${API_BASE_URL}/auth/v1/token?grant_type=password`;
+  const USER_INFO_API_URL = `${API_BASE_URL}/functions/v1/user-info`;
+
+  function decodeRoleFromJWT(token){
+    if (!token || !token.includes('.')) return null;
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      return payload?.app_metadata?.role || payload?.user_metadata?.role || null;
+    } catch { return null; }
+  }
+
+  // Caminho robusto para o dashboard React buildado (hash router)
+  function getAdminDashboardUrl() {
+    // diretório onde está o index.html atual (remove index.html se presente)
+    const baseDir = location.pathname.replace(/index\.html?$/i, '').replace(/\/+$/, '');
+    // monta caminho relativo estável
+    const rel = `${baseDir}/admin-dashboard/dist/index.html#/users`.replace(/\/+/g,'/');
+    return `${location.origin}${rel.startsWith('/') ? '' : '/'}${rel}`;
+  }
+
+  // Gera URL absoluta para um caminho relativo dentro do projeto
+  function toProjectUrl(relPath){
+    const baseDir = location.pathname.replace(/index\.html?$/i,'').replace(/\/+$/,'');
+    const full = `${baseDir}/${relPath}`.replace(/\/+/g,'/');
+    return `${location.origin}${full.startsWith('/') ? '' : '/'}${full}`;
+  }
+
+  async function handleLogin(event, intendedRole) {
+    event.preventDefault();
+    const form = event.target;
+    const email = form.querySelector('input[type="email"]').value;
+    const password = form.querySelector('input[type="password"]').value;
+    const errorMessageDiv = form.querySelector('.error-message');
+    const submitButton = form.querySelector('button[type="submit"]');
+
+    if (errorMessageDiv) errorMessageDiv.style.display = 'none';
+    localStorage.removeItem('user_token');
+    localStorage.removeItem('user_role');
+    submitButton.disabled = true;
+    submitButton.textContent = 'Entrando...';
+
+    try {
+      // 1) Login
+      const resp = await fetch(LOGIN_API_URL, {
+        method: 'POST',
+        headers: { 'apikey': API_KEY, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await resp.json();
+      if (!resp.ok) throw new Error(data?.error_description || 'Credenciais inválidas.');
+
+      const accessToken = data.access_token;
+      localStorage.setItem('user_token', accessToken);
+
+      // 2) Roles: tenta via function; se falhar, cai no JWT
+      let roles = [];
+      try {
+        const infoResp = await fetch(USER_INFO_API_URL, {
+          method: 'GET',
+          headers: { 'apikey': API_KEY, 'Authorization': `Bearer ${accessToken}` }
+        });
+        if (infoResp.ok) {
+          const info = await infoResp.json();
+          roles = info?.roles || [];
+        }
+      } catch {}
+      if (!roles.length) {
+        const r = decodeRoleFromJWT(accessToken);
+        if (r) roles = [r];
+      }
+
+      // 3) Decide papel
+      let primaryRole = null;
+      if (email === 'riseup@popcode.com.br') {
+        console.warn('DEV MODE: forçando role pela intenção do clique:', intendedRole);
+        primaryRole = intendedRole;
+      } else if (roles.includes(intendedRole)) {
+        primaryRole = intendedRole;
+      } else {
+        const found = roles[0] || 'nenhuma';
+        throw new Error(`Login ok, mas seu usuário não tem permissão de '${intendedRole}' (role atual: '${found}').`);
+      }
+
+      localStorage.setItem('user_role', primaryRole);
+      console.log('[login] roles:', roles, 'primaryRole:', primaryRole);
+
+      // 4) Redireciona
+      switch (primaryRole) {
+        case 'medico':
+          // redireciona para o dashboard de médico (HTML estático)
+          window.location.href = toProjectUrl('medico/tabela-pacientes/dashboard.html');
+          break;
+        case 'secretaria':
+          // redireciona para o dashboard da secretária (HTML estático)
+          window.location.href = toProjectUrl('Secretaria/dash-secretaria.html');
+          break;
+        case 'admin':
+          // redireciona para o dashboard React buildado (hash router)
+          window.location.href = toProjectUrl('admin-dashboard/dist/index.html#/');
+          break;
+        default:
+          throw new Error(`Papel '${primaryRole}' não tem redirecionamento definido.`);
+      }
+
+    } catch (err) {
+      console.error('Erro no processo de login:', err);
+      if (errorMessageDiv) {
+        errorMessageDiv.textContent = err.message || 'Falha no login.';
+        errorMessageDiv.style.display = 'block';
+      }
+      submitButton.disabled = false;
+      submitButton.textContent = 'Login';
+    }
+  }
+
+  // Garante que os forms existem antes de prender os listeners
+  document.addEventListener('DOMContentLoaded', () => {
+    const secretariaForm = document.getElementById('secretariaLoginForm');
+    const medicoForm = document.getElementById('doctorLoginForm');
+    const adminForm = document.getElementById('adminLoginForm');
+
+    secretariaForm && secretariaForm.addEventListener('submit', (e)=>handleLogin(e,'secretaria'));
+    medicoForm && medicoForm.addEventListener('submit', (e)=>handleLogin(e,'medico'));
+    adminForm && adminForm.addEventListener('submit', (e)=>handleLogin(e,'admin'));
+
+    // Debug: mostra onde ele vai tentar abrir o dashboard admin
+    console.debug('[login] admin dashboard url candidato:', getAdminDashboardUrl());
+  });
+})();
+</script>
 
 <!-- Botão de acessibilidade -->
 
@@ -309,6 +440,37 @@
   </div>
   <button class="menu-item" id="leitorTexto">🔊 Leitor de Texto</button>
    <button class="menu-item" id="modoDaltonico">🎨 Modo Daltônico</button>
+</div>
+<!-- Modal para Login Admin -->
+<div class="modal fade" id="adminModal" tabindex="-1" aria-labelledby="adminModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="adminModalLabel">
+          <i class="fa-solid fa-user-shield me-2"></i> Login Admin
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+      <div class="modal-body">
+        <form id="adminLoginForm">
+          <div class="mb-3">
+            <label for="emailAdmin" class="form-label">E-mail</label>
+            <input type="email" class="form-control" id="emailAdmin" name="email" placeholder="admin@mediconnect.com" required>
+          </div>
+          <div class="mb-3">
+            <label for="senhaAdmin" class="form-label">Senha</label>
+            <input type="password" class="form-control" id="senhaAdmin" name="senha" placeholder="Digite sua senha" required>
+          </div>
+          <div id="adminError" class="error-message text-danger" style="display:none;"></div>
+          <div class="d-grid">
+            <button type="submit" class="btn btn-primary btn-lg">
+              <i class="bi bi-box-arrow-in-right me-2"></i>Login
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 </div>
 
 </body>
