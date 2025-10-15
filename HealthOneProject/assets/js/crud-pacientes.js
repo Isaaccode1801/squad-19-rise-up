@@ -152,17 +152,23 @@ document.addEventListener('DOMContentLoaded', () => {
   const btn = document.getElementById("btnAcessibilidade");
   const menu = document.getElementById("menuAcessibilidade");
 
-  // Alternar visibilidade do menu
-  btn.addEventListener("click", () => {
-    menu.style.display = menu.style.display === "flex" ? "none" : "flex";
-  });
+  if (!btn && !menu) {
+    // elementos de acessibilidade não existem nesta página; seguir sem inicializar o menu
+  }
 
-  // Fechar se clicar fora
-  document.addEventListener("click", (e) => {
-    if (!menu.contains(e.target) && !btn.contains(e.target)) {
-      menu.style.display = "none";
-    }
-  });
+  if (btn && menu) {
+    // Alternar visibilidade do menu
+    btn.addEventListener("click", () => {
+      menu.style.display = menu.style.display === "flex" ? "none" : "flex";
+    });
+
+    // Fechar se clicar fora
+    document.addEventListener("click", (e) => {
+      if (!menu.contains(e.target) && !btn.contains(e.target)) {
+        menu.style.display = "none";
+      }
+    });
+  }
 
   // Funções de acessibilidade
   const corpo = document.body;
@@ -184,11 +190,13 @@ let modoEscuroAtivo = carregarPreferencia("modoEscuro");
 
 if (modoEscuroAtivo) document.body.classList.add("modo-escuro");
 
-modoEscuroBtn.addEventListener("click", () => {
-  modoEscuroAtivo = !modoEscuroAtivo;
-  document.body.classList.toggle("modo-escuro", modoEscuroAtivo);
-  salvarPreferencia("modoEscuro", modoEscuroAtivo);
-});
+if (modoEscuroBtn) {
+  modoEscuroBtn.addEventListener("click", () => {
+    modoEscuroAtivo = !modoEscuroAtivo;
+    document.body.classList.toggle("modo-escuro", modoEscuroAtivo);
+    salvarPreferencia("modoEscuro", modoEscuroAtivo);
+  });
+}
 
 // ======== MODO DALTÔNICO ========
 const modoDaltonicoBtn = document.getElementById("modoDaltonico");
@@ -196,11 +204,13 @@ let modoDaltonicoAtivo = carregarPreferencia("modoDaltonico");
 
 if (modoDaltonicoAtivo) document.body.classList.add("modo-daltonico");
 
-modoDaltonicoBtn.addEventListener("click", () => {
-  modoDaltonicoAtivo = !modoDaltonicoAtivo;
-  document.body.classList.toggle("modo-daltonico", modoDaltonicoAtivo);
-  salvarPreferencia("modoDaltonico", modoDaltonicoAtivo);
-});
+if (modoDaltonicoBtn) {
+  modoDaltonicoBtn.addEventListener("click", () => {
+    modoDaltonicoAtivo = !modoDaltonicoAtivo;
+    document.body.classList.toggle("modo-daltonico", modoDaltonicoAtivo);
+    salvarPreferencia("modoDaltonico", modoDaltonicoAtivo);
+  });
+}
 
 // ======== CONTROLE DE FONTE (ZOOM) ========
 
@@ -256,13 +266,16 @@ if (btnMenos) {
 }
 
 // ======== LEITOR DE TEXTO ========
-let leitorAtivo = carregarPreferencia("leitorTexto");
+const leitorBtn = document.getElementById("leitorTexto");
+if (leitorBtn) {
+  leitorBtn.addEventListener("click", () => {
+    leitorAtivo = !leitorAtivo;
+    salvarPreferencia("leitorTexto", leitorAtivo);
+    alert(leitorAtivo ? "Leitor de texto ativado." : "Leitor de texto desativado.");
+  });
+}
 
-document.getElementById("leitorTexto").addEventListener("click", () => {
-  leitorAtivo = !leitorAtivo;
-  salvarPreferencia("leitorTexto", leitorAtivo);
-  alert(leitorAtivo ? "Leitor de texto ativado." : "Leitor de texto desativado.");
-});
+let leitorAtivo = carregarPreferencia("leitorTexto");
 
 document.addEventListener("mouseover", (e) => {
   if (leitorAtivo && e.target.textContent.trim().length > 0) {
@@ -279,4 +292,3 @@ document.addEventListener("mouseover", (e) => {
     fetchAndRender();
 
 });
-

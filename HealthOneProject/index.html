@@ -447,16 +447,50 @@
     submitButton.textContent = 'Entrando...';
 
     try {
-      // 1) Login
+      // 1) Login (via /auth/v1/token?grant_type=password - GoTrue)
       const resp = await fetch(LOGIN_API_URL, {
         method: 'POST',
-        headers: { 'apikey': API_KEY, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
+        headers: {
+          'apikey': API_KEY,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: email.trim(),
+          password: password
+        })
       });
-      const data = await resp.json();
-      if (!resp.ok) throw new Error(data?.error_description || 'Credenciais inválidas.');
 
-      const accessToken = data.access_token;
+      // tente parsear o JSON; se não der, vira objeto vazio
+      let data = {};
+      try { data = await resp.json(); } catch {}
+
+      // LOG de depuração útil
+      console.debug('[login] status=', resp.status, 'payload=', data);
+
+      // mensagem crua do servidor (GoTrue costuma usar essas chaves)
+      const rawMsg = String(data?.msg || data?.error_description || data?.error || '');
+
+      // mapa de mensagens amigáveis
+      if (!resp.ok) {
+        let friendly = 'Falha no login.';
+        if (/invalid login credentials/i.test(rawMsg)) {
+          friendly = 'E-mail ou senha incorretos.';
+        } else if (/email not confirmed|not confirmed/i.test(rawMsg)) {
+          friendly = 'Seu e-mail ainda não foi confirmado. Verifique sua caixa de entrada.';
+        } else if (/over quota|rate/i.test(rawMsg)) {
+          friendly = 'Muitas tentativas. Tente novamente em instantes.';
+        } else if (rawMsg) {
+          // se veio outra mensagem do GoTrue, exiba-a
+          friendly = rawMsg;
+        }
+        throw new Error(friendly);
+      }
+
+      const accessToken = data?.access_token;
+      if (!accessToken) {
+        console.error('[login] resposta inesperada sem token:', data);
+        throw new Error('Resposta inesperada do servidor (sem token).');
+      }
       localStorage.setItem('user_token', accessToken);
 
       // 2) Roles: tenta via function; se falhar, cai no JWT
