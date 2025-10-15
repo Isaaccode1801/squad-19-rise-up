@@ -97,7 +97,13 @@
             <i class="fa-solid fa-envelope"></i>
            <span>Sou Secretaria</span>
           </a>
-<a href="admin-dashboard/dist/index.html#" class="btn-admin" data-bs-toggle="modal" data-bs-target="#adminModal" data-role="admin"> <i class="fa-solid fa-user-shield"></i><span>Sou Admin</span> </a>
+          <a href="#"
+            class="btn-admin"
+            data-bs-toggle="modal"
+            data-bs-target="#adminModal"
+            data-role="admin">
+            <i class="fa-solid fa-user-shield"></i><span>Sou Admin</span>
+          </a>
 
           <a href="Financeiro/perfil-financeiro.html" class="btn-financeiro">
             <i class="fa-solid fa-coins me-2"></i>Financeiro
@@ -378,11 +384,23 @@
   }
 
   // Gera URL absoluta para um caminho relativo dentro do projeto
-  function toProjectUrl(relPath){
-    const baseDir = location.pathname.replace(/index\.html?$/i,'').replace(/\/+$/,'');
-    const full = `${baseDir}/${relPath}`.replace(/\/+/g,'/');
-    return `${location.origin}${full.startsWith('/') ? '' : '/'}${full}`;
+
+  // Prefixo estável do projeto no Vercel
+  function getProjectPrefix(){
+    // Se a URL contém /HealthOneProject/, usamos como raiz
+    return location.pathname.includes('/HealthOneProject/')
+      ? '/HealthOneProject/'
+      : '/';
   }
+
+  function toProjectUrl(relPath){
+    const prefix = getProjectPrefix();
+    // Normaliza as barras e mantém hash/query
+    const [pathOnly, hash = ''] = String(relPath).split('#');
+    const url = `${location.origin}${prefix}${pathOnly}`.replace(/\/+/g,'/').replace(':/','://');
+    return hash ? `${url}#${hash}` : url;
+  }
+
 
   async function handleLogin(event, intendedRole) {
     event.preventDefault();
@@ -454,7 +472,7 @@
           window.location.href = toProjectUrl('Secretaria/dash-secretaria.html');
           break;
         case 'admin':
-          // redireciona para o dashboard React buildado (hash router)
+          // hash-router do dashboard React
           window.location.href = toProjectUrl('admin-dashboard/dist/index.html#/');
           break;
         default:

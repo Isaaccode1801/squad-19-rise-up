@@ -182,17 +182,13 @@ export default function App() {
           </div>
           <div className="nav-links">
             <ul>
-              <li><a href="#" className="active"><FaColumns className="icon" /> <span>Dashboard</span></a></li>
+              <li>
+  <Link to="/" className={pathname === '/' ? 'active' : ''}>
+    <FaColumns className="icon" /> <span>Dashboard</span>
+  </Link>
+</li>
               <li><a href="#"><FaCalendarCheck className="icon" /> <span>Agendamentos</span></a></li>
-              <li className={isUserMenuOpen ? 'open' : ''}>
 
-                <ul className="submenu">
-                  <li><a href="#"><span>Novo Médico</span></a></li>
-                  <li><a href="#"><span>Novo Paciente</span></a></li>
-                  <li><a href="#"><span>Nova Secretária</span></a></li>
-                  <li><a href="#"><span>Novo Admin</span></a></li>
-                </ul>
-              </li>
               <li>
                 <Link to="/users" className={pathname.startsWith('/users') ? 'active' : ''}>
                   <FaUsers className="icon" /> <span>Todos os Usuários</span>

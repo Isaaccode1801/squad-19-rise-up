@@ -13,7 +13,16 @@ function decodeRoleFromJWT(token){
     return payload?.app_metadata?.role || payload?.user_metadata?.role || null;
   } catch { return null; }
 }
-
+// helper genérico para ir pro dashboard admin
+function gotoAdmin(hashRoute = '') {
+  const { origin, pathname } = window.location
+  // base do projeto até ANTES de /admin-dashboard
+  const idx = pathname.indexOf('/admin-dashboard')
+  const root = idx >= 0 ? pathname.slice(0, idx) : pathname.replace(/\/index\.html?$/, '')
+  // caminho do index do dashboard (sem /dist, pois no Vercel o output publicado costuma ser a própria pasta)
+  const dashboard = `${origin}${root}/HealthOneProject/admin-dashboard/index.html#/${hashRoute.replace(/^\/?/,'')}`
+  window.location.assign(dashboard)
+}
 async function handleLogin(event, intendedRole) {
   event.preventDefault();
   const form = event.target;
@@ -41,7 +50,7 @@ async function handleLogin(event, intendedRole) {
     const accessToken = loginData.access_token;
     localStorage.setItem('user_token', accessToken);
 
-    // 2) Tenta pegar roles via function; se falhar, faz fallback no JWT
+    // 2) Roles via function (fallback JWT)
     let roles = [];
     try {
       const infoResp = await fetch(USER_INFO_API_URL, {
@@ -58,16 +67,12 @@ async function handleLogin(event, intendedRole) {
       if (r) roles = [r];
     }
 
-    // 3) Determina o papel e redireciona
-    // Descobre o papel final com base na intenção do clique + permissões reais
-    // Regra: se for o e-mail dev, usa a intenção. Senão, se tiver permissão para a intenção, usa a intenção.
-    // Caso contrário, cai no primeiro papel disponível; se não houver, usa a intenção mesmo (para não quebrar).
+    // 3) Decide papel
     const DEV_EMAIL = 'riseup@popcode.com.br';
     let primaryRole = null;
-
     if (email === DEV_EMAIL) {
       primaryRole = intendedRole;
-      console.warn('[LOGIN] DEV override: usando intenção =>', primaryRole);
+      console.warn('[LOGIN] DEV override:', primaryRole);
     } else if (Array.isArray(roles) && roles.includes(intendedRole)) {
       primaryRole = intendedRole;
     } else if (Array.isArray(roles) && roles.length) {
@@ -76,34 +81,33 @@ async function handleLogin(event, intendedRole) {
       primaryRole = intendedRole;
     }
 
-    // Guarda para outras páginas
     localStorage.setItem('user_role', primaryRole);
     console.log('[LOGIN] intendedRole=', intendedRole, 'roles=', roles, 'primaryRole=', primaryRole);
-    // Mapeia rotas de destino (ajuste se seus arquivos mudarem de lugar)
+
+    // ⚠️ Redirecionamento para ADMIN usando hash router e caminho dinâmico
+    if (primaryRole === 'admin') {
+      gotoAdmin('');            // ou 'users' para abrir direto a lista
+      return;                   // importantíssimo para não continuar e tentar outro redirect
+    }
+
+    // Rotas dos demais papéis (caminhos relativos ao seu projeto)
     const ROUTES = {
       medico: 'medico/tabela-pacientes/dashboard.html',
       secretaria: 'Secretaria/dash-secretaria.html',
-      admin: 'admin-dashboard/dist/index.html#/',
     };
 
     function toAbs(path) {
-      // Garante URL absoluta a partir da raiz do projeto servido pelo Live Server
-      // Ex.: http://127.0.0.1:5500/ + path
       const base = window.location.origin + window.location.pathname.replace(/\/[^/]*$/, '/');
-      // Se já começar com http/https ou "/", mantemos
       if (/^https?:\/\//i.test(path) || path.startsWith('/')) return path;
       return base + path.replace(/^\.?\//, '');
     }
 
     const destRel = ROUTES[primaryRole];
-    if (!destRel) {
-      throw new Error(`Papel '${primaryRole}' não tem redirecionamento definido.`);
-    }
+    if (!destRel) throw new Error(`Papel '${primaryRole}' não tem redirecionamento definido.`);
 
     const destAbs = toAbs(destRel);
     console.log('[LOGIN] role=', primaryRole, '=>', destAbs);
 
-    // Redireciona de forma "hard", sem manter histórico do formulário
     window.location.replace(destAbs);
 
   } catch (err) {
