@@ -400,7 +400,37 @@
     const url = `${location.origin}${prefix}${pathOnly}`.replace(/\/+/g,'/').replace(':/','://');
     return hash ? `${url}#${hash}` : url;
   }
+  // tenta abrir uma lista de candidatos e redireciona pro primeiro que existir
+  async function tryRedirect(candidates) {
+    for (const rel of candidates) {
+      const url = toProjectUrl(rel);
+      try {
+        // primeiro testa se o arquivo existe (HEAD)
+        const head = await fetch(url.split('#')[0], { method: 'HEAD' });
+        if (head.ok) {
+          console.log('[admin redirect] usando:', url);
+          window.location.href = url;
+          return;
+        }
+      } catch (e) {
+        console.warn('[admin redirect] falhou HEAD para', url, e);
+      }
+    }
+    // se nenhum funcionou, mostra erro no console pra facilitar debug
+    console.error('[admin redirect] nenhum candidato encontrado. Testados:', candidates);
+    alert('Não consegui abrir o dashboard admin (ver console). Verifique se o build do React foi publicado em /admin-dashboard/dist.');
+  }
 
+  // redireciona admin cobrindo: com dist, sem dist, index direto da pasta, e fallback para / (hash router)
+  function goToAdminDashboard() {
+    const candidates = [
+      'admin-dashboard/dist/index.html#/', // build padrão do Vite
+      'admin-dashboard/index.html#/',      // caso você publique o dist “por cima”
+      'admin-dashboard/dist/#/',           // alguns hosts reescrevem para index
+      'admin-dashboard/#/'                 // último recurso se você serviu a pasta sem o index
+    ];
+    return tryRedirect(candidates);
+  }
 
   async function handleLogin(event, intendedRole) {
     event.preventDefault();
@@ -471,12 +501,14 @@
           // redireciona para o dashboard da secretária (HTML estático)
           window.location.href = toProjectUrl('Secretaria/dash-secretaria.html');
           break;
-        case 'admin':
-          // hash-router do dashboard React
-          window.location.href = toProjectUrl('admin-dashboard/dist/index.html#/');
-          break;
-        default:
-          throw new Error(`Papel '${primaryRole}' não tem redirecionamento definido.`);
+  case 'admin':
+    // ⬇️ troque essa linha:
+    // window.location.href = toProjectUrl('admin-dashboard/dist/index.html#/');
+    // ⬇️ por esta:
+    await goToAdminDashboard();
+    break;
+  default:
+    throw new Error(`Papel '${primaryRole}' não tem redirecionamento definido.`);
       }
 
     } catch (err) {
