@@ -327,6 +327,81 @@ body.modo-escuro .bar {
   background: linear-gradient(180deg,#fb7185,#f9a8d4);
 }
 
+.consultas-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.consultas-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  max-width: 320px;
+  overflow: hidden;
+}
+
+.consulta-card {
+  background-color: var(--card, #1e2632);
+  border-radius: 12px;
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: transform 0.3s ease;
+}
+
+.consulta-card:hover {
+  transform: scale(1.02);
+}
+
+consultas-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-top: 10px;
+}
+.nav-btn {
+  background: var(--brand-600);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 6px 12px;
+  transition: 0.2s;
+}
+.nav-btn:hover {
+  background: var(--brand);
+  transform: scale(1.1);
+}
+.nav-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+#appts {
+  max-height: 280px; /* altura máxima visível */
+  overflow-y: auto;  /* cria rolagem vertical se passar do limite */
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-right: 6px;
+}
+
+/* barras de rolagem mais discretas */
+#appts::-webkit-scrollbar {
+  width: 6px;
+}
+#appts::-webkit-scrollbar-thumb {
+  background: var(--brand-500, #5aa9e6);
+  border-radius: 6px;
+}
+
 </style>
 </head>
 <body>
@@ -431,33 +506,15 @@ body.modo-escuro .bar {
       </div>
 
       <div class="card">
-        <h3 class="title">Próximas Consultas</h3>
-        <div class="appt-list" id="appts">
-          <div class="appt">
-            <div class="ic" style="background:#2ec5ff">🦷</div>
-            <div><b>Dentista</b><div style="color:var(--muted)"> Quarta - Dra. Gorex Mathew</div></div>
-            <div class="time">09:00</div>
-          </div>
-          <div class="appt">
-            <div class="ic" style="background:#a55cff">❤️</div>
-            <div><b>Cardiologia</b><div style="color:var(--muted)">Quarta - Dr. Craig Gemx</div></div>
-            <div class="time">12:00</div>
-          </div>
-          <div class="appt">
-            <div class="ic" style="background:#ff7a59">🦴</div>
-            <div><b>Ortopedia</b><div style="color:var(--muted)">Quinta - Dr. Bruce Williams</div></div>
-            <div class="time">15:00</div>
-          </div>
-          <div class="appt">
-            <div class="ic" style="background:#22c55e">🩺</div>
-            <div><b>Clínico</b><div style="color:var(--muted)">Quinta - Dra. Kiera Knight</div></div>
-            <div class="time">16:00</div>
-          </div>
-          <div class="appt">
-            <div class="ic" style="background:#ffb020">🧪</div>
-            <div><b>Endocrino</b><div style="color:var(--muted)">Quinta - Dra. Anni Roy</div></div>
-            <div class="time">18:00</div>
-          </div>
+  <h3 class="title">Próximas Consultas</h3>
+  <div class="appt-list" id="appts"></div>
+
+  <!-- 🔹 Colocar as setas aqui dentro -->
+  <div class="consultas-container">
+    <button id="prev" class="nav-btn">⬅️</button>
+    <button id="next" class="nav-btn">➡️</button>
+  </div>
+</div>
         </div>
       </div>
     </aside>
@@ -482,6 +539,8 @@ body.modo-escuro .bar {
   <button class="menu-item" id="leitorTexto">🔊 Leitor de Texto</button>
    <button class="menu-item" id="modoDaltonico">🎨 Modo Daltônico</button>
 </div>
+
+
 
 
 <script>
@@ -626,6 +685,205 @@ document.addEventListener("mouseover", (e) => {
     speechSynthesis.speak(fala);
   }
 });
+
+// === 🔥 DASHBOARD DO PACIENTE: LISTAR AGENDAMENTOS REAIS ===
+
+// === 🧠 CONFIGURAÇÃO ===
+const SUPABASE_BASE = "https://yuanqfswhberkoevtmfr.supabase.co";
+const API_BASE = `${SUPABASE_BASE}/rest/v1`;
+const API_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl1YW5xZnN3aGJlcmtvZXZ0bWZyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTQ5NTQzNjksImV4cCI6MjA3MDUzMDM2OX0.g8Fm4XAvtX46zifBZnYVH4tVuQkqUH6Ia9CXQj4DztQ";
+
+const API_AGENDAMENTOS =
+  `${API_BASE}/appointments`; 
+const PATIENT_ID = "3854866a-5476-48be-8313-77029ccdd7a7";
+
+// === 🔐 1️⃣ AUTENTICAÇÃO SUPABASE / APIDOG ===
+async function login() {
+  const existing = sessionStorage.getItem("token");
+  if (existing) return existing; // já autenticado
+
+  try {
+    const res = await fetch(
+      `${SUPABASE_BASE}/auth/v1/token?grant_type=password`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          apikey: API_KEY,
+        },
+        body: JSON.stringify({
+          email: "riseup@popcode.com.br",
+          password: "riseup",
+        }),
+      }
+    );
+
+    if (!res.ok) throw new Error(`Falha no login: ${res.status}`);
+    const data = await res.json();
+
+    const token = data.access_token;
+    sessionStorage.setItem("token", token);
+    console.log("✅ Login bem-sucedido, token salvo!");
+    return token;
+  } catch (err) {
+    console.error("❌ Erro ao autenticar:", err);
+    alert("Erro ao autenticar. Verifique as credenciais da API.");
+  }
+}
+
+// Função auxiliar para montar headers com apikey + bearer
+function getHeaders(extra = {}) {
+  // 💡 DEBUG: Tenta ler o token do armazenamento
+  const token = sessionStorage.getItem("token"); 
+  //console.log("DEBUG: Token lido de sessionStorage:", token ? "Sim" : "Não"); 
+  
+  const headers = Object.assign(
+    {
+      "Content-Type": "application/json",
+      apikey: API_KEY,
+      // 💡 Se o token existir, adiciona o Bearer
+      ...(token && { Authorization: `Bearer ${token}` }), 
+    },
+    extra
+  );
+  
+  // 💡 DEBUG: Mostra o valor do Header de Autorização que será enviado
+  //console.log("DEBUG: Header Authorization:", headers.Authorization); 
+  
+  return headers;
+}
+
+// === 2️⃣ BUSCAR MÉDICOS (com token) ===
+async function listarMedicosSupabase() {
+  try {
+    await login(); // garante que está autenticado
+
+    const resp = await fetch(`${API_BASE}/doctors`, {
+      method: "GET",
+      headers: getHeaders(),
+    });
+    if (!resp.ok) throw new Error(`Erro ao buscar médicos: ${resp.status}`);
+    const medicos = await resp.json();
+
+    // Monta mapa: doctor_id → { nome, especialidade }
+    const mapa = {};
+    medicos.forEach((m) => {
+      mapa[m.id] = {
+        nome: m.full_name || "Sem Nome",
+        especialidade: m.specialty || "Clínico Geral",
+      };
+    });
+    return mapa;
+  } catch (err) {
+    console.error("❌ Erro ao carregar médicos:", err);
+    return {};
+  }
+}
+
+// === 3️⃣ BUSCAR E EXIBIR CONSULTAS DO PACIENTE (com paginação de 4) ===
+let paginaAtual = 0;
+const LIMITE_POR_PAGINA = 4;
+let agendamentosGlobais = [];
+
+async function listarAgendamentosPaciente() {
+  const lista = document.getElementById("appts");
+  lista.innerHTML = "<p style='color:var(--muted)'>Carregando consultas...</p>";
+
+  try {
+    const token = await login();
+    console.log("DEBUG: Token obtido:", token ? "sim" : "não");
+
+    // 🔹 Busca todas as consultas do paciente
+   const url = `${API_AGENDAMENTOS}?select=*&order=scheduled_at.desc`;
+    const resp = await fetch(url, {
+      method: "GET",
+      headers: getHeaders(),
+    });
+
+    if (!resp.ok) throw new Error(`Erro ${resp.status}`);
+    const agendamentos = await resp.json();
+    console.log("✅ Agendamentos recebidos:", agendamentos);
+
+    if (!agendamentos.length) {
+      lista.innerHTML = "<p style='color:var(--muted)'>Nenhuma consulta encontrada.</p>";
+      return;
+    }
+
+    // Salva os agendamentos para paginação
+    agendamentosGlobais = agendamentos;
+    paginaAtual = 0;
+
+    // Busca os médicos para exibir nomes
+    const medicos = await listarMedicosSupabase();
+    renderizarConsultas(medicos);
+  } catch (err) {
+    console.error("❌ Erro ao carregar agendamentos:", err);
+    lista.innerHTML = `<p style='color:red'>Erro ao carregar consultas: ${err.message}</p>`;
+  }
+}
+
+function renderizarConsultas(medicos) {
+  const lista = document.getElementById("appts");
+  lista.innerHTML = "";
+
+  const inicio = paginaAtual * LIMITE_POR_PAGINA;
+  const fim = inicio + LIMITE_POR_PAGINA;
+  const pagina = agendamentosGlobais.slice(inicio, fim);
+
+  pagina.forEach(a => {
+    const medico = medicos[a.doctor_id] || { nome: "Médico Desconhecido", especialidade: "—" };
+    const data = new Date(a.scheduled_at);
+    const dataFormatada = data.toLocaleDateString("pt-BR", {
+      day: "2-digit", month: "short", year: "numeric",
+    });
+    const hora = data.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+
+    const card = `
+      <div class="appt">
+        <div class="ic" style="background-color: var(--brand-600);">
+          <i class="fa-solid fa-user-md"></i>
+        </div>
+        <div>
+          <strong>${medico.nome}</strong><br>
+          <span style="color:var(--muted); font-size:13px;">${medico.especialidade}</span><br>
+          <span style="font-size:13px;">${dataFormatada} às ${hora}</span>
+        </div>
+        <div class="time">${a.status || "Agendado"}</div>
+      </div>`;
+    lista.insertAdjacentHTML("beforeend", card);
+  });
+
+  // 🔹 Controles de navegação (setas)
+  const controles = `
+    <div style="display:flex;justify-content:center;align-items:center;gap:10px;margin-top:10px;">
+      <span style="color:var(--muted);font-size:13px;">
+        Página ${paginaAtual + 1} de ${Math.ceil(agendamentosGlobais.length / LIMITE_POR_PAGINA)}
+      </span>
+    </div>
+  `;
+  lista.insertAdjacentHTML("beforeend", controles);
+
+  // Eventos das setas
+  document.getElementById("prev").onclick = async () => {
+    if (paginaAtual > 0) {
+      paginaAtual--;
+      renderizarConsultas(medicos);
+    }
+  };
+  document.getElementById("next").onclick = async () => {
+    if ((paginaAtual + 1) * LIMITE_POR_PAGINA < agendamentosGlobais.length) {
+      paginaAtual++;
+      renderizarConsultas(medicos);
+    }
+  };
+}
+
+// === 4️⃣ INICIALIZAÇÃO AUTOMÁTICA ===
+(async function init() {
+  await login(); // autentica antes de tudo
+  listarAgendamentosPaciente();
+})();
 
 </script>
 </body>
