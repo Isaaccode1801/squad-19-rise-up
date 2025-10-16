@@ -9,6 +9,7 @@ const API_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsIn
 // No topo do seu JS de cadastro
 
 function getAuthHeaders() {
+  
   const userToken = localStorage.getItem('user_token');
   if (!userToken) {
     console.warn('Token de usuário não encontrado no localStorage.');
@@ -19,7 +20,7 @@ function getAuthHeaders() {
     'Content-Type': 'application/json'
   };
 }
-
+export { getAuthHeaders as getHeaders };
 /**
  * Busca a lista de todos os pacientes.
  * Agora a URL será montada corretamente: .../rest/v1/patients?select=*
@@ -106,30 +107,163 @@ export async function updatePaciente(id, dadosDoPaciente) {
 
 // ... (suas funções existentes: getAuthHeaders, listPacientes, getPaciente, createPaciente, updatePaciente) ...
 
+// Observação: Caso não exista coluna deleted_at ou active para soft delete no banco,
+// a listagem padrão pode precisar filtrar pacientes excluídos logicamente no front-end.
+/**
+ * ========================= Helpers de limpeza de FKs =========================
+ * Alguns deletes falham (409) por causa de referências (FK) em tabelas-filhas.
+ * Os helpers abaixo tentam:
+ *  - anular a FK (SET NULL) quando a coluna permite null,
+ *  - ou excluir os filhos (DELETE) quando não há outra saída.
+ *
+ * Ajuste a constante CHILD_RELATIONS conforme seu schema real.
+ */
+
+/** Tenta anular a FK: UPDATE {table} SET {column}=NULL WHERE {column}=id */
+async function tryNullifyFk(table, column, patientId) {
+  const url = `${API_BASE_URL}/${table}?${column}=eq.${patientId}`;
+  const resp = await fetch(url, {
+    method: 'PATCH',
+    headers: {
+      ...getAuthHeaders(),
+      'Prefer': 'return=minimal'
+    },
+    body: JSON.stringify({ [column]: null })
+  });
+  if (resp.ok || resp.status === 204) return true;
+  // 400 geralmente indica coluna não-nullable; apenas retorna false
+  return false;
+}
+
+/** Tenta excluir filhos: DELETE FROM {table} WHERE {column}=id */
+async function tryDeleteChildren(table, column, patientId) {
+  const url = `${API_BASE_URL}/${table}?${column}=eq.${patientId}`;
+  const resp = await fetch(url, {
+    method: 'DELETE',
+    headers: {
+      ...getAuthHeaders(),
+      'Prefer': 'return=minimal'
+    }
+  });
+  return (resp.ok || resp.status === 204);
+}
+
+/**
+ * Limpa relações filhas conhecidas antes de deletar o paciente.
+ * Ajuste esta lista conforme seu banco. A ordem importa (do mais dependente para o menos).
+ */
+const CHILD_RELATIONS = [
+  // Ex.: agendas, consultas, pagamentos, laudos, etc.
+  // mode: 'nullify' tentará SET NULL; se falhar, cai para 'delete' como fallback.
+  { table: 'appointments', column: 'patient_id',   mode: 'delete'  },
+  { table: 'reports',      column: 'patient_id',   mode: 'delete'  },
+  { table: 'invoices',     column: 'patient_id',   mode: 'delete'  },
+  { table: 'payments',     column: 'patient_id',   mode: 'delete'  },
+  { table: 'prescriptions',column: 'patient_id',   mode: 'delete'  },
+  { table: 'exams',        column: 'patient_id',   mode: 'delete'  },
+  // Se houver uma relação de “médico designado” no próprio patient (ex.: doctor_id),
+  // não é child; é coluna do paciente. Trate isso via updatePaciente antes do delete se precisar.
+];
+
+/** Executa a limpeza, respeitando o modo. */
+async function cleanupChildren(patientId) {
+  for (const rel of CHILD_RELATIONS) {
+    try {
+      if (rel.mode === 'nullify') {
+        const okNull = await tryNullifyFk(rel.table, rel.column, patientId);
+        if (!okNull) {
+          // tenta deletar se não deu para anular
+          await tryDeleteChildren(rel.table, rel.column, patientId);
+        }
+      } else {
+        await tryDeleteChildren(rel.table, rel.column, patientId);
+      }
+    } catch (e) {
+      // Não aborta toda a limpeza por uma tabela; apenas loga e segue
+      console.warn(`[cleanupChildren] falhou em ${rel.table}.${rel.column}:`, e?.message || e);
+    }
+  }
+}
+
 /**
  * Exclui um paciente existente pelo ID.
- * Corresponde ao endpoint: DELETE /patients?id=eq.{id}
- * @param {string | number} id O ID do paciente a ser excluído.
+ * Fluxo:
+ *   1) Tenta DELETE direto.
+ *   2) Se 409, executa cleanupChildren (remove filhos) e tenta DELETE novamente.
+ *   3) Se ainda falhar, tenta soft delete (marcar coluna, se existir).
+ *   4) Se nada funcionar, lança erro explicando as opções.
  */
 export async function deletePaciente(id) {
-  try {
-    const response = await fetch(`${API_BASE_URL}/patients?id=eq.${id}`, {
-      method: 'DELETE',
-      headers: getAuthHeaders()
-    });
-    
-    // Para DELETE, um status 204 (No Content) também é sucesso.
-    if (!response.ok && response.status !== 204) {
-      throw new Error(`Erro ao excluir paciente: ${response.statusText}`);
+  async function softDeletePaciente(targetId) {
+    const url = `${API_BASE_URL}/patients?id=eq.${targetId}`;
+    const candidates = [
+      { field: 'deleted_at', value: new Date().toISOString() },
+      { field: 'is_deleted', value: true },
+      { field: 'deleted',    value: true },
+      { field: 'active',     value: false },
+      { field: 'status',     value: 'deleted' }, // tentativa extra comum
+      { field: 'enabled',    value: false }      // tentativa extra comum
+    ];
+
+    for (const c of candidates) {
+      const resp = await fetch(url, {
+        method: 'PATCH',
+        headers: {
+          ...getAuthHeaders(),
+          'Prefer': 'return=minimal'
+        },
+        body: JSON.stringify({ [c.field]: c.value })
+      });
+      if (resp.ok || resp.status === 204) return { mode: `soft:${c.field}` };
+      if (resp.status !== 400) {
+        // loga o erro e segue tentando as próximas colunas
+        const errTxt = await resp.text().catch(() => '');
+        console.warn(`[softDeletePaciente] tentativa ${c.field} falhou:`, resp.status, errTxt);
+      }
     }
-    
-    // A resposta de um DELETE bem-sucedido geralmente é vazia, então não retornamos nada.
-    return true; 
-    
-  } catch (error) {
-    console.error(`Falha ao excluir paciente ${id}:`, error);
-    throw error;
+    throw new Error(
+      "Soft delete falhou: nenhuma coluna padrão de soft delete pôde ser atualizada. " +
+      "Remova vínculos (FKs) ou peça ao backend para criar e liberar uma dessas colunas."
+    );
   }
+
+  // 1) Tenta delete direto
+  const url = `${API_BASE_URL}/patients?id=eq.${id}`;
+  let response = await fetch(url, {
+    method: 'DELETE',
+    headers: {
+      ...getAuthHeaders(),
+      'Prefer': 'return=minimal'
+    }
+  });
+
+  if (response.ok || response.status === 204) {
+    return { mode: 'hard' };
+  }
+
+  // 2) Se 409, limpa filhos e tenta novamente
+  if (response.status === 409) {
+    await cleanupChildren(id);
+    response = await fetch(url, {
+      method: 'DELETE',
+      headers: {
+        ...getAuthHeaders(),
+        'Prefer': 'return=minimal'
+      }
+    });
+    if (response.ok || response.status === 204) {
+      return { mode: 'hard-after-cleanup' };
+    }
+  }
+
+  // 3) Se ainda não deu, tenta soft delete
+  if (response.status === 409) {
+    return await softDeletePaciente(id);
+  }
+
+  // 4) Outros erros
+  const msg = await response.text().catch(() => '');
+  throw new Error(`Erro ao excluir paciente: ${response.status}${msg ? ' ' + msg : ''}`);
 }
 // Dentro do arquivo: pacientesService.js
 
@@ -247,19 +381,47 @@ export async function updateLaudo(id, dadosDoLaudo) {
 // ... (suas funções de pacientes e laudos) ...
 
 /**
- * Busca a lista completa de MÉDICOS na API.
+ * Busca a lista completa de MÉDICOS.
+ * 1) Tenta a tabela 'doctors'
+ * 2) Fallback: usa 'profiles' filtrando por role=medico (se a coluna existir)
  */
 export async function listarMedicos() {
-  // ❗️ Assumindo que sua tabela de médicos se chama 'doctors'. Verifique no Supabase!
+  // TENTATIVA 1: doctors
   try {
-    const response = await fetch(`${API_BASE_URL}/doctors?select=*`, {
+    const resp = await fetch(`${API_BASE_URL}/doctors?select=*`, {
       method: 'GET',
       headers: getAuthHeaders()
     });
-    if (!response.ok) throw new Error(`Erro de rede: ${response.statusText}`);
-    return await response.json();
-  } catch (error) {
-    console.error('Falha ao listar médicos:', error);
-    throw error;
+    if (resp.ok) {
+      const data = await resp.json();
+      if (Array.isArray(data) && data.length) return data;
+    } else {
+      // Se 404/400, cai para fallback
+      if (resp.status !== 404 && resp.status !== 400) {
+        const errTxt = await resp.text().catch(() => '');
+        console.warn('[listarMedicos] doctors falhou:', resp.status, errTxt);
+      }
+    }
+  } catch (err) {
+    console.warn('[listarMedicos] erro na tabela doctors:', err?.message || err);
+  }
+
+  // TENTATIVA 2: profiles com role=medico (se existir essa coluna)
+  try {
+    const url = `${API_BASE_URL}/profiles?select=id,full_name,email,phone,role&role=eq.medico&order=full_name.asc`;
+    const resp = await fetch(url, {
+      method: 'GET',
+      headers: getAuthHeaders()
+    });
+    if (!resp.ok) {
+      const errTxt = await resp.text().catch(() => '');
+      throw new Error(`Falha no fallback profiles: ${resp.status} ${errTxt}`);
+    }
+    const data = await resp.json();
+    return Array.isArray(data) ? data : [];
+  } catch (err) {
+    console.error('Falha ao listar médicos (fallback profiles):', err);
+    // Por fim, retorna array vazio para não quebrar a UI
+    return [];
   }
 }

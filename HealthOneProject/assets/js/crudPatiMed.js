@@ -110,7 +110,7 @@ function onEdit(id) {
   if (!id) { alert('ID do paciente inválido.'); return; }
   // ⬇️ mantém o id acessível mesmo se o ?id=... não vier
   try { sessionStorage.setItem('edit_patient_id', id); } catch {}
-  const dest = toProjectUrl(`cadastro.html?id=${encodeURIComponent(id)}`);
+  const dest = toProjectUrl(`../../Secretaria/cadastro.html?id=${encodeURIComponent(id)}`);
   window.location.assign(dest);
 }
 

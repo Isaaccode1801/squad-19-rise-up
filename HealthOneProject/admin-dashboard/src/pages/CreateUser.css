@@ -46,3 +46,7 @@
 .alert{ margin-top:12px; padding:10px 12px; border-radius:10px; font-weight:600; }
 .alert.ok{ background:var(--okbg); color:var(--ok); }
 .alert.error{ background:var(--errbg); color:var(--err); }
+.role-tab.needs-selection:not(.active) {
+  outline: 2px dashed #f59e0b; /* âmbar */
+  outline-offset: 4px;
+}

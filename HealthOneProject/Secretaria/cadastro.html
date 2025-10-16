@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Cadastro de Paciente • HealthOne</title>
+  <!-- Se tiver um CSS externo, mantenha: -->
+  <link rel="stylesheet" href="../../assets/css/style-cadastro.css">
+
+</head>
+<body>
+  <header class="app-header" style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid #e5e7eb;background:#fff;position:sticky;top:0;z-index:10">
+    <div class="app-brand" style="display:flex;gap:10px;align-items:center">
+      <div class="brand-mark" style="width:28px;height:28px;border-radius:50%;background:#22c3b5"></div>
+      <div>
+        <div class="brand-title" style="font-weight:800">HealthOne</div>
+        <div class="muted" style="font-size:12px">Cadastro de Paciente</div>
+      </div>
+    </div>
+    <nav class="top-nav" aria-label="Navegação principal" style="display:flex;gap:8px">
+      <a href="crud-pacientes.html" data-page="pacientes">Pacientes</a>
+      <a href="laudos.html" data-page="laudos">Laudos</a>
+      <a href="cadastro.html" data-page="cadastro" class="active">Cadastro</a>
+    </nav>
+  </header>
+
+  <main class="container" style="max-width:1100px;margin:20px auto;padding:0 12px">
+    <div class="card" style="background:#fff;border:1px solid #e5e7eb;border-radius:16px;overflow:hidden">
+      <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;padding:16px 18px;border-bottom:1px solid #e5e7eb;background:#fff">
+        <div class="card-title" style="font-weight:800">Dados do Paciente</div>
+        <div class="card-actions" style="display:flex;gap:10px">
+          <button id="btnCancel" type="button" class="btn secondary">Cancelar</button>
+          <button id="btnSave" type="submit" class="btn" form="patientForm">Salvar</button>
+        </div>
+      </div>
+
+      <form id="patientForm" novalidate style="padding:16px">
+        <!-- 1. DADOS PESSOAIS -->
+        <section class="section" aria-labelledby="sec-pessoais">
+          <div class="section-header">
+            <div class="section-title" id="sec-pessoais" style="font-weight:800">1. Dados pessoais</div>
+          </div>
+          <div style="padding:16px" class="grid grid-cols-4">
+
+            <div class="field" style="grid-column: span 3">
+              <label for="full_name" id="full_name">Nome completo <span class="error">*</span></label>
+              <input id="nome" name="full_name" type="text" required placeholder="Nome completo" />
+              <div class="error" id="err-full_name" aria-live="polite"></div>
+            </div>
+            <div class="field">
+              <label for="social_name">Nome social</label>
+              <input id="social_name" name="social_name" type="text" placeholder="Apelido/nome social" />
+            </div>
+
+            <div class="field">
+              <label for="cpf">CPF <span class="error">*</span></label>
+              <input id="cpf" name="cpf" type="text" inputmode="numeric" placeholder="000.000.000-00" maxlength="14" />
+              <div class="hint">Validação automática dos 11 dígitos</div>
+              <div class="error" id="err-cpf" aria-live="polite"></div>
+            </div>
+
+            <div class="field">
+              <label for="email">E-mail</label>
+              <input id="email" name="email" type="email" placeholder="nome@exemplo.com" />
+              <div class="error" id="err-email" aria-live="polite"></div>
+            </div>
+
+            <div class="field">
+              <label for="phone_mobile">Celular</label>
+              <input id="celular" name="phone_mobile" type="tel" inputmode="numeric" placeholder="+55 (00) 00000-0000" maxlength="20" />
+            </div>
+
+            <div class="field">
+              <label for="birth_date">Data de nascimento</label>
+              <input id="nasc" name="birth_date" type="date" />
+            </div>
+
+            <div class="field">
+              <label>Sexo</label>
+              <div class="radio-group" role="radiogroup" aria-label="Sexo" style="display:flex;gap:10px;flex-wrap:wrap">
+                <label><input  type="radio" name="sex" value="M"> Masculino</label>
+                <label><input type="radio" name="sex" value="F"> Feminino</label>
+                <label><input type="radio" name="sex" value="O"> Outro</label>
+                <label><input type="radio" name="sex" value=""> Prefiro não informar</label>
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="blood_type">Tipo sanguíneo</label>
+              <select id="tipoSanguineo" name="blood_type">
+                <option value="">Selecione…</option>
+                <option>A+</option><option>A-</option>
+                <option>B+</option><option>B-</option>
+                <option>AB+</option><option>AB-</option>
+                <option>O+</option><option>O-</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="weight_kg">Peso (kg)</label>
+              <input id="peso" name="weight_kg" type="number" step="0.1" placeholder="Ex.: 65.5" />
+            </div>
+
+            <div class="field">
+              <label for="height_m">Altura (m)</label>
+              <input id="altura" name="height_m" type="number" step="0.01" placeholder="Ex.: 1.65" />
+            </div>
+
+            <div class="field">
+              <label for="bmi">IMC</label>
+              <input id="imc" name="bmi" type="number" step="0.1" placeholder="Calculado automaticamente" readonly />
+            </div>
+
+          </div>
+        </section>
+
+        <!-- 2. ENDEREÇO (mantendo IDs compatíveis com helpers & ViaCEP) -->
+        <details class="section" open aria-labelledby="sec-endereco">
+          <summary class="section-header"><div class="section-title" id="sec-endereco" style="font-weight:800">2. Endereço</div></summary>
+          <div style="padding:16px" class="grid grid-cols-4">
+            <div class="field">
+              <label for="cep">CEP</label>
+              <input id="cep" name="cep" type="text" inputmode="numeric" placeholder="00000-000" maxlength="9" />
+              <div class="hint">Busca automática via ViaCEP</div>
+              <div class="error" id="err-cep" aria-live="polite"></div>
+            </div>
+            <div class="field" style="grid-column: span 2">
+              <label for="logradouro">Logradouro</label>
+              <input id="logradouro" name="logradouro" type="text" />
+            </div>
+            <div class="field">
+              <label for="numero">Número</label>
+              <input id="numero" name="numero" type="text" />
+            </div>
+
+            <div class="field">
+              <label for="complemento">Complemento</label>
+              <input id="complemento" name="complemento" type="text" />
+            </div>
+            <div class="field">
+              <label for="bairro">Bairro</label>
+              <input id="bairro" name="bairro" type="text" />
+            </div>
+            <div class="field">
+              <label for="cidade">Cidade</label>
+              <input id="cidade" name="cidade" type="text" />
+            </div>
+            <div class="field">
+              <label for="uf">Estado</label>
+              <input id="uf" name="uf" type="text" maxlength="2" placeholder="UF" />
+            </div>
+
+            <div class="field" style="grid-column: span 4">
+              <label for="referencia">Referência</label>
+              <input id="referencia" name="referencia" type="text" placeholder="Ponto de referência (não enviado)" />
+            </div>
+          </div>
+        </details>
+      </form>
+    </div>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+
+<script type="module" src="../assets/js/cadastro.js"></script> 
+
+
+
+</body>
+</html>

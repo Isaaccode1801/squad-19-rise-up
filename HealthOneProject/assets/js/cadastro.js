@@ -1,5 +1,5 @@
+import { createPaciente, getPaciente, updatePaciente, getHeaders as getAuthHeaders } from './pacientesService.js';
 
-import { createPaciente, getPaciente, updatePaciente } from './pacientesService.js';
 /* ========================= Helpers ========================= */
 // datas: aceita DD/MM/YYYY, D/M/YYYY, YYYY-MM-DD, YYYY/M/D
 function parseDateSmart(v){
@@ -7,7 +7,8 @@ function parseDateSmart(v){
   if (v instanceof Date) return v;
   const s = String(v).trim();
 
-  let m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/); // DD/MM/YYYY
+  // DD/MM/YYYY
+  let m = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
   if (m){
     let dd = +m[1], mm = +m[2], yyyy = +m[3];
     if (yyyy < 100) yyyy += 2000;
@@ -15,7 +16,8 @@ function parseDateSmart(v){
     if (d.getUTCFullYear() === yyyy && d.getUTCMonth() === mm-1 && d.getUTCDate() === dd) return d;
     return null;
   }
-  m = s.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/); // YYYY-MM-DD
+  // YYYY-MM-DD
+  m = s.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})$/);
   if (m){
     const yyyy = +m[1], mm = +m[2], dd = +m[3];
     const d = new Date(Date.UTC(yyyy, mm-1, dd));
@@ -60,21 +62,73 @@ function isValidCPF(raw){
   return true;
 }
 function toast(msg, ok=true){
-  const t = $('#toast'); t.textContent = msg;
+  const t = $('#toast');
+  if (!t) { alert(msg); return; }
+  t.textContent = msg;
   t.style.borderColor = ok? '#10b981':'#ef4444';
   t.classList.add('show'); setTimeout(()=> t.classList.remove('show'), 2200);
+}
+
+// helpers de set
+function setValById(id, value){
+  const el = document.getElementById(id);
+  if (el) el.value = value;
+}
+function setVal(sel, value){
+  const el = document.querySelector(sel);
+  if (el) el.value = value;
+}
+function setRadioByName(name, value){
+  $$(`input[name="${name}"]`).forEach(r=>{
+    r.checked = (String(r.value).toLowerCase() === String(value||'').toLowerCase());
+  });
+}
+function getRadioVal(name){
+  const r = $(`input[name="${name}"]:checked`);
+  return r ? r.value : '';
+}
+
+// === troque o getEditId + editingId por isto ===
+
+// Pega o id da URL (se houver)
+const urlIdParam = new URLSearchParams(location.search).get('id');
+
+// Consome (lê e apaga) o id de edição salvo em sessão
+function consumeEditId() {
+  try {
+    const id = sessionStorage.getItem('edit_patient_id');
+    sessionStorage.removeItem('edit_patient_id'); // <- apaga logo após ler
+    return id;
+  } catch {
+    return null;
+  }
+}
+
+// Se tiver id na URL usa ele; senão tenta consumir da sessão; senão null
+const editingId = urlIdParam || consumeEditId();
+/* ============ Fetch paciente by id (campos completos) ============ */
+async function fetchPacienteById(id) {
+  const API_BASE = 'https://yuanqfswhberkoevtmfr.supabase.co';
+  const url = `${API_BASE}/rest/v1/patients?id=eq.${encodeURIComponent(id)}&select=*`;
+  const resp = await fetch(url, { headers: getAuthHeaders() });
+  if (!resp.ok) throw new Error(`Falha ao buscar paciente (${resp.status})`);
+  const arr = await resp.json();
+  return arr[0] || null;
 }
 
 /* ========================= Upload de avatar ========================= */
 const photoInput = $('#photo');
 const avatar = $('#avatarPreview');
-$('#btnUpload').addEventListener('click', ()=> photoInput.click());
-photoInput.addEventListener('change', ()=>{
-  const f = photoInput.files?.[0]; if(!f) return;
-  const reader = new FileReader();
-  reader.onload = e => { avatar.innerHTML = `<img alt="Foto do paciente" src="${e.target.result}"/>`; };
-  reader.readAsDataURL(f);
-});
+const btnUpload = $('#btnUpload');
+if (btnUpload && photoInput) {
+  btnUpload.addEventListener('click', ()=> photoInput.click());
+  photoInput.addEventListener('change', ()=>{
+    const f = photoInput.files?.[0]; if(!f) return;
+    const reader = new FileReader();
+    reader.onload = e => { if (avatar) avatar.innerHTML = `<img alt="Foto do paciente" src="${e.target.result}"/>`; };
+    reader.readAsDataURL(f);
+  });
+}
 
 /* ========================= Interações de campos ========================= */
 const rnToggle = $('#rnToggle');
@@ -83,31 +137,64 @@ rnToggle?.addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' '){ e
 
 const docTipo = $('#docTipo');
 const docNumero = $('#docNumero');
-docTipo.addEventListener('change', ()=>{
+if (docTipo && docNumero) {
   docNumero.disabled = !docTipo.value;
-  docNumero.placeholder = docTipo.value ? `Número do ${docTipo.value}` : 'Preencha após selecionar o tipo';
-});
+  docTipo.addEventListener('change', ()=>{
+    docNumero.disabled = !docTipo.value;
+    docNumero.placeholder = docTipo.value ? `Número do ${docTipo.value}` : 'Preencha após selecionar o tipo';
+  });
+}
 
 const temResp = $('#temResponsavel');
 const respNome = $('#responsavel');
 const respCpf  = $('#cpfResponsavel');
-temResp.addEventListener('change', ()=>{
-  const on = temResp.value==='sim';
-  respNome.disabled = respCpf.disabled = !on;
-  if(!on){ respNome.value=''; respCpf.value=''; }
-});
+if (temResp && respNome && respCpf) {
+  temResp.addEventListener('change', ()=>{
+    const on = temResp.value==='sim';
+    respNome.disabled = respCpf.disabled = !on;
+    if(!on){ respNome.value=''; respCpf.value=''; }
+  });
+}
 
 // máscaras
-const cpf = $('#cpf'); cpf.addEventListener('input', ()=> cpf.value = maskCPF(cpf.value));
-const cpfResp = $('#cpfResponsavel'); cpfResp.addEventListener('input', ()=> cpfResp.value = maskCPF(cpfResp.value));
-const celular = $('#celular'); const tel1=$('#tel1'); const tel2=$('#tel2');
-;[celular,tel1,tel2].forEach(el=> el.addEventListener('input', ()=> el.value = maskPhoneBRIntl(el.value)));
-const cep = $('#cep'); cep.addEventListener('input', ()=> cep.value = maskCEP(cep.value));
+const cpf = $('#cpf');
+if (cpf) cpf.addEventListener('input', ()=> cpf.value = maskCPF(cpf.value));
+
+const cpfResp = $('#cpfResponsavel');
+if (cpfResp) cpfResp.addEventListener('input', ()=> cpfResp.value = maskCPF(cpfResp.value));
+
+const celular = $('#celular');
+const tel1 = $('#tel1');
+const tel2 = $('#tel2');
+[celular, tel1, tel2].forEach(el=> { if (el) el.addEventListener('input', ()=> el.value = maskPhoneBRIntl(el.value)); });
+
+const cep = $('#cep');
+if (cep) {
+  cep.addEventListener('input', ()=> cep.value = maskCEP(cep.value));
+}
+
+// Cálculo automático de IMC (peso / altura^2)
+(function bindAutoBMI(){
+  const pesoEl = $('#peso');
+  const altEl  = $('#altura');
+  const imcEl  = $('#imc');
+  if(!pesoEl || !altEl || !imcEl) return;
+
+  function calcBMI(){
+    const p = Number(String(pesoEl.value).replace(',','.'));
+    const a = Number(String(altEl.value).replace(',','.'));
+    if(p>0 && a>0){
+      imcEl.value = (p/(a*a)).toFixed(1).replace('.', ',');
+    }
+  }
+  pesoEl.addEventListener('input', calcBMI);
+  altEl.addEventListener('input', calcBMI);
+})();
 
 // validações
 const email = $('#email');
-email.addEventListener('blur', ()=> $('#err-email').textContent = (email.value && !email.checkValidity()) ? 'Formato de e-mail inválido.' : '');
-cpf.addEventListener('blur', ()=> $('#err-cpf').textContent = (cpf.value && !isValidCPF(cpf.value)) ? 'CPF inválido.' : '');
+if (email) email.addEventListener('blur', ()=> $('#err-email') && ($('#err-email').textContent = (email.value && !email.checkValidity()) ? 'Formato de e-mail inválido.' : ''));
+if (cpf) cpf.addEventListener('blur', ()=> $('#err-cpf') && ($('#err-cpf').textContent = (cpf.value && !isValidCPF(cpf.value)) ? 'CPF inválido.' : ''));
 
 // ViaCEP
 async function buscarCEP(v){
@@ -115,49 +202,110 @@ async function buscarCEP(v){
   try{
     const res = await fetch(`https://viacep.com.br/ws/${s}/json/`);
     const data = await res.json();
-    if(data.erro){ $('#err-cep').textContent='CEP não encontrado.'; return; }
-    $('#err-cep').textContent='';
-    $('#logradouro').value = data.logradouro || '';
-    $('#bairro').value     = data.bairro     || '';
-    $('#cidade').value     = data.localidade || '';
-    $('#uf').value         = data.uf         || '';
-  }catch{ $('#err-cep').textContent='Falha ao consultar CEP.'; }
+    const errEl = $('#err-cep');
+    if (data.erro){ if (errEl) errEl.textContent='CEP não encontrado.'; return; }
+    if (errEl) errEl.textContent='';
+    const lg = $('#logradouro'); if (lg) lg.value = data.logradouro || '';
+    const br = $('#bairro');     if (br) br.value = data.bairro     || '';
+    const cd = $('#cidade');     if (cd) cd.value = data.localidade || '';
+    const uf = $('#uf');         if (uf) uf.value = data.uf         || '';
+  }catch{ const errEl = $('#err-cep'); if (errEl) errEl.textContent='Falha ao consultar CEP.'; }
 }
-cep.addEventListener('blur', ()=> buscarCEP(cep.value));
+if (cep) cep.addEventListener('blur', ()=> buscarCEP(cep.value));
 
 /* ========================= Coletar dados / validar ========================= */
 const form = $('#patientForm');
+function getVal(sel){
+  const el = document.querySelector(sel);
+  return el ? el.value : '';
+}
 function getFormData() {
-  // Pega os valores dos inputs
-  const nome = $('#nome').value.trim();
-  const cpf = onlyDigits($('#cpf').value);
-  const email = $('#email').value.trim();
-  const dataNascimento = $('#nasc').value; // Formato YYYY-MM-DD
-  const telefone = $('#celular').value.trim();
-  const cidade = $('#cidade').value.trim();
-  const uf = $('#uf').value.trim();
+  const nome         = (getVal('#nome') || '').trim();
+  const nomeSocial   = (getVal('#nomeSocial') || '').trim();
+  const cpfVal       = onlyDigits(getVal('#cpf'));
+  const emailVal     = (getVal('#email') || '').trim();
 
-  // Monta o objeto EXATAMENTE como a API espera
+  const nascVal      = (getVal('#nasc') || '').trim(); // YYYY-MM-DD
+  const celularVal   = (getVal('#celular') || '').trim();
+
+  // Endereço (IDs usados pela ViaCEP)
+  const cepVal        = onlyDigits(getVal('#cep'));
+  const logradouroVal = (getVal('#logradouro') || '').trim();
+  const numeroVal     = (getVal('#numero') || '').trim();
+  const complVal      = (getVal('#complemento') || '').trim();
+  const bairroVal     = (getVal('#bairro') || '').trim();
+  const cidadeVal     = (getVal('#cidade') || '').trim();
+  const ufVal         = (getVal('#uf') || '').trim();
+
+  // Dados clínicos
+  // tenta radio 'sex', se não houver usa select #sexo
+  const sexoRadio = getRadioVal('sex');
+  const sexoVal   = (sexoRadio || getVal('#sexo') || '').trim();
+  const sangueVal = (getVal('#tipoSanguineo') || '').trim();
+  const pesoStr   = (getVal('#peso') || '').trim();
+  const alturaStr = (getVal('#altura') || '').trim();
+
+  const pesoKg  = pesoStr   ? Number(String(pesoStr).replace(',', '.'))   : null;
+  const alturaM = alturaStr ? Number(String(alturaStr).replace(',', '.')) : null;
+
+  // Calcula BMI localmente se vierem peso/altura; se existir um input #imc, respeita o valor digitado
+  let bmiVal = (getVal('#imc') || '').trim();
+  if ((!bmiVal || isNaN(Number(bmiVal))) && pesoKg && alturaM && alturaM > 0) {
+    bmiVal = (pesoKg / (alturaM * alturaM)).toFixed(1);
+  }
+  const bmi = bmiVal ? Number(String(bmiVal).replace(',', '.')) : null;
+
   return {
     full_name: nome,
-    cpf: cpf,
-    email: email,
-    birth_date: dataNascimento, // Nome do campo na API é 'birth_date'
-    phone_mobile: telefone,    // Nome do campo na API é 'phone_mobile'
-    city: cidade,              // Nome do campo na API é 'city'
-    state: uf,                 // Nome do campo na API é 'state' ou 'uf' (verifique na sua tabela)
-    // Adicione outros campos que sua API espera aqui
+    social_name: nomeSocial || null,
+    cpf: cpfVal || null,
+    email: emailVal || null,
+    phone_mobile: celularVal || null,
+    birth_date: nascVal || null,
+
+    sex: sexoVal || null,
+    blood_type: sangueVal || null,
+    weight_kg: (typeof pesoKg === 'number' && !Number.isNaN(pesoKg)) ? pesoKg : null,
+    height_m: (typeof alturaM === 'number' && !Number.isNaN(alturaM)) ? alturaM : null,
+    bmi: (typeof bmi === 'number' && !Number.isNaN(bmi)) ? bmi : null,
+
+    cep: cepVal || null,
+    street: logradouroVal || null,
+    number: numeroVal || null,
+    complement: complVal || null,
+    neighborhood: bairroVal || null,
+    city: cidadeVal || null,
+    state: ufVal || null,
   };
 }
 function validateBeforeSave(data){
-  let ok=true;
-  if(!data.nome){ $('#err-nome').textContent='Informe o nome.'; ok=false; } else { $('#err-nome').textContent=''; }
-  if(data.cpf && !isValidCPF(data.cpf)){ $('#err-cpf').textContent='CPF inválido.'; ok=false; } else { $('#err-cpf').textContent=''; }
-  if(data.contato.email && !email.checkValidity()){ $('#err-email').textContent='Formato de e-mail inválido.'; ok=false; } else { $('#err-email').textContent=''; }
-  if(data.responsavel.ativo){
-    if(!data.responsavel.nome){ ok=false; toast('Informe o nome do responsável.', false); }
-    if(data.responsavel.cpf && !isValidCPF(data.responsavel.cpf)){ ok=false; toast('CPF do responsável inválido.', false); }
+  let ok = true;
+
+  const errNome = document.querySelector('#err-nome');
+  if(!data.full_name){
+    if (errNome) errNome.textContent = 'Informe o nome.';
+    ok = false;
+  } else if (errNome) { errNome.textContent = ''; }
+
+  const errCpf = document.querySelector('#err-cpf');
+  if(data.cpf && !isValidCPF(data.cpf)){
+    if (errCpf) errCpf.textContent = 'CPF inválido.';
+    ok = false;
+  } else if (errCpf) { errCpf.textContent = ''; }
+
+  const emailInput = document.querySelector('#email');
+  const errEmail = document.querySelector('#err-email');
+  if(data.email && emailInput && !emailInput.checkValidity()){
+    if (errEmail) errEmail.textContent = 'Formato de e-mail inválido.';
+    ok = false;
+  } else if (errEmail) { errEmail.textContent = ''; }
+
+  const nascInput = document.querySelector('#nasc');
+  if(nascInput && nascInput.hasAttribute('required') && !data.birth_date){
+    toast('Informe a data de nascimento.', false);
+    ok = false;
   }
+
   return ok;
 }
 function renderPreview(obj){
@@ -166,125 +314,193 @@ function renderPreview(obj){
   el.textContent = JSON.stringify(obj, null, 2);
 }
 
-/* ========================= Edição via ?id= (Carregamento da Página) ========================= */
-
-// Pega o ID da URL. Se não houver, 'editingId' será null.
-const params = new URLSearchParams(window.location.search);
-const editingId = params.get('id');
 
 /**
  * Preenche o formulário com dados de um paciente vindo da API.
+ * Versão com normalização de data, fallback de telefone e máscaras.
  */
 function preencherFormulario(paciente) {
-    // ❗️ Garanta que os IDs dos inputs e os nomes dos campos da API estão corretos.
-    $('#nome').value = paciente.full_name || '';
-    $('#cpf').value = maskCPF(paciente.cpf || ''); // Usa sua função de máscara
-    $('#email').value = paciente.email || '';
-    $('#celular').value = paciente.phone_mobile || '';
-    $('#nasc').value = paciente.birth_date || '';
-    $('#cidade').value = paciente.city || '';
-    $('#uf').value = paciente.state || '';
-    // Continue para outros campos do seu formulário...
+  if (!paciente || typeof paciente !== 'object') return;
+
+  // Dados básicos
+  setVal('#nome', paciente.full_name || '');
+  setValById('nome', paciente.full_name || '');
+  setVal('#nomeSocial', paciente.social_name || '');
+  setValById('nomeSocial', paciente.social_name || '');
+  setVal('#cpf', maskCPF(paciente.cpf || ''));
+  setValById('cpf', maskCPF(paciente.cpf || ''));
+  setVal('#email', paciente.email || '');
+  setValById('email', paciente.email || '');
+
+  // Telefone
+  const phoneFmt = maskPhoneBRIntl(paciente.phone_mobile || paciente.phone || '');
+  setVal('#celular', phoneFmt);
+  setValById('celular', phoneFmt);
+
+  // Data de nascimento -> input type="date" exige YYYY-MM-DD
+  const nascIso = toISODate(paciente.birth_date || '');
+  setVal('#nasc', nascIso);
+  setValById('nasc', nascIso);
+
+  // Clínico
+  // sex pode ser radio (name="sex") OU select #sexo
+  if ($$('input[name="sex"]').length){
+    setRadioByName('sex', paciente.sex || '');
+  }
+  setVal('#sexo', paciente.sex || '');
+  setValById('sexo', paciente.sex || '');
+
+  // tipo sanguíneo (select)
+  const tipoSel = $('#tipoSanguineo');
+  if (tipoSel) {
+    const optExists = [...tipoSel.options].some(o => String(o.value).toUpperCase() === String(paciente.blood_type||'').toUpperCase());
+    tipoSel.value = optExists ? paciente.blood_type : '';
+  }
+  setValById('tipoSanguineo', tipoSel ? tipoSel.value : (paciente.blood_type || ''));
+
+  // Peso/Altura/IMC (mostrando com vírgula se desejar)
+  const pesoStr = (paciente.weight_kg ?? '') === '' ? '' : String(paciente.weight_kg).replace('.', ',');
+  const altStr  = (paciente.height_m ?? '') === '' ? '' : String(paciente.height_m).replace('.', ',');
+  let imcStr    = (paciente.bmi       ?? '') === '' ? '' : String(paciente.bmi).replace('.', ',');
+  if (!imcStr && paciente.weight_kg && paciente.height_m){
+    const bmi = (paciente.weight_kg / (paciente.height_m*paciente.height_m));
+    imcStr = bmi ? String(bmi.toFixed(1)).replace('.', ',') : '';
+  }
+  setVal('#peso', pesoStr);   setValById('peso', pesoStr);
+  setVal('#altura', altStr);  setValById('altura', altStr);
+  setVal('#imc', imcStr);     setValById('imc', imcStr);
+
+  // Endereço (IDs usados pela ViaCEP)
+  setVal('#cep', maskCEP(paciente.cep || ''));     setValById('cep', maskCEP(paciente.cep || ''));
+  setVal('#logradouro', paciente.street || '');    setValById('logradouro', paciente.street || '');
+  setVal('#numero', paciente.number || '');        setValById('numero', paciente.number || '');
+  setVal('#complemento', paciente.complement || ''); setValById('complemento', paciente.complement || '');
+  setVal('#bairro', paciente.neighborhood || '');  setValById('bairro', paciente.neighborhood || '');
+  setVal('#cidade', paciente.city || '');          setValById('cidade', paciente.city || '');
+  setVal('#uf', paciente.state || '');             setValById('uf', paciente.state || '');
 }
 
 /**
  * Função principal que roda para inicializar a página.
  */
 async function inicializarPagina() {
+  try {
+    console.debug('[cadastro] editingId:', editingId);
     if (editingId) {
-        // --- MODO EDIÇÃO ---
-        document.querySelector('.brand-title').textContent = 'Editar Paciente';
-        try {
-            const paciente = await getPaciente(editingId);
-            if (paciente) {
-                preencherFormulario(paciente);
-            } else {
-                toast('Paciente não encontrado.', false);
-            }
-        } catch (error) {
-            toast('Falha ao carregar dados do paciente.', false);
-            console.error(error);
-        }
+      // --- MODO EDIÇÃO ---
+      const brand = document.querySelector('.brand-title');
+      if (brand) brand.textContent = 'Editar Paciente';
+
+      const paciente = await fetchPacienteById(editingId);
+      console.debug('[cadastro] paciente carregado:', paciente);
+
+      if (paciente && typeof paciente === 'object') {
+        preencherFormulario(paciente);
+      } else {
+        toast('Paciente não encontrado.', false);
+      }
     } else {
-        // --- MODO CRIAÇÃO ---
-        document.querySelector('.brand-title').textContent = 'Novo Paciente';
+      // --- MODO CRIAÇÃO ---
+      const brand2 = document.querySelector('.brand-title');
+      if (brand2) brand2.textContent = 'Novo Paciente';
+
+      // limpa qualquer resquício de sessão
+      try { sessionStorage.removeItem('edit_patient_id'); } catch {}
+
+      // limpa o formulário por garantia
+      const formEl = document.querySelector('#patientForm');
+      if (formEl) formEl.reset();
+
+      // limpa campos que têm máscara manual
+      setVal('#cpf',''); setVal('#celular',''); setVal('#cep','');
+      setVal('#peso',''); setVal('#altura',''); setVal('#imc','');
+      setVal('#numero',''); setVal('#complemento','');
     }
+  } catch (error) {
+    console.error('[cadastro] falha ao inicializar:', error);
+    toast('Falha ao carregar dados do paciente.', false);
+  }
 }
 
-// Roda a função de inicialização assim que a página carrega.
-inicializarPagina();
 /* ========================= Salvar / Cancelar ========================= */
-
-// Usa o evento de 'submit' do formulário, que é mais robusto
-form.addEventListener('submit', async (event) => {
-  event.preventDefault(); // Impede o recarregamento da página
-
-  const btn = $('#btnSave');
+function handleSubmit(event){
+  event.preventDefault();
+  const btn = document.querySelector('#btnSave');
   const dadosPaciente = getFormData();
 
-  // Validação (usando seus helpers!)
-  if (!dadosPaciente.full_name) {
-    toast('Por favor, preencha o nome do paciente.', false);
-    return;
-  }
-  if (!isValidCPF(dadosPaciente.cpf)) {
+  if (!validateBeforeSave(dadosPaciente)) return;
+  if (!dadosPaciente.cpf || !isValidCPF(dadosPaciente.cpf)){
     toast('Por favor, preencha um CPF válido.', false);
     return;
   }
 
-  btn.disabled = true;
-  btn.textContent = 'Salvando...';
+  if (btn){ btn.disabled = true; btn.textContent = 'Salvando...'; }
 
-  try {
-    if (editingId) {
-      // Se a variável 'editingId' existe (veio da URL), estamos ATUALIZANDO
-      await updatePaciente(editingId, dadosPaciente);
-      toast('Paciente atualizado com sucesso!');
-    } else {
-      // Se não, estamos CRIANDO um novo paciente
-      await createPaciente(dadosPaciente);
-      toast('Paciente cadastrado com sucesso!');
-    }
-
-    // Redireciona de volta para a lista após o sucesso
-    setTimeout(() => {
-      window.location.href = '../../Secretaria/pacientes.html'; // ❗️ Verifique o caminho
-    }, 1500);
-
-  } catch (error) {
-    console.error('Erro ao salvar paciente:', error);
-    if (error.message && error.message.includes('duplicate key value')) {
+  (async () => {
+    try {
+      if (editingId) {
+        await updatePaciente(editingId, dadosPaciente);
+        toast('Paciente atualizado com sucesso!');
+      } else {
+        await createPaciente(dadosPaciente);
+        toast('Paciente cadastrado com sucesso!');
+      }
+      setTimeout(() => {
+        const dest = new URL('../../Secretaria/pacientes.html', window.location.href).toString();
+        window.location.assign(dest);
+      }, 1500);
+    } catch (error) {
+      console.error('Erro ao salvar paciente:', error);
+      if (error.message && /duplicate key value/i.test(error.message)) {
         toast('Este CPF já está cadastrado no sistema.', false);
-    } else {
+      } else {
         toast(`Falha ao salvar: ${error.message}`, false);
+      }
+      if (btn){ btn.disabled = false; btn.textContent = 'Salvar'; }
     }
-    btn.disabled = false;
-    btn.textContent = 'Salvar';
+  })();
+}
+
+/* ========================= Init bindings ========================= */
+document.addEventListener('DOMContentLoaded', () => {
+  inicializarPagina();
+
+  const formEl = document.querySelector('#patientForm');
+  if (formEl) formEl.addEventListener('submit', handleSubmit);
+
+  const btnCancel = document.getElementById('btnCancel');
+  if (btnCancel) {
+    btnCancel.addEventListener('click', (e) => {
+      e.preventDefault();
+      if (confirm('Cancelar e voltar à lista?')) {
+        const dest = new URL('./pacientes.html', window.location.href).toString();
+        window.location.assign(dest);
+      }
+    });
   }
 });
 
-// Lógica do botão Cancelar (separada e mais simples)
-$('#btnCancel').addEventListener('click', () => {
-  if (confirm('Cancelar e voltar à lista?')) {
-    window.location.href = '../../Secretaria/pacientes.html'; // ❗️ Verifique o caminho
-  }
-});
 /* ========================= UI ========================= */
 (function highlightActive(){
   const cur = 'cadastro';
   document.querySelectorAll('.top-nav a').forEach(a=>{
-    if(a.dataset.page===cur) a.classList.add('active');
+    if(a?.dataset?.page===cur) a.classList.add('active');
   });
 })();
 
 /* ========================= Anexos (mock local) ========================= */
 const anexosLista = $('#anexosLista');
 const anexosInput = $('#anexosInput');
-$('#btnAddAnexos').addEventListener('click', ()=> anexosInput.click());
-anexosInput.addEventListener('change', ()=>{
-  [...anexosInput.files].forEach(f=> addAnexo(f));
-  anexosInput.value='';
-});
+const btnAddAnexos = $('#btnAddAnexos');
+if (btnAddAnexos && anexosInput) {
+  btnAddAnexos.addEventListener('click', ()=> anexosInput.click());
+}
+if (anexosInput) {
+  anexosInput.addEventListener('change', ()=>{
+    [...(anexosInput.files || [])].forEach(f=> addAnexo(f));
+    anexosInput.value='';
+  });
+}
 function addAnexo(file){
   const row = document.createElement('div');
   row.style.cssText='display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px dashed #eef2f7';
@@ -296,7 +512,5 @@ function addAnexo(file){
   btn.addEventListener('click', ()=> row.remove());
   right.appendChild(btn);
   row.append(left, right);
-  anexosLista.appendChild(row);
+  if (anexosLista) anexosLista.appendChild(row);
 }
-
-
