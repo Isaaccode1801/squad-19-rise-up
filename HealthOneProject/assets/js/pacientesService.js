@@ -386,42 +386,44 @@ export async function updateLaudo(id, dadosDoLaudo) {
  * 2) Fallback: usa 'profiles' filtrando por role=medico (se a coluna existir)
  */
 export async function listarMedicos() {
-  // TENTATIVA 1: doctors
+  // Normaliza para um shape mínimo: { id, full_name }
+  const normalize = (arr) =>
+    (Array.isArray(arr) ? arr : []).map((m) => ({
+      id: m?.id ?? null,
+      full_name: m?.full_name ?? m?.name ?? m?.email ?? '—',
+    }));
+
+  // Tentativa 1: tabela 'doctors' com colunas mínimas (evita 400 por colunas inexistentes)
   try {
-    const resp = await fetch(`${API_BASE_URL}/doctors?select=*`, {
-      method: 'GET',
-      headers: getAuthHeaders()
-    });
+    const url = `${API_BASE_URL}/doctors?select=id,full_name&amp;order=full_name.asc`;
+    const resp = await fetch(url, { method: 'GET', headers: getAuthHeaders() });
     if (resp.ok) {
       const data = await resp.json();
-      if (Array.isArray(data) && data.length) return data;
-    } else {
-      // Se 404/400, cai para fallback
-      if (resp.status !== 404 && resp.status !== 400) {
-        const errTxt = await resp.text().catch(() => '');
-        console.warn('[listarMedicos] doctors falhou:', resp.status, errTxt);
+      if (Array.isArray(data) && data.length) {
+        return normalize(data);
       }
+    } else if (resp.status !== 404) {
+      const t = await resp.text().catch(() => '');
+      console.warn('[listarMedicos] doctors sem sucesso:', resp.status, t);
     }
-  } catch (err) {
-    console.warn('[listarMedicos] erro na tabela doctors:', err?.message || err);
+  } catch (e) {
+    console.warn('[listarMedicos] erro em doctors:', e?.message || e);
   }
 
-  // TENTATIVA 2: profiles com role=medico (se existir essa coluna)
+  // Tentativa 2 (fallback): 'profiles' apenas com id e full_name
+  // (Sem filtrar por role, pois a coluna "role" pode não existir no seu schema)
   try {
-    const url = `${API_BASE_URL}/profiles?select=id,full_name,email,phone,role&role=eq.medico&order=full_name.asc`;
-    const resp = await fetch(url, {
-      method: 'GET',
-      headers: getAuthHeaders()
-    });
+    const url = `${API_BASE_URL}/profiles?select=id,full_name&amp;order=full_name.asc`;
+    const resp = await fetch(url, { method: 'GET', headers: getAuthHeaders() });
     if (!resp.ok) {
       const errTxt = await resp.text().catch(() => '');
-      throw new Error(`Falha no fallback profiles: ${resp.status} ${errTxt}`);
+      console.error('[listarMedicos] fallback profiles falhou:', resp.status, errTxt);
+      return [];
     }
     const data = await resp.json();
-    return Array.isArray(data) ? data : [];
+    return normalize(data);
   } catch (err) {
-    console.error('Falha ao listar médicos (fallback profiles):', err);
-    // Por fim, retorna array vazio para não quebrar a UI
+    console.error('[listarMedicos] erro no fallback profiles:', err?.message || err);
     return [];
   }
 }
